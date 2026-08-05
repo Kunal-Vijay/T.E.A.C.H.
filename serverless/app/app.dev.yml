@@ -1,0 +1,11 @@
+app:
+  handler: app.main.handler
+  timeout: 30
+  memorySize: 512
+  events:
+    - httpApi:
+        path: /{proxy+}
+        method: ANY
+    - httpApi:
+        path: /
+        method: ANY

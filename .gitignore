@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+.serverless/
+node_modules/
+teach-frontend/dist/
+.pytest_cache/
+.mypy_cache/
+*.db
