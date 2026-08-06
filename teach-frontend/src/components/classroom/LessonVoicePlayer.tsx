@@ -1,33 +1,14 @@
 import { AlertCircle, Volume2, VolumeX } from 'lucide-react'
 import Icon from '../ui/Icon'
-
-interface LessonVoiceWaveformProps {
-  active?: boolean
-}
-
-const WAVEFORM_BARS = 10
-
-function LessonVoiceWaveform({ active = false }: LessonVoiceWaveformProps) {
-  return (
-    <div
-      className={`lesson-voice-waveform${active ? ' is-active' : ''}`}
-      aria-hidden="true"
-    >
-      {Array.from({ length: WAVEFORM_BARS }, (_, index) => (
-        <span
-          key={index}
-          className="lesson-voice-waveform-bar"
-          style={{ animationDelay: `${index * 65}ms` }}
-        />
-      ))}
-    </div>
-  )
-}
+import TutorThinkingDots from './TutorThinkingDots'
+import TutorVoiceWaveform from './TutorVoiceWaveform'
+import type { TutorPresence } from '../../lib/tutor/tutorPresence'
 
 export interface LessonVoicePlayerProps {
   speechSupported: boolean
   speechEnabled: boolean
-  isSpeaking: boolean
+  showSpeaking: boolean
+  tutorPresence: TutorPresence
   hasStarted: boolean
   playbackComplete: boolean
   cueIndex: number
@@ -38,29 +19,36 @@ export interface LessonVoicePlayerProps {
 
 function voicePlayerStatusLabel(
   speechEnabled: boolean,
-  isSpeaking: boolean,
+  tutorPresence: TutorPresence,
   hasStarted: boolean,
   playbackComplete: boolean,
 ) {
   if (!speechEnabled) {
     return hasStarted ? 'Manual pace' : 'Voice off'
   }
-  if (isSpeaking) {
-    return 'Speaking'
+  if (tutorPresence.mode === 'speaking') {
+    return 'Speaking…'
+  }
+  if (tutorPresence.mode === 'thinking') {
+    return 'Thinking…'
   }
   if (playbackComplete) {
     return 'Narration complete'
   }
-  if (hasStarted) {
-    return 'Standby'
+  if (tutorPresence.mode === 'listening') {
+    return 'Listening…'
   }
-  return 'Voice ready'
+  if (hasStarted) {
+    return 'Ready'
+  }
+  return 'Ready'
 }
 
 export default function LessonVoicePlayer({
   speechSupported,
   speechEnabled,
-  isSpeaking,
+  showSpeaking,
+  tutorPresence,
   hasStarted,
   playbackComplete,
   cueIndex,
@@ -111,18 +99,23 @@ export default function LessonVoicePlayer({
     )
   }
 
-  const statusLabel = voicePlayerStatusLabel(speechEnabled, isSpeaking, hasStarted, playbackComplete)
+  const mode = tutorPresence.mode
+  const statusLabel = voicePlayerStatusLabel(speechEnabled, tutorPresence, hasStarted, playbackComplete)
   const cueProgress = totalCues > 0 ? ((cueIndex + 1) / totalCues) * 100 : 0
 
   return (
     <div
-      className={`lesson-voice-player${isSpeaking ? ' is-speaking' : ''}${playbackComplete ? ' is-complete' : ''}`}
+      className={`lesson-voice-player${showSpeaking ? ' is-speaking' : ''}${mode === 'listening' ? ' is-listening' : ''}${mode === 'thinking' ? ' is-thinking' : ''}${playbackComplete ? ' is-complete' : ''}`}
       aria-live="polite"
     >
       <div className="lesson-voice-player-main">
         <div className="lesson-voice-player-status">
-          {isSpeaking ? (
-            <LessonVoiceWaveform active />
+          {mode === 'speaking' ? (
+            <TutorVoiceWaveform active variant="active" className="lesson-voice-waveform" />
+          ) : mode === 'listening' ? (
+            <TutorVoiceWaveform active variant="listening" className="lesson-voice-waveform" />
+          ) : mode === 'thinking' ? (
+            <TutorThinkingDots className="lesson-voice-thinking" />
           ) : (
             <span className="lesson-voice-player-icon-wrap" aria-hidden="true">
               <Icon icon={Volume2} size={18} />
@@ -135,7 +128,7 @@ export default function LessonVoicePlayer({
           <div className="lesson-voice-player-progress">
             <div className="lesson-voice-player-progress-meta">
               <span className="lesson-voice-player-cue">
-                Cue {cueIndex + 1} of {totalCues}
+                Moment {cueIndex + 1} of {totalCues}
               </span>
             </div>
             <div
@@ -147,7 +140,7 @@ export default function LessonVoicePlayer({
               aria-label="Narration progress for this moment"
             >
               <div
-                className="lesson-voice-player-fill"
+                className={`lesson-voice-player-fill${showSpeaking ? ' is-active' : ''}`}
                 style={{ width: `${cueProgress}%` }}
               />
             </div>

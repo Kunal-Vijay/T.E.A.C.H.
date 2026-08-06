@@ -2,20 +2,22 @@ import { RotateCcw, Volume2, VolumeX } from 'lucide-react'
 import MentorTheater from './MentorTheater'
 import TeachingSubtitle from './TeachingSubtitle'
 import Icon from '../ui/Icon'
-import type { AvatarMachineInput } from '../avatar/AvatarMachineState'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
+import type { TutorPresence } from '../../lib/tutor/tutorPresence'
 
 interface MentorTeachingPanelProps {
   mentor: MentorDefinition
   expression: ExpressionState
-  avatarInput?: AvatarMachineInput
+  isTalking?: boolean
   currentCue: string
   previousCue: string
   cueIndex: number
   totalCues: number
-  isSpeaking: boolean
+  showSpeaking: boolean
+  tutorPresence: TutorPresence
   hasStarted: boolean
   beatPhase?: string
+  highlightWords?: string[]
   speechEnabled: boolean
   speechSupported: boolean
   onToggleSpeech: () => void
@@ -23,46 +25,46 @@ interface MentorTeachingPanelProps {
   canReplay: boolean
 }
 
-function mentorPanelStatus(isSpeaking: boolean, hasStarted: boolean) {
-  if (isSpeaking) {
-    return { label: 'Teaching', mod: 'live' as const }
-  }
-  if (!hasStarted) {
-    return { label: 'Ready', mod: 'ready' as const }
-  }
-  return { label: 'Standby', mod: 'standby' as const }
-}
-
 export default function MentorTeachingPanel({
   mentor,
   expression,
-  avatarInput,
+  isTalking = false,
   currentCue,
   previousCue,
   cueIndex,
   totalCues,
-  isSpeaking,
+  showSpeaking,
+  tutorPresence,
   hasStarted,
   beatPhase,
+  highlightWords = [],
   speechEnabled,
   speechSupported,
   onToggleSpeech,
   onReplay,
   canReplay,
 }: MentorTeachingPanelProps) {
-  const status = mentorPanelStatus(isSpeaking, hasStarted)
-
   return (
     <aside className="classroom-mentor mentor-teaching-panel" aria-label={`${mentor.name} teaching`}>
-      <div className={`classroom-mentor-inner mentor-teaching-panel-inner${isSpeaking ? ' is-speaking' : ''}`}>
+      <div className={`classroom-mentor-inner mentor-teaching-panel-inner${showSpeaking ? ' is-speaking' : ''}${tutorPresence.mode === 'listening' ? ' is-listening' : ''}${tutorPresence.mode === 'thinking' ? ' is-thinking' : ''}`}>
         <header className="mentor-panel-header">
           <div className="mentor-panel-identity">
             <span className="mentor-panel-kicker">Your AI Tutor</span>
             <p className="mentor-panel-name">{mentor.name}</p>
           </div>
-          <span className={`mentor-panel-status mentor-panel-status--${status.mod}`}>
-            {status.mod === 'live' ? <span className="mentor-panel-status-dot" aria-hidden="true" /> : null}
-            {status.label}
+          <span
+            className={`mentor-panel-status mentor-panel-status--${tutorPresence.mode}`}
+            aria-live="polite"
+          >
+            {tutorPresence.mode === 'speaking' ? (
+              <span className="mentor-panel-status-dot" aria-hidden="true" />
+            ) : null}
+            {tutorPresence.mode === 'thinking' ? (
+              <span className="mentor-panel-status-thinking" aria-hidden="true">
+                <span /><span /><span />
+              </span>
+            ) : null}
+            {tutorPresence.label}
           </span>
         </header>
 
@@ -70,8 +72,9 @@ export default function MentorTeachingPanel({
           <MentorTheater
             mentor={mentor}
             expression={expression}
-            avatarInput={avatarInput}
-            isSpeaking={isSpeaking}
+            isTalking={isTalking}
+            showSpeaking={showSpeaking}
+            tutorPresence={tutorPresence}
             hasStarted={hasStarted}
             beatPhase={beatPhase}
           />
@@ -83,8 +86,10 @@ export default function MentorTeachingPanel({
           previousCue={previousCue}
           cueIndex={cueIndex}
           totalCues={totalCues}
-          isSpeaking={isSpeaking}
+          showSpeaking={showSpeaking}
+          tutorPresence={tutorPresence}
           hasStarted={hasStarted}
+          highlightWords={highlightWords}
         />
 
         <div className="mentor-panel-controls">

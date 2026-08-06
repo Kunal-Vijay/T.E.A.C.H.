@@ -2,8 +2,6 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
-  /** Set to "true" to render InteractiveAvatar instead of the mentor GIF (USE_INTERACTIVE_AVATAR). */
-  readonly VITE_USE_INTERACTIVE_AVATAR?: string
 }
 
 interface ImportMeta {

@@ -1,6 +1,6 @@
 import AppNavBar from '../nav/AppNavBar'
 import ProductAmbient from '../shell/ProductAmbient'
-import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
+import { NovaTutor } from '../nova'
 import { useMentor } from '../../context/MentorContext'
 import { clearAuth } from '../../services/auth/authService'
 import { LayoutGrid, LogOut, Settings } from 'lucide-react'
@@ -28,7 +28,7 @@ export default function StudentLayout() {
           mentorSlot={(
             <div className="app-nav-tutor" aria-label={tutorLabel}>
               <span aria-hidden="true">
-                <StudyMentorAvatar tutor={tutor} size="sm" showGlow={false} ariaLabel="" />
+                <NovaTutor size="xs" label="" />
               </span>
               <span>{tutor.name}</span>
             </div>

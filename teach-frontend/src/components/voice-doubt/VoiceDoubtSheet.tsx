@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Mic, Pencil, RotateCcw, Send, X } from 'lucide-react'
-import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
-import { buildVoiceDoubtAvatarInput } from '../avatar/avatarStateMachine'
-import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
+import { MentorTutorDecorations, NovaTutor } from '../nova'
+import { mentorVisualStyle, resolveNovaSpeaking } from '../../lib/tutor'
 import Icon from '../ui/Icon'
 import VoiceWaveform from './VoiceWaveform'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
@@ -17,6 +16,7 @@ interface VoiceDoubtSheetProps {
   mode: VoiceDoubtSheetMode
   mentor: MentorDefinition
   phase: VoiceDoubtSheetPhase
+  showSpeaking?: boolean
   answerText?: string
   permissionDeniedMessage?: string | null
   onClose: () => void
@@ -46,6 +46,7 @@ export default function VoiceDoubtSheet({
   mode,
   mentor,
   phase,
+  showSpeaking = false,
   answerText = '',
   permissionDeniedMessage = null,
   onClose,
@@ -72,11 +73,7 @@ export default function VoiceDoubtSheet({
 
   const displayTranscript = liveTranscript || transcript
   const mentorExpression = resolveMentorExpression(phase, mode, recognitionPhase)
-  const useInteractiveAvatar = readInteractiveAvatarFlag()
-  const avatarInput = useMemo(
-    () => buildVoiceDoubtAvatarInput({ phase, mode, recognitionPhase }),
-    [phase, mode, recognitionPhase],
-  )
+  const decorationSpeaking = resolveNovaSpeaking(mentorExpression, showSpeaking)
 
   useEffect(() => {
     if (open && mode === 'voice' && !isSupported) {
@@ -163,14 +160,23 @@ export default function VoiceDoubtSheet({
 
         <header className="doubt-sheet-header">
           <div className="doubt-sheet-mentor-row">
-            <StudyMentorAvatar
-              mentor={mentor}
-              expression={mentorExpression}
-              avatarInput={useInteractiveAvatar ? avatarInput : undefined}
-              size="md"
-              showGlow
-              ariaLabel={statusLabel}
-            />
+            <div
+              className={`study-mentor study-mentor-md mentor-expr-${mentorExpression} has-glow`}
+              style={mentorVisualStyle(mentor)}
+            >
+              <div className="study-mentor-stage">
+                <NovaTutor
+                  speaking={showSpeaking}
+                  speakingVisual={showSpeaking}
+                  size="md"
+                  label={statusLabel}
+                />
+                <MentorTutorDecorations
+                  expression={mentorExpression}
+                  speaking={decorationSpeaking}
+                />
+              </div>
+            </div>
             <div className="doubt-sheet-header-copy">
               <p className="doubt-sheet-kicker">{statusLabel}</p>
               <h3 className="doubt-sheet-title">

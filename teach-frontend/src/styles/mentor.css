@@ -1,13 +1,13 @@
 /* ── Nova AI Tutor color tokens ── */
 :root {
   --mentor-nova-accent: var(--color-accent);
-  --mentor-nova-soft: rgba(20, 184, 166, 0.16);
+  --mentor-nova-soft: color-mix(in srgb, var(--color-accent) 16%, transparent);
   --mentor-nova-glow: var(--hub-accent-focus);
   --mentor-nova-skin: #fef3c7;
   --mentor-nova-secondary: var(--theme-warning);
 }
 
-/* ── Study tutor avatar (GIF / interactive) ── */
+/* ── Study tutor avatar (Nova) ── */
 .study-mentor {
   --mentor-accent: var(--color-accent);
   --mentor-accent-soft: var(--color-accent-soft);
@@ -26,43 +26,8 @@
   isolation: isolate;
 }
 
-.study-mentor.has-glow .study-mentor-stage {
+.study-mentor.has-glow .study-mentor-stage:not(:has(.nova-tutor)) {
   filter: drop-shadow(0 12px 28px color-mix(in srgb, var(--mentor-glow) 35%, transparent));
-}
-
-.study-mentor-caption {
-  margin: 0;
-  max-width: 28ch;
-  text-align: center;
-  font-size: var(--text-sm);
-  line-height: var(--leading-snug);
-  color: var(--color-ink-soft);
-}
-
-.mentor-gif-avatar {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.study-mentor-sm .mentor-gif-avatar { width: 88px; max-height: 100px; }
-.study-mentor-md .mentor-gif-avatar { width: 112px; max-height: 128px; }
-.study-mentor-lg .mentor-gif-avatar { width: 140px; max-height: 160px; }
-.study-mentor-hero .mentor-gif-avatar {
-  width: clamp(160px, 24vw, 240px);
-  max-height: clamp(180px, 28vw, 280px);
-}
-
-.mentor-gif-blend-screen { mix-blend-mode: screen; }
-.mentor-gif-blend-normal { mix-blend-mode: normal; }
-
-.study-mentor-nova {
-  --mentor-accent: var(--mentor-nova-accent);
-  --mentor-glow: var(--mentor-nova-glow);
 }
 
 .app-nav-tutor {
@@ -74,6 +39,14 @@
   color: var(--color-ink-soft);
   font-size: var(--text-sm);
   font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .app-nav-tutor span:last-child {
+    max-width: 8ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* ── Speaking / celebration overlays ── */

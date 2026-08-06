@@ -1129,81 +1129,6 @@
   margin-top: var(--space-1);
 }
 
-/* Avatar */
-.teacher-avatar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.avatar-body {
-  position: relative;
-  width: 140px;
-  height: 180px;
-}
-
-.avatar-head {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: var(--avatar-skin);
-  margin: 0 auto;
-  box-shadow: var(--shadow-highlight-md);
-  transition: transform var(--duration-normal) var(--ease-out);
-}
-
-.avatar-torso {
-  width: 90px;
-  height: 90px;
-  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-sm) var(--radius-sm);
-  background: var(--avatar-shirt);
-  margin: var(--space-2) auto 0;
-  box-shadow: var(--shadow-accent-sm);
-}
-
-.avatar-arm {
-  position: absolute;
-  top: 88px;
-  width: 18px;
-  height: 60px;
-  border-radius: var(--radius-sm);
-  background: var(--avatar-shirt);
-}
-
-.avatar-arm-left { left: 8px; transform: rotate(18deg); }
-.avatar-arm-right { right: 8px; transform: rotate(-18deg); }
-
-.teacher-avatar-speaking .avatar-head {
-  animation: avatar-speak 0.35s var(--ease-in-out) infinite alternate;
-}
-
-.teacher-avatar-listening .avatar-head {
-  transform: scale(1.03);
-}
-
-.teacher-avatar-questioning .avatar-arm-right {
-  animation: avatar-point 1s var(--ease-in-out) infinite alternate;
-}
-
-.avatar-caption {
-  max-width: 220px;
-  text-align: center;
-  color: var(--color-ink-mute);
-  font-size: 0.95rem;
-  line-height: var(--leading-normal);
-}
-
-@keyframes avatar-speak {
-  from { transform: scale(1); }
-  to { transform: scale(1.03); }
-}
-
-@keyframes avatar-point {
-  from { transform: rotate(-18deg); }
-  to { transform: rotate(-32deg); }
-}
-
 @media (max-width: 640px) {
   .toast-stack {
     left: var(--space-4);
@@ -1238,10 +1163,5 @@
   .modal-backdrop,
   .modal-panel {
     animation: none;
-  }
-
-  .teacher-avatar-speaking .avatar-head,
-  .teacher-avatar-questioning .avatar-arm-right {
-    animation: none !important;
   }
 }

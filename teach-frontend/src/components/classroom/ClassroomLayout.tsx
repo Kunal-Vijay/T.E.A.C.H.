@@ -16,8 +16,9 @@ import { useTeachingSession } from '../../hooks/useTeachingSession'
 import { useLessonSectionFlow } from '../../hooks/useLessonSectionFlow'
 import { useMentor } from '../../context/MentorContext'
 import { classroomModeToExpression } from '../../lib/mentors'
-import { buildClassroomAvatarInput } from '../avatar/avatarStateMachine'
-import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
+import { resolveClassroomNovaContext } from '../../lib/tutor/classroomNovaContext'
+import { extractConceptLabels } from '../../lib/classroom/conceptLabels'
+import { isNovaNarrating, resolveTutorPresence, useNovaSpeakingVisual } from '../../lib/tutor'
 import { useMentorVoice } from '../../hooks/useMentorVoice'
 import type { ClassroomAvatarMode } from '../../types/mentor.types'
 import type { CurrentStateResponse } from '../../types/api.types'
@@ -536,17 +537,41 @@ export default function ClassroomLayout({
     return 'Continue'
   })()
 
-  const isSpeaking = speechStatus === 'speaking'
-  const subtitleCurrent = isSpeaking && syncedSubtitle.current !== ''
+  const isNarrating = isNovaNarrating(speechStatus)
+  const showSpeaking = useNovaSpeakingVisual(isNarrating)
+  const isListening = !showSpeaking && (
+    resolvedAvatarMode === 'listening'
+    || showVoiceDoubtPrompt
+    || (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'listening')
+    || stateType === 'student_predict'
+    || showSagePanel
+  )
+  const isThinking = !showSpeaking && !isListening && (
+    sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking'
+  )
+  const tutorPresence = useMemo(
+    () => resolveTutorPresence({
+      showSpeaking,
+      isListening,
+      isThinking,
+      hasStarted: session.hasStarted,
+    }),
+    [showSpeaking, isListening, isThinking, session.hasStarted],
+  )
+  const conceptLabels = useMemo(
+    () => extractConceptLabels(session.beats),
+    [session.beats],
+  )
+  const subtitleCurrent = syncedSubtitle.current.trim() !== ''
     ? syncedSubtitle.current
     : session.currentCue
-  const subtitlePrevious = isSpeaking && syncedSubtitle.current !== ''
+  const subtitlePrevious = syncedSubtitle.current.trim() !== ''
     ? syncedSubtitle.previous
     : session.previousCue
 
-  const useInteractiveAvatar = readInteractiveAvatarFlag()
-  const avatarInput = useMemo(
-    () => buildClassroomAvatarInput({
+  const classroomNova = useMemo(
+    () => resolveClassroomNovaContext({
+      expression,
       speechStatus,
       isListening:
         resolvedAvatarMode === 'listening'
@@ -556,11 +581,12 @@ export default function ClassroomLayout({
         || showSagePanel,
       isThinking:
         (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking')
-        || (isLiveLesson && !session.hasStarted && !isSpeaking),
+        || (isLiveLesson && !session.hasStarted && !isNarrating),
       isCelebrating: celebration !== null || session.activeBeat?.phase === 'recap',
       preferHappy: showVoiceDoubtPrompt,
     }),
     [
+      expression,
       speechStatus,
       resolvedAvatarMode,
       showVoiceDoubtPrompt,
@@ -571,7 +597,7 @@ export default function ClassroomLayout({
       isLiveLesson,
       session.hasStarted,
       session.activeBeat?.phase,
-      isSpeaking,
+      isNarrating,
       celebration,
     ],
   )
@@ -588,6 +614,9 @@ export default function ClassroomLayout({
           slideCurrent={currentSlideIndex + 1}
           slideTotal={Math.max(slides.length, 1)}
           sessionProgress={session.sessionProgress}
+          cueIndex={session.activeCueIndex}
+          totalCues={session.cues.length}
+          tutorPresence={tutorPresence}
           exitControl={exitControl}
         />
 
@@ -601,17 +630,21 @@ export default function ClassroomLayout({
 
         <TeachingLayout
           mentor={activeTutor}
-          expression={expression}
-          avatarInput={useInteractiveAvatar ? avatarInput : undefined}
+          expression={classroomNova.expression}
+          isTalking={classroomNova.isTalking}
           slideElements={slideElements}
           slideKey={`${currentState.current_state?.state_id ?? 'state'}-${currentSlideIndex}`}
           currentCue={subtitleCurrent}
           previousCue={subtitlePrevious}
           cueIndex={session.activeCueIndex}
           totalCues={session.cues.length}
-          isSpeaking={isSpeaking}
+          showSpeaking={showSpeaking}
+          tutorPresence={tutorPresence}
           hasStarted={session.hasStarted}
           beat={session.activeBeat}
+          beats={session.beats}
+          conceptLabels={conceptLabels}
+          completedConcepts={session.completedConcepts}
           speechEnabled={speechEnabled}
           speechSupported={isSupported}
           speechError={speechError}
@@ -621,7 +654,7 @@ export default function ClassroomLayout({
           onReplay={handleReplay}
           canReplay={explanationText.trim() !== ''}
           continueLabel={continueLabel}
-          continueDisabled={advancing || (isSpeaking && speechEnabled) || lessonPaused}
+          continueDisabled={advancing || (isNarrating && speechEnabled) || lessonPaused}
           continueLoading={advancing}
           onContinue={() => { void handleContinue() }}
           showContinue={showContinue}
@@ -643,6 +676,7 @@ export default function ClassroomLayout({
             mode={doubtSheet.mode}
             mentor={activeTutor}
             phase={doubtSheet.phase}
+            showSpeaking={showSpeaking}
             answerText={doubtSheet.answerText}
             permissionDeniedMessage={voiceDoubtPermissionMsg}
             onClose={handleVoiceDoubtClose}

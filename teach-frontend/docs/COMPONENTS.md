@@ -69,14 +69,56 @@ Design tokens live in `src/styles/tokens.css` (imported via `theme.css`). Compon
 
 ## Avatar system
 
-| Component | Path | Role |
-|-----------|------|------|
-| `Avatar` | `components/avatar/Avatar.tsx` | GIF by default; `InteractiveAvatar` when `VITE_USE_INTERACTIVE_AVATAR=true` |
-| `GifAvatar` | `components/avatar/GifAvatar.tsx` | Existing mentor GIF (default + fallback) |
-| `InteractiveAvatar` | `components/avatar/InteractiveAvatar.tsx` | Framer Motion tutor with 7 animation states |
-| `AvatarProvider` | `components/avatar/AvatarProvider.tsx` | Feature flag context |
+All tutor imagery flows through **`NovaTutor`** (`components/nova/NovaTutor.tsx`). Do not render tutor PNG/GIF assets directly or add page-specific CSS that overrides `.nova-tutor` sizing, glow, shadow, or motion.
 
-Flag: `VITE_USE_INTERACTIVE_AVATAR=false` (maps to `USE_INTERACTIVE_AVATAR`).
+| Export | Path | Role |
+|--------|------|------|
+| `NovaTutor` | `components/nova/NovaTutor.tsx` | Single Nova renderer — PNG idle, GIF speaking |
+| `MentorTutorDecorations` | `components/nova/MentorTutorDecorations.tsx` | Optional rings/confetti (not avatar logic) |
+
+Import: `import { NovaTutor } from '../nova'` or `from '../../components/nova'`.
+
+Assets: `public/image-from-rawpixel-id-12165579-png.png`, `public/video-from-rawpixel-id-17246652-gif.gif`.
+
+### NovaTutor size tokens
+
+All visual treatment (glow, float, breathe, shadow, transitions) lives in `src/styles/nova-tutor.css`. Pick a `size` prop — never override dimensions in page CSS.
+
+| Token | Dimensions | Used on |
+|-------|------------|---------|
+| `xs` | 40×40 | Student nav tutor chip |
+| `sm` | 88×88 | Reserved / compact surfaces |
+| `md` | 112×112 | Voice doubt sheet header |
+| `lg` | 140×140 | Voice doubt prompt |
+| `xl` | clamp(228–360px) | Classroom mentor theater |
+| `hero` | clamp(260–340px) | Welcome hero scene |
+
+### Props
+
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `speaking` | `boolean` | `false` | Live narration flag (`speechStatus === 'speaking'`) |
+| `speakingVisual` | `boolean` | — | Pre-resolved visual state; skips internal 320ms idle delay |
+| `size` | `NovaTutorSize` | `'md'` | One of the tokens above |
+| `label` | `string` | auto | Aria label; pass `""` for decorative use |
+| `className` | `string` | — | Layout-only classes; do not use for visual overrides |
+
+Parent shells (`study-mentor`, `mentor-theater`, `hero-scene-tutor`) handle layout and expression chrome only — not Nova artwork styling.
+
+### Production notes
+
+| Concern | Implementation |
+|---------|----------------|
+| **Loading** | Idle PNG preloaded in `index.html` + `main.tsx`; GIF deferred via `requestIdleCallback` after first paint |
+| **Caching** | In-memory `Image` cache + Cache API (`nova-tutor-media-v1`) in `lib/tutor/novaTutorAssets.ts` |
+| **Speaking sync** | `useNovaSpeakingVisual` (320ms idle delay) + `speakingVisual` prop for classroom-wide sync |
+| **Retina** | 480×480 source; layers capped at 480px — crisp through `lg`, softens slightly at `xl`/`hero` on 3× displays |
+| **Themes** | Glow/shadow use `--color-accent` and `--color-ink` tokens — adapts to all workspace themes |
+| **Motion** | GPU `translate3d` animations; `prefers-reduced-motion` disables float/breathe |
+| **A11y** | Interactive surfaces use dynamic `aria-label`; decorative instances pass `label=""` |
+| **Extend** | Add size tokens in `nova-tutor.css`; swap assets via `novaTutorAssets.ts` constants only |
+
+Future optimization: replace 5MB speaking GIF with a shorter loop or WebM/APNG when a smaller asset is available.
 
 ## Welcome / onboarding
 
@@ -94,7 +136,6 @@ Flag: `VITE_USE_INTERACTIVE_AVATAR=false` (maps to `USE_INTERACTIVE_AVATAR`).
 |-----------|------|------|
 | `ClassroomLayout` | `components/classroom/ClassroomLayout.tsx` | Slide, avatar, quiz, SAGE orchestration |
 | `SlideRenderer` | `components/slides/SlideRenderer.tsx` | KaTeX + lazy images; `isSafeAssetUrl()` guard |
-| `TeacherAvatar` | `components/avatar/TeacherAvatar.tsx` | Lip-sync + speech via `SpeechController` |
 | `PopQuizPanel` | `components/quiz/PopQuizPanel.tsx` | Quiz flow; progressbar ARIA; submit error handling |
 | `SageDoubtPanel` | `components/sage/SageDoubtPanel.tsx` | Modal chat; labeled input; `aria-live` for thinking state |
 

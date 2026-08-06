@@ -75,7 +75,8 @@
   color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 88%, var(--hub-text-primary));
 }
 
-/* ── Waveform ── */
+/* ── Waveform (shared) ── */
+.teach-shell--classroom-route .tutor-voice-waveform,
 .teach-shell--classroom-route .lesson-voice-waveform {
   display: flex;
   align-items: flex-end;
@@ -84,6 +85,12 @@
   flex-shrink: 0;
 }
 
+.teach-shell--classroom-route .tutor-voice-waveform--compact {
+  height: 0.85rem;
+  gap: 2px;
+}
+
+.teach-shell--classroom-route .tutor-voice-waveform-bar,
 .teach-shell--classroom-route .lesson-voice-waveform-bar {
   display: block;
   width: 3px;
@@ -93,20 +100,11 @@
   transform-origin: bottom center;
 }
 
-.teach-shell--classroom-route .lesson-voice-waveform.is-active .lesson-voice-waveform-bar {
-  animation: lesson-voice-wave 0.9s ease-in-out infinite alternate;
+.teach-shell--classroom-route .tutor-voice-waveform--compact .tutor-voice-waveform-bar {
+  width: 2px;
 }
 
-@keyframes lesson-voice-wave {
-  0% {
-    transform: scaleY(0.35);
-    opacity: 0.55;
-  }
-  100% {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
+/* Waveform animation lives in classroom-tutor-experience.css (variant-based) */
 
 /* ── Cue progress ── */
 .teach-shell--classroom-route .lesson-voice-player-progress {
@@ -147,6 +145,10 @@
   );
   box-shadow: 0 0 10px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 35%, transparent);
   transition: width 380ms var(--ease-out);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-fill.is-active {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 45%, transparent);
 }
 
 /* ── Enable voice prompt ── */
@@ -284,10 +286,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .teach-shell--classroom-route .lesson-voice-waveform.is-active .lesson-voice-waveform-bar {
-    animation: none !important;
-  }
-
   .teach-shell--classroom-route .lesson-voice-player-fill {
     transition: none !important;
   }

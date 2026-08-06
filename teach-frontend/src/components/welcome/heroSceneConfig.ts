@@ -25,6 +25,7 @@ export interface HeroFloatCardConfig {
   icon: LucideIcon
   title: string
   variant: HeroCardVariant
+  /** Degrees clockwise from top — cards avoid 235°–305° (face cone). */
   angle: number
   radiusPx: number
   tilt: number
@@ -37,18 +38,22 @@ export interface HeroFloatCardConfig {
   progress?: number
 }
 
-/** Contextual classroom cards orbiting the AI Tutor. */
+/** Hero scene geometry — cards orbit outside Nova's face silhouette. */
+export const HERO_SCENE_SIZE = 640
+export const HERO_NOVA_SAFE_RADIUS_PX = 138
+
+/** Contextual AI capability cards orbiting Nova. */
 export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
   {
     id: 'narration',
     icon: Mic,
     title: 'Live Narration',
     variant: 'narration',
-    angle: -12,
-    radiusPx: 198,
-    tilt: -2.5,
+    angle: 16,
+    radiusPx: 304,
+    tilt: -2,
     floatDelay: 0,
-    elevation: 3,
+    elevation: 2,
     quote: '"What happens when you push a chair?"',
   },
   {
@@ -56,11 +61,11 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: BookOpen,
     title: 'Lesson Board',
     variant: 'lesson',
-    angle: 38,
-    radiusPx: 218,
+    angle: 54,
+    radiusPx: 318,
     tilt: 1.5,
-    floatDelay: 0.6,
-    elevation: 2,
+    floatDelay: 0.55,
+    elevation: 1,
     lessonTitle: 'Introduction to Force',
     chips: ['Push', 'Pull', 'Motion'],
   },
@@ -69,11 +74,11 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: Brain,
     title: 'Adaptive Learning',
     variant: 'adaptive',
-    angle: 82,
-    radiusPx: 188,
+    angle: 92,
+    radiusPx: 326,
     tilt: -1,
-    floatDelay: 1.1,
-    elevation: 1,
+    floatDelay: 1.05,
+    elevation: 2,
     body: 'Pace adjusted · reviewing friction next',
   },
   {
@@ -81,11 +86,11 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: MessageCircleQuestion,
     title: 'Student Question',
     variant: 'question',
-    angle: 128,
-    radiusPx: 208,
+    angle: 132,
+    radiusPx: 314,
     tilt: 2,
-    floatDelay: 0.3,
-    elevation: 2,
+    floatDelay: 0.25,
+    elevation: 3,
     quote: 'Why does the ball slow down?',
   },
   {
@@ -93,11 +98,11 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: ClipboardCheck,
     title: 'Quiz Ready',
     variant: 'quiz',
-    angle: 168,
-    radiusPx: 192,
+    angle: 172,
+    radiusPx: 306,
     tilt: -1.5,
-    floatDelay: 0.9,
-    elevation: 2,
+    floatDelay: 0.85,
+    elevation: 1,
     body: '3 adaptive questions generated',
   },
   {
@@ -106,10 +111,10 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Progress',
     variant: 'progress',
     angle: 212,
-    radiusPx: 212,
+    radiusPx: 298,
     tilt: 1,
-    floatDelay: 1.4,
-    elevation: 1,
+    floatDelay: 1.35,
+    elevation: 2,
     progress: 87,
     body: 'lesson mastery',
   },
@@ -118,11 +123,11 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: Target,
     title: 'Personalized Path',
     variant: 'path',
-    angle: 258,
-    radiusPx: 202,
+    angle: 328,
+    radiusPx: 302,
     tilt: -2,
-    floatDelay: 0.5,
-    elevation: 2,
+    floatDelay: 0.45,
+    elevation: 1,
     body: 'Next: Newton’s First Law · 8 min',
   },
   {
@@ -130,17 +135,21 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     icon: Lightbulb,
     title: 'Instant Explanations',
     variant: 'explain',
-    angle: 302,
-    radiusPx: 198,
-    tilt: 1.8,
-    floatDelay: 1.2,
-    elevation: 3,
+    angle: 246,
+    radiusPx: 292,
+    tilt: 1.5,
+    floatDelay: 1.15,
+    elevation: 1,
     quote: 'Friction converts motion into heat energy.',
   },
 ]
 
-export function polarPoint(angleDeg: number, radiusPx: number, sceneSize = 480): { x: number; y: number } {
-  const radiusPercent = (radiusPx / sceneSize) * 50
+export function polarPoint(
+  angleDeg: number,
+  radiusPx: number,
+  sceneSize = HERO_SCENE_SIZE,
+): { x: number; y: number } {
+  const radiusPercent = (radiusPx / sceneSize) * 100
   const rad = ((angleDeg - 90) * Math.PI) / 180
   return {
     x: 50 + radiusPercent * Math.cos(rad),

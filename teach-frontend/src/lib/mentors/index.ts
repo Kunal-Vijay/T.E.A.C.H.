@@ -27,4 +27,3 @@ export function isMentorId(value: string): value is TutorId {
 }
 
 export type { DialogueCategory, TutorId } from '../../types/mentor.types'
-export { getMentorGifUrl, mentorHasGifAsset, MENTOR_GIF_ASSETS } from './mentorAssets'

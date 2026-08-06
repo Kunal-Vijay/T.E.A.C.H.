@@ -265,11 +265,6 @@
   height: min(100%, 200px);
 }
 
-:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
-  width: min(100%, 220px);
-  max-height: 240px;
-}
-
 :not(.teach-shell--classroom-route) .mentor-teaching-panel .teaching-subtitle {
   width: 100%;
 }
@@ -311,11 +306,6 @@
   animation: theater-ring-b 8s linear infinite reverse;
 }
 
-.mentor-theater .study-mentor-hero .mentor-gif-avatar {
-  width: clamp(220px, 32vw, 340px);
-  max-height: clamp(240px, 36vw, 380px);
-}
-
 .mentor-theater-live {
   position: absolute;
   bottom: 0;
@@ -339,10 +329,6 @@
   border-radius: 50%;
   background: var(--color-accent);
   animation: theater-live-pulse 1s ease-in-out infinite;
-}
-
-.mentor-expr-thinking .mentor-gif-avatar {
-  animation: mentor-think-bob 2.4s ease-in-out infinite;
 }
 
 /* ── Subtitles (legacy light layout — not dark classroom route) ── */
@@ -490,8 +476,8 @@
 }
 
 @keyframes subtitle-fade-out {
-  from { opacity: 0.55; }
-  to { opacity: 0.42; }
+  from { opacity: 0.72; transform: translate3d(0, 0, 0); }
+  to { opacity: 0.38; transform: translate3d(0, -2px, 0); }
 }
 
 @media (max-width: 1024px) {
@@ -530,11 +516,6 @@
 
   :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater {
     flex: 0 0 auto;
-  }
-
-  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
-    width: 88px;
-    max-height: 96px;
   }
 
   :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ambient,
@@ -577,7 +558,6 @@
   .mentor-theater-ring-a,
   .mentor-theater-ring-b,
   .mentor-theater-live-dot,
-  .mentor-expr-thinking .mentor-gif-avatar,
   .teaching-subtitle-current,
   .teaching-subtitle-prev {
     animation: none !important;

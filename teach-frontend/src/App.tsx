@@ -1,4 +1,3 @@
-import { AvatarProvider } from './components/avatar'
 import AppRouter from './routes/AppRouter'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineBanner from './components/OfflineBanner'
@@ -15,12 +14,10 @@ export default function App() {
         <ErrorBoundary>
           <ToastProvider>
             <LearningProgressProvider>
-              <AvatarProvider>
-                <MentorProvider>
-                  <OfflineBanner />
-                  <AppRouter />
-                </MentorProvider>
-              </AvatarProvider>
+              <MentorProvider>
+                <OfflineBanner />
+                <AppRouter />
+              </MentorProvider>
             </LearningProgressProvider>
           </ToastProvider>
         </ErrorBoundary>

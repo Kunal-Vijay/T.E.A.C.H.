@@ -1,6 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { preloadNovaTutorIdle, scheduleNovaTutorSpeakingPreload } from './lib/tutor/novaTutorAssets'
+
+void preloadNovaTutorIdle()
+scheduleNovaTutorSpeakingPreload()
 
 /* Design system foundation */
 import './styles/theme.css'
@@ -38,13 +42,14 @@ import './styles/classroom-layout.css'
 import './styles/components.css'
 import './styles/delight.css'
 import './styles/mentor.css'
-import './styles/avatar.css'
+import './styles/nova-tutor.css'
 import './styles/product-shell.css'
 import './styles/classroom-immersive.css'
 import './styles/lesson-board.css'
 import './styles/mentor-panel.css'
 import './styles/voice-player.css'
 import './styles/voice-doubt.css'
+import './styles/classroom-tutor-experience.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

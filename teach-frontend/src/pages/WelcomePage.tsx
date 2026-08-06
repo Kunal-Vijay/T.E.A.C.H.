@@ -49,22 +49,22 @@ export default function WelcomePage() {
           <div className="welcome-copy-main">
             <div className="welcome-eyebrow">
               <Icon icon={Sparkles} size={14} />
-              AI-native education platform
+              Meet Nova — your AI Tutor
             </div>
 
             <h1 className="welcome-headline">
-              This is the future
-              <span className="welcome-headline-break"> of </span>
-              <span className="welcome-headline-accent">learning.</span>
+              Nova teaches.
+              <span className="welcome-headline-break"> </span>
+              <span className="welcome-headline-accent">Students learn.</span>
             </h1>
 
             <p className="welcome-lead">
-              Nova teaches in real time. Students read ahead on a beautiful lesson board,
-              take adaptive quizzes, and ask SAGE anything — no lecture loop, no waiting.
+              T.E.A.C.H. is built around Nova — a live AI Tutor who narrates lessons, adapts to each
+              student, and answers doubts instantly. No lecture loop. No waiting.
             </p>
 
             <ul className="welcome-pillars">
-              <li>Nova • AI Tutor</li>
+              <li className="welcome-pillar-nova">Nova • AI Tutor</li>
               <li>Immersive classrooms</li>
               <li>Instant doubt resolution</li>
             </ul>

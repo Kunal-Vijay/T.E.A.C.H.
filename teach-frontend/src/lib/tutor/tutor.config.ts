@@ -1,5 +1,4 @@
 import { getMentorById } from '../mentors'
-import { getMentorGifAsset } from '../mentors/mentorAssets'
 import type { MentorDefinition, TutorId } from '../../types/mentor.types'
 
 /** Active tutor id — single source of truth for the product. */
@@ -12,7 +11,6 @@ export interface CurrentTutorConfig {
   name: string
   role: typeof TUTOR_ROLE
   definition: MentorDefinition
-  avatar: ReturnType<typeof getMentorGifAsset>
 }
 
 /** Full tutor configuration consumed across the app. */
@@ -21,7 +19,6 @@ export const CURRENT_TUTOR: CurrentTutorConfig = {
   name: 'Nova',
   role: TUTOR_ROLE,
   definition: getMentorById(CURRENT_TUTOR_ID),
-  avatar: getMentorGifAsset(CURRENT_TUTOR_ID),
 }
 
 export function getCurrentTutor(): MentorDefinition {

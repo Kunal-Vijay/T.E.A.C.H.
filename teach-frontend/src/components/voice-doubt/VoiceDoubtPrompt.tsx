@@ -1,8 +1,8 @@
 import { Check, Keyboard, MessageCircle, Mic } from 'lucide-react'
-import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
-import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
+import { MentorTutorDecorations, NovaTutor } from '../nova'
 import Icon from '../ui/Icon'
 import { DOUBT_QUICK_ACTIONS } from '../../constants/doubtCopy'
+import { mentorVisualStyle } from '../../lib/tutor'
 import type { MentorDefinition } from '../../types/mentor.types'
 
 interface VoiceDoubtPromptProps {
@@ -29,6 +29,8 @@ export default function VoiceDoubtPrompt({
     return null
   }
 
+  const label = `${mentor.name} is ready to answer your questions`
+
   return (
     <div className="doubt-moment" role="dialog" aria-modal="true" aria-label="Ask your AI Tutor">
       <div className="doubt-moment-backdrop" aria-hidden="true" />
@@ -36,15 +38,14 @@ export default function VoiceDoubtPrompt({
         <div className="doubt-moment-glow" aria-hidden="true" />
 
         <div className="doubt-moment-mentor">
-          <div className="doubt-moment-avatar-wrap">
-            <StudyMentorAvatar
-              mentor={mentor}
-              expression="smile"
-              avatarInput={readInteractiveAvatarFlag() ? { preferHappy: true } : undefined}
-              size="lg"
-              showGlow
-              ariaLabel={`${mentor.name} is ready to answer your questions`}
-            />
+          <div
+            className="doubt-moment-avatar-wrap study-mentor study-mentor-lg mentor-expr-smile has-glow"
+            style={mentorVisualStyle(mentor)}
+          >
+            <div className="study-mentor-stage">
+              <NovaTutor speaking={false} size="lg" label={label} />
+              <MentorTutorDecorations expression="smile" />
+            </div>
           </div>
           <div className="doubt-moment-bubble">
             <span className="doubt-moment-bubble-icon" aria-hidden="true">
