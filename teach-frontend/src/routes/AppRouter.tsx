@@ -12,11 +12,9 @@ const CreateClassPage = lazy(() => import('../pages/admin/CreateClassPage'))
 const ClassDetailPage = lazy(() => import('../pages/admin/ClassDetailPage'))
 const StudentClassCatalogPage = lazy(() => import('../pages/student/StudentClassCatalogPage'))
 const ClassroomPage = lazy(() => import('../pages/student/ClassroomPage'))
-const MentorSelectionPage = lazy(() => import('../pages/student/MentorSelectionPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const TeacherLayout = lazy(() => import('../components/layouts/TeacherLayout'))
 const StudentLayout = lazy(() => import('../components/layouts/StudentLayout'))
-const MentorGate = lazy(() => import('./MentorGate'))
 
 function LegacyAdminPlanRedirect() {
   const { planId = '' } = useParams()
@@ -44,14 +42,13 @@ function RouterContent() {
 
           <Route element={<RoleRoute allowedRole="student" />}>
             <Route element={<StudentLayout />}>
-              <Route path="/student/mentor" element={<MentorSelectionPage />} />
-              <Route element={<MentorGate />}>
-                <Route path="/student" element={<StudentClassCatalogPage />} />
-                <Route path="/student/settings" element={<SettingsPage />} />
-                <Route path="/student/classroom/:generationId" element={<ClassroomPage />} />
-              </Route>
+              <Route path="/student" element={<StudentClassCatalogPage />} />
+              <Route path="/student/settings" element={<SettingsPage />} />
+              <Route path="/student/classroom/:generationId" element={<ClassroomPage />} />
             </Route>
           </Route>
+
+          <Route path="/student/mentor" element={<Navigate to="/student" replace />} />
 
           <Route path="/admin" element={<Navigate to="/teacher/classes" replace />} />
           <Route path="/admin/classes" element={<Navigate to="/teacher/classes" replace />} />

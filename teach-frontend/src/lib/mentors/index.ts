@@ -14,17 +14,17 @@ export {
 export { transitionExpression, canTransition } from './expressionStateMachine'
 
 import { MENTOR_CATALOG, MENTOR_CONFIGS } from './configs/mentors.config'
-import type { MentorDefinition, MentorId } from '../../types/mentor.types'
+import type { MentorDefinition, TutorId } from '../../types/mentor.types'
 
 export const MENTOR_LIST: MentorDefinition[] = MENTOR_CONFIGS
 
-export function getMentorById(id: MentorId): MentorDefinition {
+export function getMentorById(id: TutorId): MentorDefinition {
   return MENTOR_CATALOG[id]
 }
 
-export function isMentorId(value: string): value is MentorId {
+export function isMentorId(value: string): value is TutorId {
   return value in MENTOR_CATALOG
 }
 
-export type { DialogueCategory } from '../../types/mentor.types'
+export type { DialogueCategory, TutorId } from '../../types/mentor.types'
 export { getMentorGifUrl, mentorHasGifAsset, MENTOR_GIF_ASSETS } from './mentorAssets'

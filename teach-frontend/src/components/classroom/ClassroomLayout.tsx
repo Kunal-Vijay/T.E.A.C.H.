@@ -16,7 +16,8 @@ import { useTeachingSession } from '../../hooks/useTeachingSession'
 import { useLessonSectionFlow } from '../../hooks/useLessonSectionFlow'
 import { useMentor } from '../../context/MentorContext'
 import { classroomModeToExpression } from '../../lib/mentors'
-import { getMentorById } from '../../lib/mentors'
+import { buildClassroomAvatarInput } from '../avatar/avatarStateMachine'
+import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
 import { useMentorVoice } from '../../hooks/useMentorVoice'
 import type { ClassroomAvatarMode } from '../../types/mentor.types'
 import type { CurrentStateResponse } from '../../types/api.types'
@@ -61,8 +62,8 @@ export default function ClassroomLayout({
   onSageQuestion,
   onReleaseDoubtSession,
 }: ClassroomLayoutProps) {
-  const { mentor, expression, setExpression, pulseExpression, reactToQuiz } = useMentor()
-  const activeMentor = mentor ?? getMentorById('sage')
+  const { tutor, expression, setExpression, pulseExpression, reactToQuiz } = useMentor()
+  const activeTutor = tutor
   const [predictionText, setPredictionText] = useState('')
   const [showSagePanel, setShowSagePanel] = useState(false)
   const [doubtSessionId, setDoubtSessionId] = useState<string | null>(null)
@@ -140,7 +141,7 @@ export default function ClassroomLayout({
     }
     sessionRef.current.resetSession()
     setSyncedSubtitle({ current: '', previous: '' })
-    await speakLessonContent(activeMentor, text, {
+    await speakLessonContent(activeTutor, text, {
       onSegmentStart: (event) => {
         setSyncedSubtitle((prev) => ({
           previous: prev.current,
@@ -158,13 +159,13 @@ export default function ClassroomLayout({
       },
       onCancel: () => setSyncedSubtitle({ current: '', previous: '' }),
     })
-  }, [activeMentor, speakLessonContent, scheduleNarrationComplete])
+  }, [activeTutor, speakLessonContent, scheduleNarrationComplete])
 
   const playLessonRef = useRef(playLesson)
   playLessonRef.current = playLesson
 
   const speakAsMentor = async (text: string) => {
-    await speakMentorLine(activeMentor, text)
+    await speakMentorLine(activeTutor, text)
   }
 
   useEffect(() => {
@@ -284,9 +285,9 @@ export default function ClassroomLayout({
     setDoubtInvitationLine(line)
     stopPreview()
     if (speechEnabled) {
-      void speakMentorLine(activeMentor, line)
+      void speakMentorLine(activeTutor, line)
     }
-  }, [showVoiceDoubtPrompt, speechEnabled, activeMentor, speakMentorLine, stopPreview])
+  }, [showVoiceDoubtPrompt, speechEnabled, activeTutor, speakMentorLine, stopPreview])
 
   const submitDoubtQuestion = async (sessionId: string, message: string) => {
     setDoubtSheet((previous) => (
@@ -294,7 +295,7 @@ export default function ClassroomLayout({
         ? { ...previous, phase: 'thinking' }
         : { mode: 'type', phase: 'thinking' }
     ))
-    setExpression(activeMentor.expression.onThink)
+    setExpression(activeTutor.expression.onThink)
 
     const response = await onAskSage(sessionId, message)
     onSageQuestion?.()
@@ -306,7 +307,7 @@ export default function ClassroomLayout({
     ))
 
     if (speechEnabled) {
-      await speakMentorLine(activeMentor, response.ai_response, {
+      await speakMentorLine(activeTutor, response.ai_response, {
         onSentenceStart: (_index, sentence) => {
           setSyncedSubtitle((previous) => ({
             previous: previous.current,
@@ -477,26 +478,26 @@ export default function ClassroomLayout({
     }
 
     if (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking') {
-      setExpression(activeMentor.expression.onThink)
+      setExpression(activeTutor.expression.onThink)
       return
     }
 
     if (speechStatus === 'speaking') {
-      setExpression(activeMentor.expression.onSpeak)
+      setExpression(activeTutor.expression.onSpeak)
       return
     }
 
     const modeExpression = classroomModeToExpression(resolvedAvatarMode)
     if (modeExpression === 'listening') {
-      setExpression(activeMentor.expression.onListen)
+      setExpression(activeTutor.expression.onListen)
     } else if (modeExpression === 'curious') {
       setExpression('curious')
     } else if (modeExpression === 'speaking' || modeExpression === 'explaining') {
-      setExpression(activeMentor.expression.onSpeak)
+      setExpression(activeTutor.expression.onSpeak)
     } else {
-      setExpression(activeMentor.expression.onIdle)
+      setExpression(activeTutor.expression.onIdle)
     }
-  }, [resolvedAvatarMode, speechStatus, activeMentor, setExpression, sectionPhase, doubtSheet?.phase, showVoiceDoubtPrompt])
+  }, [resolvedAvatarMode, speechStatus, activeTutor, setExpression, sectionPhase, doubtSheet?.phase, showVoiceDoubtPrompt])
 
   useEffect(() => {
     if (celebration !== null) {
@@ -542,9 +543,41 @@ export default function ClassroomLayout({
   const subtitlePrevious = isSpeaking && syncedSubtitle.current !== ''
     ? syncedSubtitle.previous
     : session.previousCue
+
+  const useInteractiveAvatar = readInteractiveAvatarFlag()
+  const avatarInput = useMemo(
+    () => buildClassroomAvatarInput({
+      speechStatus,
+      isListening:
+        resolvedAvatarMode === 'listening'
+        || showVoiceDoubtPrompt
+        || (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'listening')
+        || stateType === 'student_predict'
+        || showSagePanel,
+      isThinking:
+        (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking')
+        || (isLiveLesson && !session.hasStarted && !isSpeaking),
+      isCelebrating: celebration !== null || session.activeBeat?.phase === 'recap',
+      preferHappy: showVoiceDoubtPrompt,
+    }),
+    [
+      speechStatus,
+      resolvedAvatarMode,
+      showVoiceDoubtPrompt,
+      sectionPhase,
+      doubtSheet?.phase,
+      stateType,
+      showSagePanel,
+      isLiveLesson,
+      session.hasStarted,
+      session.activeBeat?.phase,
+      isSpeaking,
+      celebration,
+    ],
+  )
   const mentorTheme = {
-    '--mentor-accent': activeMentor.visual.accent,
-    '--mentor-glow': activeMentor.visual.glow,
+    '--mentor-accent': activeTutor.visual.accent,
+    '--mentor-glow': activeTutor.visual.glow,
   } as CSSProperties
 
   if (isLiveLesson) {
@@ -567,8 +600,9 @@ export default function ClassroomLayout({
         />
 
         <TeachingLayout
-          mentor={activeMentor}
+          mentor={activeTutor}
           expression={expression}
+          avatarInput={useInteractiveAvatar ? avatarInput : undefined}
           slideElements={slideElements}
           slideKey={`${currentState.current_state?.state_id ?? 'state'}-${currentSlideIndex}`}
           currentCue={subtitleCurrent}
@@ -595,7 +629,7 @@ export default function ClassroomLayout({
 
         <VoiceDoubtPrompt
           visible={showVoiceDoubtPrompt}
-          mentor={activeMentor}
+          mentor={activeTutor}
           invitationLine={doubtInvitationLine}
           onAskVoice={() => { void openVoiceDoubt('voice') }}
           onAskType={() => { void openVoiceDoubt('type') }}
@@ -607,7 +641,7 @@ export default function ClassroomLayout({
           <VoiceDoubtSheet
             open
             mode={doubtSheet.mode}
-            mentor={activeMentor}
+            mentor={activeTutor}
             phase={doubtSheet.phase}
             answerText={doubtSheet.answerText}
             permissionDeniedMessage={voiceDoubtPermissionMsg}
@@ -690,7 +724,7 @@ export default function ClassroomLayout({
                   <Icon icon={Sparkles} size={20} className="sage-launch-icon" />
                 </div>
                 <div className="sage-launch-copy">
-                  <p className="sage-launch-kicker">AI tutor</p>
+                  <p className="sage-launch-kicker">AI Tutor support</p>
                   <strong>Ask SAGE anything</strong>
                   <p>Stuck? SAGE explains without judgment — +{XP_REWARDS.SAGE_ASK} XP per question.</p>
                 </div>

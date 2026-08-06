@@ -53,7 +53,7 @@ export default function StudentClassCatalogPage() {
   const navigate = useNavigate()
   const { pushToast } = useToast()
   const { progress } = useLearningProgress()
-  const { mentor } = useMentor()
+  const { tutor } = useMentor()
   const [availableClasses, setAvailableClasses] = useState<AvailableClass[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -183,7 +183,7 @@ export default function StudentClassCatalogPage() {
           <HubHero>
             <PageHeader
               variant="hub"
-              kicker={mentor !== null ? `Learning with ${mentor.name}` : 'Student hub'}
+              kicker={`Learning with ${tutor.name}`}
               title="Your classes"
               lede={dailyGoalLede(progress.lessonsCompletedToday, progress.dailyGoal, progress.streak)}
             />

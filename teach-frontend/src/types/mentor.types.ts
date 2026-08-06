@@ -1,12 +1,8 @@
-export type MentorId =
-  | 'nova'
-  | 'atlas'
-  | 'spark'
-  | 'luna'
-  | 'sage'
-  | 'pixel'
-  | 'astro'
-  | 'ember'
+/** Official AI Tutor id — extend here when adding future tutors. */
+export type TutorId = 'nova'
+
+/** @deprecated Use TutorId */
+export type MentorId = TutorId
 
 export type ExpressionState =
   | 'idle'
@@ -137,7 +133,7 @@ export interface BehaviorProfile {
 }
 
 export interface VisualProfile {
-  shape: 'nova' | 'atlas' | 'spark' | 'luna' | 'sage' | 'pixel' | 'astro' | 'ember'
+  shape: TutorId
   accent: string
   accentSoft: string
   glow: string
@@ -146,7 +142,7 @@ export interface VisualProfile {
 }
 
 export interface MentorDefinition {
-  id: MentorId
+  id: TutorId
   name: string
   tagline: string
   teachingStyle: string
@@ -160,8 +156,11 @@ export interface MentorDefinition {
   behavior: BehaviorProfile
 }
 
+/** @deprecated Use MentorDefinition — tutor profile shape */
+export type TutorDefinition = MentorDefinition
+
 export interface MentorProfile {
-  mentorId: MentorId
+  mentorId: TutorId
   selectedAt: number
   studentName?: string
 }

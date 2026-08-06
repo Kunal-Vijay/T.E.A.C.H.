@@ -1,55 +1,13 @@
-/* ── Mentor color tokens ── */
+/* ── Nova AI Tutor color tokens ── */
 :root {
   --mentor-nova-accent: var(--color-accent);
   --mentor-nova-soft: rgba(20, 184, 166, 0.16);
   --mentor-nova-glow: var(--hub-accent-focus);
   --mentor-nova-skin: #fef3c7;
   --mentor-nova-secondary: var(--theme-warning);
-
-  --mentor-atlas-accent: #1e40af;
-  --mentor-atlas-soft: rgba(30, 64, 175, 0.14);
-  --mentor-atlas-glow: rgba(59, 130, 246, 0.42);
-  --mentor-atlas-skin: #e2e8f0;
-  --mentor-atlas-secondary: #475569;
-
-  --mentor-spark-accent: #06b6d4;
-  --mentor-spark-soft: rgba(6, 182, 212, 0.18);
-  --mentor-spark-glow: rgba(34, 211, 238, 0.52);
-  --mentor-spark-skin: #f0fdfa;
-  --mentor-spark-secondary: #0ea5e9;
-
-  --mentor-luna-accent: #a78bfa;
-  --mentor-luna-soft: rgba(167, 139, 250, 0.16);
-  --mentor-luna-glow: rgba(192, 132, 252, 0.44);
-  --mentor-luna-skin: #faf5ff;
-  --mentor-luna-secondary: #e9d5ff;
-
-  --mentor-sage-accent: #10b981;
-  --mentor-sage-soft: rgba(16, 185, 129, 0.14);
-  --mentor-sage-glow: rgba(16, 185, 129, 0.42);
-  --mentor-sage-skin: #ecfdf5;
-  --mentor-sage-secondary: var(--color-accent-ink);
-
-  --mentor-pixel-accent: var(--hub-text-primary);
-  --mentor-pixel-soft: var(--hub-border-strong);
-  --mentor-pixel-glow: var(--hub-accent-border-focus);
-  --mentor-pixel-skin: var(--color-accent);
-  --mentor-pixel-secondary: var(--color-accent-bright);
-
-  --mentor-astro-accent: #f59e0b;
-  --mentor-astro-soft: rgba(245, 158, 11, 0.16);
-  --mentor-astro-glow: rgba(245, 158, 11, 0.48);
-  --mentor-astro-skin: #fef9c3;
-  --mentor-astro-secondary: var(--color-streak-gold);
-
-  --mentor-ember-accent: #f59e0b;
-  --mentor-ember-soft: var(--color-highlight-soft);
-  --mentor-ember-glow: rgba(251, 146, 60, 0.46);
-  --mentor-ember-skin: #fff7ed;
-  --mentor-ember-secondary: var(--color-streak-orange);
 }
 
-/* ── Study mentor avatar (GIF only) ── */
+/* ── Study tutor avatar (GIF / interactive) ── */
 .study-mentor {
   --mentor-accent: var(--color-accent);
   --mentor-accent-soft: var(--color-accent-soft);
@@ -102,14 +60,21 @@
 .mentor-gif-blend-screen { mix-blend-mode: screen; }
 .mentor-gif-blend-normal { mix-blend-mode: normal; }
 
-.study-mentor-nova { --mentor-accent: var(--mentor-nova-accent); --mentor-glow: var(--mentor-nova-glow); }
-.study-mentor-atlas { --mentor-accent: var(--mentor-atlas-accent); --mentor-glow: var(--mentor-atlas-glow); }
-.study-mentor-spark { --mentor-accent: var(--mentor-spark-accent); --mentor-glow: var(--mentor-spark-glow); }
-.study-mentor-luna { --mentor-accent: var(--mentor-luna-accent); --mentor-glow: var(--mentor-luna-glow); }
-.study-mentor-sage { --mentor-accent: var(--mentor-sage-accent); --mentor-glow: var(--mentor-sage-glow); }
-.study-mentor-pixel { --mentor-accent: var(--mentor-pixel-accent); --mentor-glow: var(--mentor-pixel-glow); }
-.study-mentor-astro { --mentor-accent: var(--mentor-astro-accent); --mentor-glow: var(--mentor-astro-glow); }
-.study-mentor-ember { --mentor-accent: var(--mentor-ember-accent); --mentor-glow: var(--mentor-ember-glow); }
+.study-mentor-nova {
+  --mentor-accent: var(--mentor-nova-accent);
+  --mentor-glow: var(--mentor-nova-glow);
+}
+
+.app-nav-tutor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  color: var(--color-ink-soft);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
 
 /* ── Speaking / celebration overlays ── */
 .mentor-speak-ring {
@@ -118,59 +83,70 @@
   border-radius: 50%;
   border: 2px solid color-mix(in srgb, var(--mentor-accent) 55%, transparent);
   opacity: 0;
-  animation: mentor-speak-pulse 1.1s ease-in-out infinite;
+  animation: mentor-speak-pulse 1.6s var(--ease-out) infinite;
   pointer-events: none;
 }
 
-.mentor-expr-speaking .mentor-speak-ring,
-.mentor-expr-explaining .mentor-speak-ring {
-  opacity: 1;
+.mentor-listen-ring {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--mentor-accent) 40%, transparent);
+  animation: mentor-listen-spin 8s linear infinite;
+  pointer-events: none;
+}
+
+.mentor-think-pulse {
+  position: absolute;
+  top: -8%;
+  right: -4%;
+  width: 18%;
+  height: 18%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mentor-accent) 35%, transparent);
+  animation: mentor-think-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .mentor-confetti {
   position: absolute;
   width: 6px;
   height: 6px;
-  border-radius: 2px;
-  background: var(--color-highlight);
-  opacity: 0;
-  animation: mentor-confetti 0.9s var(--ease-out) forwards;
+  border-radius: 50%;
+  background: var(--mentor-secondary, var(--color-accent-bright));
+  animation: mentor-confetti 0.9s var(--ease-out) infinite;
+  pointer-events: none;
 }
 
-.mentor-confetti-a { top: 18%; left: 22%; }
-.mentor-confetti-b { top: 12%; right: 20%; animation-delay: 80ms; background: var(--mentor-accent); }
-.mentor-confetti-c { top: 28%; right: 30%; animation-delay: 160ms; background: var(--color-accent-bright); }
+.mentor-confetti-a { top: 8%; left: 12%; }
+.mentor-confetti-b { top: 4%; right: 10%; animation-delay: 0.15s; }
+.mentor-confetti-c { top: 18%; right: 22%; animation-delay: 0.3s; }
 
 @keyframes mentor-speak-pulse {
   0%, 100% { transform: scale(0.96); opacity: 0.35; }
-  50% { transform: scale(1.02); opacity: 0.75; }
+  50% { transform: scale(1.04); opacity: 0.75; }
+}
+
+@keyframes mentor-listen-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mentor-think-pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.45; }
+  50% { transform: scale(1.1); opacity: 0.85; }
 }
 
 @keyframes mentor-confetti {
-  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
-  20% { opacity: 1; }
-  100% { opacity: 0; transform: translate3d(0, -24px, 0) rotate(180deg); }
-}
-
-.app-nav-mentor .study-mentor-sm .mentor-gif-avatar {
-  width: 36px;
-  max-height: 40px;
-}
-
-.app-nav-mentor .study-mentor {
-  gap: 0;
-}
-
-.avatar-area .study-mentor-md .mentor-gif-avatar {
-  width: 100%;
-  max-width: 140px;
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.8); opacity: 0.45; }
+  50% { transform: translate3d(0, -6px, 0) scale(1.1); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mentor-speak-ring,
+  .mentor-listen-ring,
+  .mentor-think-pulse,
   .mentor-confetti {
     animation: none !important;
   }
 }
-
-/* Selection screen styles → styles/mentor-selection.css */

@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Mic, Pencil, RotateCcw, Send, X } from 'lucide-react'
 import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
+import { buildVoiceDoubtAvatarInput } from '../avatar/avatarStateMachine'
+import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
 import Icon from '../ui/Icon'
 import VoiceWaveform from './VoiceWaveform'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
@@ -70,6 +72,11 @@ export default function VoiceDoubtSheet({
 
   const displayTranscript = liveTranscript || transcript
   const mentorExpression = resolveMentorExpression(phase, mode, recognitionPhase)
+  const useInteractiveAvatar = readInteractiveAvatarFlag()
+  const avatarInput = useMemo(
+    () => buildVoiceDoubtAvatarInput({ phase, mode, recognitionPhase }),
+    [phase, mode, recognitionPhase],
+  )
 
   useEffect(() => {
     if (open && mode === 'voice' && !isSupported) {
@@ -159,6 +166,7 @@ export default function VoiceDoubtSheet({
             <StudyMentorAvatar
               mentor={mentor}
               expression={mentorExpression}
+              avatarInput={useInteractiveAvatar ? avatarInput : undefined}
               size="md"
               showGlow
               ariaLabel={statusLabel}

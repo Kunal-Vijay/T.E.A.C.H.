@@ -1,15 +1,15 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutGrid, LogOut, Settings } from 'lucide-react'
 import AppNavBar from '../nav/AppNavBar'
 import ProductAmbient from '../shell/ProductAmbient'
 import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
 import { useMentor } from '../../context/MentorContext'
 import { clearAuth } from '../../services/auth/authService'
+import { LayoutGrid, LogOut, Settings } from 'lucide-react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 export default function StudentLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { mentor } = useMentor()
+  const { tutor, tutorLabel } = useMentor()
   const isClassroom = location.pathname.includes('/student/classroom/')
 
   const switchRole = () => {
@@ -25,20 +25,14 @@ export default function StudentLayout() {
           homeTo="/student"
           homeAriaLabel="Student dashboard home"
           roleLabel="Student"
-          mentorSlot={
-            mentor !== null ? (
-              <Link
-                to="/student/mentor"
-                className="app-nav-mentor"
-                aria-label={`Change AI Tutor — currently ${mentor.name}`}
-              >
-                <span aria-hidden="true">
-                  <StudyMentorAvatar mentor={mentor} size="sm" showGlow={false} ariaLabel="" />
-                </span>
-                <span>{mentor.name}</span>
-              </Link>
-            ) : null
-          }
+          mentorSlot={(
+            <div className="app-nav-tutor" aria-label={tutorLabel}>
+              <span aria-hidden="true">
+                <StudyMentorAvatar tutor={tutor} size="sm" showGlow={false} ariaLabel="" />
+              </span>
+              <span>{tutor.name}</span>
+            </div>
+          )}
           links={[
             { kind: 'route', to: '/student', label: 'Classes', icon: LayoutGrid, end: true },
             { kind: 'route', to: '/student/settings', label: 'Settings', icon: Settings },

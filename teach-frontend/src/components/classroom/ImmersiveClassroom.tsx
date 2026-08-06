@@ -4,6 +4,7 @@ import LearningWhiteboard from './LearningWhiteboard'
 import LessonVoicePlayer from './LessonVoicePlayer'
 import MentorTeachingPanel from './MentorTeachingPanel'
 import Icon from '../ui/Icon'
+import type { AvatarMachineInput } from '../avatar/AvatarMachineState'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
 import type { TeachingBeat } from '../../lib/classroom/teachingBeats'
 
@@ -83,6 +84,7 @@ export function LessonActionDock({ label, disabled, loading, onContinue }: Lesso
 interface TeachingLayoutProps {
   mentor: MentorDefinition
   expression: ExpressionState
+  avatarInput?: AvatarMachineInput
   slideElements: Array<Record<string, unknown>>
   slideKey: string | number
   currentCue: string
@@ -110,6 +112,7 @@ interface TeachingLayoutProps {
 export function TeachingLayout({
   mentor,
   expression,
+  avatarInput,
   slideElements,
   slideKey,
   currentCue,
@@ -164,6 +167,7 @@ export function TeachingLayout({
         <MentorTeachingPanel
           mentor={mentor}
           expression={expression}
+          avatarInput={avatarInput}
           currentCue={currentCue}
           previousCue={previousCue}
           cueIndex={cueIndex}

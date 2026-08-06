@@ -12,29 +12,27 @@ import {
   createExpressionController,
   getDialogueForQuiz,
   getDialogueLine,
-  getMentorById,
 } from '../lib/mentors'
-import {
-  getMentorId,
-  getMentorProfile,
-  getStudentDisplayName,
-  setMentorId as persistMentorId,
-} from '../services/mentor/mentorService'
+import { getCurrentTutor, getTutorLabel } from '../lib/tutor'
+import { getStudentDisplayName } from '../services/mentor/mentorService'
 import type {
   DialogueKey,
   ExpressionState,
   MentorDefinition,
-  MentorId,
-  MentorProfile,
+  TutorId,
 } from '../types/mentor.types'
 
 interface MentorContextValue {
-  mentor: MentorDefinition | null
-  mentorId: MentorId | null
+  /** Current AI Tutor definition (Nova). */
+  tutor: MentorDefinition
+  /** @deprecated Use `tutor` */
+  mentor: MentorDefinition
+  tutorId: TutorId
+  /** @deprecated Use `tutorId` */
+  mentorId: TutorId
   expression: ExpressionState
   studentName: string | null
-  hasMentor: boolean
-  selectMentor: (id: MentorId, studentName?: string) => void
+  tutorLabel: string
   setExpression: (state: ExpressionState) => void
   pulseExpression: (state: ExpressionState, durationMs?: number) => void
   getLine: (key: DialogueKey) => string
@@ -44,25 +42,13 @@ interface MentorContextValue {
 const MentorContext = createContext<MentorContextValue | null>(null)
 
 export function MentorProvider({ children }: { children: ReactNode }) {
-  const [mentorId, setMentorIdState] = useState<MentorId | null>(() => getMentorId())
+  const tutor = useMemo(() => getCurrentTutor(), [])
   const [expression, setExpressionState] = useState<ExpressionState>('idle')
-  const [studentName, setStudentName] = useState<string | null>(() => getStudentDisplayName())
+  const [studentName] = useState<string | null>(() => getStudentDisplayName())
   const controllerRef = useRef(createExpressionController(setExpressionState))
-
-  const mentor = useMemo(
-    () => (mentorId !== null ? getMentorById(mentorId) : null),
-    [mentorId],
-  )
 
   useEffect(() => {
     controllerRef.current = createExpressionController(setExpressionState, 'idle')
-  }, [mentorId])
-
-  const selectMentor = useCallback((id: MentorId, name?: string) => {
-    persistMentorId(id, name)
-    setMentorIdState(id)
-    setStudentName(name?.trim() !== '' ? name?.trim() ?? null : getStudentDisplayName())
-    controllerRef.current.pulse('excited', 1800)
   }, [])
 
   const setExpression = useCallback((state: ExpressionState) => {
@@ -74,41 +60,34 @@ export function MentorProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const getLine = useCallback((key: DialogueKey) => {
-    if (mentor === null) {
-      return ''
-    }
-    return getDialogueLine(mentor, key)
-  }, [mentor])
+    return getDialogueLine(tutor, key)
+  }, [tutor])
 
   const reactToQuiz = useCallback((correct: boolean) => {
-    if (mentor === null) {
-      return { line: '', expression: 'idle' as ExpressionState }
-    }
-    const line = getDialogueForQuiz(mentor, correct)
+    const line = getDialogueForQuiz(tutor, correct)
     const nextExpression: ExpressionState = correct
-      ? mentor.expression.onCelebrate
-      : mentor.expression.onEncourage
+      ? tutor.expression.onCelebrate
+      : tutor.expression.onEncourage
     controllerRef.current.pulse(nextExpression)
     return { line, expression: nextExpression }
-  }, [mentor])
+  }, [tutor])
 
   const value = useMemo<MentorContextValue>(() => ({
-    mentor,
-    mentorId,
+    tutor,
+    mentor: tutor,
+    tutorId: tutor.id,
+    mentorId: tutor.id,
     expression,
     studentName,
-    hasMentor: mentorId !== null,
-    selectMentor,
+    tutorLabel: getTutorLabel(),
     setExpression,
     pulseExpression,
     getLine,
     reactToQuiz,
   }), [
-    mentor,
-    mentorId,
+    tutor,
     expression,
     studentName,
-    selectMentor,
     setExpression,
     pulseExpression,
     getLine,
@@ -130,6 +109,5 @@ export function useMentorOptional(): MentorContextValue | null {
   return useContext(MentorContext)
 }
 
-export function refreshMentorFromStorage(): MentorProfile | null {
-  return getMentorProfile()
-}
+/** @deprecated Use useMentor — returns the current AI Tutor (Nova). */
+export const useTutor = useMentor

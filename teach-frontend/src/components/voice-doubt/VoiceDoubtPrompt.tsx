@@ -1,5 +1,6 @@
 import { Check, Keyboard, MessageCircle, Mic } from 'lucide-react'
 import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
+import { readInteractiveAvatarFlag } from '../avatar/AvatarProvider'
 import Icon from '../ui/Icon'
 import { DOUBT_QUICK_ACTIONS } from '../../constants/doubtCopy'
 import type { MentorDefinition } from '../../types/mentor.types'
@@ -39,6 +40,7 @@ export default function VoiceDoubtPrompt({
             <StudyMentorAvatar
               mentor={mentor}
               expression="smile"
+              avatarInput={readInteractiveAvatarFlag() ? { preferHappy: true } : undefined}
               size="lg"
               showGlow
               ariaLabel={`${mentor.name} is ready to answer your questions`}

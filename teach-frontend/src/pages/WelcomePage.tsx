@@ -59,12 +59,12 @@ export default function WelcomePage() {
             </h1>
 
             <p className="welcome-lead">
-              Live AI Tutors teach in real time. Students read ahead on a beautiful lesson board,
+              Nova teaches in real time. Students read ahead on a beautiful lesson board,
               take adaptive quizzes, and ask SAGE anything — no lecture loop, no waiting.
             </p>
 
             <ul className="welcome-pillars">
-              <li>Live AI Tutors</li>
+              <li>Nova • AI Tutor</li>
               <li>Immersive classrooms</li>
               <li>Instant doubt resolution</li>
             </ul>

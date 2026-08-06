@@ -2,11 +2,13 @@ import { RotateCcw, Volume2, VolumeX } from 'lucide-react'
 import MentorTheater from './MentorTheater'
 import TeachingSubtitle from './TeachingSubtitle'
 import Icon from '../ui/Icon'
+import type { AvatarMachineInput } from '../avatar/AvatarMachineState'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
 
 interface MentorTeachingPanelProps {
   mentor: MentorDefinition
   expression: ExpressionState
+  avatarInput?: AvatarMachineInput
   currentCue: string
   previousCue: string
   cueIndex: number
@@ -34,6 +36,7 @@ function mentorPanelStatus(isSpeaking: boolean, hasStarted: boolean) {
 export default function MentorTeachingPanel({
   mentor,
   expression,
+  avatarInput,
   currentCue,
   previousCue,
   cueIndex,
@@ -67,6 +70,7 @@ export default function MentorTeachingPanel({
           <MentorTheater
             mentor={mentor}
             expression={expression}
+            avatarInput={avatarInput}
             isSpeaking={isSpeaking}
             hasStarted={hasStarted}
             beatPhase={beatPhase}

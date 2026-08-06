@@ -1,9 +1,11 @@
+import type { AvatarMachineInput } from '../avatar/AvatarMachineState'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
 import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
 
 interface MentorTheaterProps {
   mentor: MentorDefinition
   expression: ExpressionState
+  avatarInput?: AvatarMachineInput
   isSpeaking: boolean
   hasStarted: boolean
   beatPhase?: string
@@ -12,6 +14,7 @@ interface MentorTheaterProps {
 export default function MentorTheater({
   mentor,
   expression,
+  avatarInput,
   isSpeaking,
   hasStarted,
   beatPhase,
@@ -34,6 +37,8 @@ export default function MentorTheater({
       <StudyMentorAvatar
         mentor={mentor}
         expression={resolvedExpression}
+        avatarInput={avatarInput}
+        isTalking={isSpeaking}
         size="hero"
         showGlow
         ariaLabel={`${mentor.name} is your AI Tutor`}

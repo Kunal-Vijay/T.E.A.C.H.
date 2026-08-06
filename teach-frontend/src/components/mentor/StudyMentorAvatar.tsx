@@ -1,55 +1,82 @@
 import type { CSSProperties } from 'react'
+import {
+  AvatarMachineProvider,
+  useAvatarMachineOutputOptional,
+} from '../avatar/AvatarMachineProvider'
+import type { AvatarMachineInput } from '../avatar/AvatarMachineState'
+import { machineStateToLegacyExpression } from '../avatar/AvatarMachineState'
+import { Avatar } from '../avatar'
 import { getMentorGifAsset } from '../../lib/mentors/mentorAssets'
+import { getTutorAriaLabel } from '../../lib/tutor'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
-import MentorGifAvatar from './MentorGifAvatar'
 
 export type { ExpressionState as MentorExpressionState }
 
 interface StudyMentorAvatarProps {
-  mentor: MentorDefinition
+  /** Current AI Tutor definition. */
+  tutor?: MentorDefinition
+  /** @deprecated Use `tutor` */
+  mentor?: MentorDefinition
   expression?: ExpressionState
+  /** Application signals for InteractiveAvatar state machine. */
+  avatarInput?: AvatarMachineInput
+  isTalking?: boolean
   caption?: string
   size?: 'sm' | 'md' | 'lg' | 'hero'
   showGlow?: boolean
   ariaLabel?: string
 }
 
-export default function StudyMentorAvatar({
+function StudyMentorAvatarView({
+  tutor,
   mentor,
   expression = 'idle',
+  isTalking,
   caption,
   size = 'md',
   showGlow = true,
   ariaLabel,
 }: StudyMentorAvatarProps) {
-  const asset = getMentorGifAsset(mentor.id)
-  const label = ariaLabel ?? `${mentor.name}, your AI Tutor`
+  const activeTutor = tutor ?? mentor!
+  const asset = getMentorGifAsset(activeTutor.id)
+  const machine = useAvatarMachineOutputOptional()
+  const label = ariaLabel ?? getTutorAriaLabel()
 
   if (asset === null) {
     return null
   }
 
-  const showCelebration = expression === 'celebrating' || expression === 'excited'
-  const showSpeaking = expression === 'speaking' || expression === 'explaining'
-  const showListening = expression === 'listening' || expression === 'curious'
-  const showThinking = expression === 'thinking'
+  const resolvedExpression = machine !== null
+    ? machineStateToLegacyExpression(machine.state)
+    : expression
+  const showCelebration = resolvedExpression === 'celebrating' || resolvedExpression === 'excited'
+  const showSpeaking = machine?.isTalking ?? isTalking ?? (expression === 'speaking' || expression === 'explaining')
+  const showListening = resolvedExpression === 'listening' || resolvedExpression === 'curious'
+  const showThinking = resolvedExpression === 'thinking'
 
   return (
     <div
-      className={`study-mentor study-mentor-${size} study-mentor-${mentor.id} study-mentor-has-gif mentor-expr-${expression}${showGlow ? ' has-glow' : ''}`}
+      className={`study-mentor study-mentor-${size} study-mentor-${activeTutor.id} study-mentor-has-gif mentor-expr-${resolvedExpression}${showGlow ? ' has-glow' : ''}`}
       style={{
-        '--mentor-accent': mentor.visual.accent,
-        '--mentor-accent-soft': mentor.visual.accentSoft,
-        '--mentor-glow': mentor.visual.glow,
-        '--mentor-skin': mentor.visual.skin,
-        '--mentor-secondary': mentor.visual.secondary,
+        '--mentor-accent': activeTutor.visual.accent,
+        '--mentor-accent-soft': activeTutor.visual.accentSoft,
+        '--mentor-glow': activeTutor.visual.glow,
+        '--mentor-skin': activeTutor.visual.skin,
+        '--mentor-secondary': activeTutor.visual.secondary,
       } as CSSProperties}
       role="figure"
       aria-label={label}
-      data-mentor-id={mentor.id}
+      data-tutor-id={activeTutor.id}
+      data-avatar-state={machine?.state}
     >
       <div className="study-mentor-stage">
-        <MentorGifAvatar mentorId={mentor.id} asset={asset} label={label} />
+        <Avatar
+          mentorId={activeTutor.id}
+          asset={asset}
+          label={label}
+          expression={expression}
+          isTalking={showSpeaking}
+        />
         {showCelebration ? (
           <>
             <span className="mentor-confetti mentor-confetti-a" aria-hidden="true" />
@@ -72,4 +99,21 @@ export default function StudyMentorAvatar({
       ) : null}
     </div>
   )
+}
+
+export default function StudyMentorAvatar({ avatarInput, tutor, mentor, ...props }: StudyMentorAvatarProps) {
+  const resolvedTutor = tutor ?? mentor
+  if (resolvedTutor === undefined) {
+    return null
+  }
+
+  if (avatarInput !== undefined) {
+    return (
+      <AvatarMachineProvider input={avatarInput}>
+        <StudyMentorAvatarView {...props} tutor={resolvedTutor} avatarInput={avatarInput} />
+      </AvatarMachineProvider>
+    )
+  }
+
+  return <StudyMentorAvatarView {...props} tutor={resolvedTutor} />
 }

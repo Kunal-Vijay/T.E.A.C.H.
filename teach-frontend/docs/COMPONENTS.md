@@ -67,6 +67,17 @@ Full API docs: [`src/components/ui/README.md`](../src/components/ui/README.md). 
 
 Design tokens live in `src/styles/tokens.css` (imported via `theme.css`). Component CSS: `styles/components/*.css`, `hub.css`, `layout.css`. Do not introduce new colors outside the token palette.
 
+## Avatar system
+
+| Component | Path | Role |
+|-----------|------|------|
+| `Avatar` | `components/avatar/Avatar.tsx` | GIF by default; `InteractiveAvatar` when `VITE_USE_INTERACTIVE_AVATAR=true` |
+| `GifAvatar` | `components/avatar/GifAvatar.tsx` | Existing mentor GIF (default + fallback) |
+| `InteractiveAvatar` | `components/avatar/InteractiveAvatar.tsx` | Framer Motion tutor with 7 animation states |
+| `AvatarProvider` | `components/avatar/AvatarProvider.tsx` | Feature flag context |
+
+Flag: `VITE_USE_INTERACTIVE_AVATAR=false` (maps to `USE_INTERACTIVE_AVATAR`).
+
 ## Welcome / onboarding
 
 | Component | Path | Role |

@@ -2,7 +2,6 @@ type AnalyticsEvent =
   | 'page_view'
   | 'role_selected'
   | 'theme_selected'
-  | 'mentor_selected'
   | 'class_joined'
   | 'classroom_session_created'
   | 'lesson_advanced'

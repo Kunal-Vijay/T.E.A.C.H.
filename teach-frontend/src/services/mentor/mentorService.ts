@@ -1,37 +1,40 @@
+import { CURRENT_TUTOR_ID } from '../../lib/tutor/tutor.config'
+import type { MentorProfile, TutorId } from '../../types/mentor.types'
 import { isMentorId } from '../../lib/mentors'
-import type { MentorId, MentorProfile } from '../../types/mentor.types'
 
-const STORAGE_KEY = 'teach_student_mentor'
+const STORAGE_KEY = 'teach_student_profile'
+
+/** Always returns Nova — the official AI Tutor. */
+export function getMentorId(): TutorId {
+  return CURRENT_TUTOR_ID
+}
 
 export function getMentorProfile(): MentorProfile | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw === null) {
-      return null
+      return { mentorId: CURRENT_TUTOR_ID, selectedAt: Date.now() }
     }
     const parsed = JSON.parse(raw) as MentorProfile
     if (!isMentorId(parsed.mentorId)) {
-      return null
+      return { mentorId: CURRENT_TUTOR_ID, selectedAt: Date.now() }
     }
-    return parsed
+    return { ...parsed, mentorId: CURRENT_TUTOR_ID }
   } catch {
-    return null
+    return { mentorId: CURRENT_TUTOR_ID, selectedAt: Date.now() }
   }
 }
 
-export function getMentorId(): MentorId | null {
-  return getMentorProfile()?.mentorId ?? null
-}
-
+/** @deprecated Tutor selection removed — always true. */
 export function hasSelectedMentor(): boolean {
-  return getMentorId() !== null
+  return true
 }
 
-export function setMentorId(mentorId: MentorId, studentName?: string): void {
+export function setStudentDisplayName(studentName: string): void {
   const profile: MentorProfile = {
-    mentorId,
+    mentorId: CURRENT_TUTOR_ID,
     selectedAt: Date.now(),
-    ...(studentName !== undefined && studentName.trim() !== '' ? { studentName: studentName.trim() } : {}),
+    ...(studentName.trim() !== '' ? { studentName: studentName.trim() } : {}),
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
 }

@@ -1,5 +1,5 @@
-import MentorGifAvatar from '../mentor/MentorGifAvatar'
-import { getMentorGifAsset } from '../../lib/mentors/mentorAssets'
+import { Avatar } from '../avatar'
+import { CURRENT_TUTOR, getTutorLabel } from '../../lib/tutor'
 import HeroFloatCard from './HeroFloatCard'
 import { HERO_FLOAT_CARDS, polarPoint } from './heroSceneConfig'
 
@@ -12,10 +12,8 @@ const PARTICLE_SEEDS = [
   { x: 44, y: 42, delay: 2.1 },
 ]
 
-/** Rich AI Tutor hero — contextual capability cards + intelligence field. */
+/** Rich AI Tutor hero — Nova + contextual capability cards. */
 export default function HeroScene() {
-  const tutorAsset = getMentorGifAsset('nova')
-
   return (
     <div className="hero-scene" aria-hidden="true">
       <div className="hero-scene-field">
@@ -91,14 +89,20 @@ export default function HeroScene() {
         <div className="hero-scene-narration-wave" aria-hidden="true">
           <span /><span /><span /><span />
         </div>
-        <MentorGifAvatar mentorId="nova" asset={tutorAsset} label="" />
+        <Avatar
+          mentorId={CURRENT_TUTOR.id}
+          asset={CURRENT_TUTOR.avatar}
+          label={getTutorLabel()}
+          isTalking={true}
+          state="idle"
+        />
         <div className="hero-scene-tutor-nameplate">
           <div className="hero-scene-tutor-nameplate-top">
             <span className="hero-scene-live-dot" />
             <span className="hero-scene-tutor-status">Narrating</span>
           </div>
-          <p className="hero-scene-tutor-name">Nova</p>
-          <p className="hero-scene-tutor-role">AI Tutor</p>
+          <p className="hero-scene-tutor-name">{CURRENT_TUTOR.name}</p>
+          <p className="hero-scene-tutor-role">{CURRENT_TUTOR.role}</p>
         </div>
       </div>
     </div>
