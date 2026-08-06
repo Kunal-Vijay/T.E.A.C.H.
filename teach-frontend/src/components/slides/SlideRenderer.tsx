@@ -1,39 +1,75 @@
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
+import LessonContent from '../lesson/LessonContent'
+import { isSafeAssetUrl } from '../../lib/urlValidation'
 
 interface SlideElementProps {
   element: Record<string, unknown>
 }
 
-function SlideElementText({ element }: SlideElementProps) {
-  const content = String(element.content ?? '')
-  const elementType = String(element.type ?? 'text')
-  if (elementType === 'heading') {
-    return <h2>{content}</h2>
+function normalizeBulletItems(content: unknown): string[] {
+  if (Array.isArray(content)) {
+    return content.map((item) => String(item))
   }
-  if (elementType === 'bullet_list' && Array.isArray(element.content)) {
+  if (typeof content === 'string') {
+    const trimmed = content.trim()
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed) as unknown
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => String(item))
+        }
+      } catch {
+        /* fall through */
+      }
+    }
+    return trimmed
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '')
+  }
+  return []
+}
+
+function SlideElementText({ element }: SlideElementProps) {
+  const content = element.content
+  const elementType = String(element.type ?? 'text')
+
+  if (elementType === 'heading') {
     return (
-      <ul>
-        {element.content.map((item, index) => (
-          <li key={`bullet-${index}`}>{String(item)}</li>
+      <h2 className="lesson-heading">
+        <LessonContent source={String(content ?? '')} inline />
+      </h2>
+    )
+  }
+
+  if (elementType === 'bullet_list') {
+    const items = normalizeBulletItems(content)
+    return (
+      <ul className="lesson-list">
+        {items.map((item, index) => (
+          <li key={`bullet-${index}`}>
+            <LessonContent source={item} inline />
+          </li>
         ))}
       </ul>
     )
   }
-  return <p>{content}</p>
+
+  return <LessonContent source={String(content ?? '')} />
 }
 
 function SlideElementLatex({ element }: SlideElementProps) {
   const html = katex.renderToString(String(element.content ?? ''), { throwOnError: false })
-  return <div dangerouslySetInnerHTML={{ __html: html }} />
+  return <div className="lesson-formula" dangerouslySetInnerHTML={{ __html: html }} />
 }
 
 function SlideElementImage({ element }: SlideElementProps) {
   const assetUrl = element.asset_url !== null && element.asset_url !== undefined ? String(element.asset_url) : null
-  if (assetUrl === null || assetUrl === '') {
+  if (assetUrl === null || assetUrl === '' || !isSafeAssetUrl(assetUrl)) {
     return <div className="image-placeholder">Diagram</div>
   }
-  return <img src={assetUrl} alt="Slide visual" />
+  return <img src={assetUrl} alt="Slide visual" loading="lazy" decoding="async" />
 }
 
 export default function SlideRenderer({ elements }: { elements: Array<Record<string, unknown>> }) {
@@ -49,11 +85,6 @@ export default function SlideRenderer({ elements }: { elements: Array<Record<str
         }
         return <SlideElementText key={`element-${index}`} element={element} />
       })}
-      <style>{`
-        .slide-renderer { display: flex; flex-direction: column; gap: 1rem; font-size: 1.1rem; line-height: 1.6; }
-        .image-placeholder { height: 180px; border-radius: 12px; background: #eff6ff; display: grid; place-items: center; color: var(--teach-muted); }
-        .slide-renderer img { max-width: 100%; border-radius: 12px; }
-      `}</style>
     </div>
   )
 }

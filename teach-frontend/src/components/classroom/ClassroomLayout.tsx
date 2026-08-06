@@ -1,24 +1,47 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronRight, Radio, RotateCcw, Sparkles, Volume2, VolumeX } from 'lucide-react'
 import SlideRenderer from '../slides/SlideRenderer'
-import TeacherAvatar, { type AvatarState } from '../avatar/TeacherAvatar'
+import StudyMentorAvatar from '../mentor/StudyMentorAvatar'
 import PopQuizPanel from '../quiz/PopQuizPanel'
 import SageDoubtPanel from '../sage/SageDoubtPanel'
-import { useSpeech } from '../../hooks/useSpeech'
+import CelebrationMoment from '../delight/CelebrationMoment'
+import LearningStatsBar from '../delight/LearningStatsBar'
+import ErrorState from '../ui/ErrorState'
+import Icon from '../ui/Icon'
+import { pickRandom, SLIDE_MILESTONES, MOTIVATIONAL_KICKERS } from '../../constants/delightCopy'
+import { XP_REWARDS } from '../../constants/xp'
+import { useMentor } from '../../context/MentorContext'
+import { classroomModeToExpression } from '../../lib/mentors'
+import { getMentorById } from '../../lib/mentors'
+import { useMentorVoice } from '../../hooks/useMentorVoice'
+import type { ClassroomAvatarMode } from '../../types/mentor.types'
 import type { CurrentStateResponse } from '../../types/api.types'
+
+interface CelebrationState {
+  title: string
+  subtitle?: string
+  xp?: number
+}
 
 interface ClassroomLayoutProps {
   currentState: CurrentStateResponse
+  sessionStep: number
   onAdvance: () => Promise<void>
   onSubmitPrediction: (predictionText: string) => Promise<void>
   onQuizSubmit: (questionId: string, selectedOptionId: string) => Promise<import('../../types/api.types').QuizAttemptResponse>
   onOpenSage: () => Promise<string>
-  onAskSage: (message: string) => Promise<import('../../types/api.types').DoubtMessageResponse>
-  onCloseSage: () => Promise<void>
+  onAskSage: (doubtSessionId: string, message: string) => Promise<import('../../types/api.types').DoubtMessageResponse>
+  onCloseSage: (doubtSessionId: string) => Promise<void>
   onSkipDoubts: () => Promise<void>
+  onSlideView?: () => void
+  onPrediction?: () => void
+  onQuizResult?: (correct: boolean) => void
+  onSageQuestion?: () => void
 }
 
 export default function ClassroomLayout({
   currentState,
+  sessionStep,
   onAdvance,
   onSubmitPrediction,
   onQuizSubmit,
@@ -26,30 +49,66 @@ export default function ClassroomLayout({
   onAskSage,
   onCloseSage,
   onSkipDoubts,
+  onSlideView,
+  onPrediction,
+  onQuizResult,
+  onSageQuestion,
 }: ClassroomLayoutProps) {
+  const { mentor, expression, setExpression, pulseExpression, reactToQuiz } = useMentor()
+  const activeMentor = mentor ?? getMentorById('sage')
   const [predictionText, setPredictionText] = useState('')
   const [showSagePanel, setShowSagePanel] = useState(false)
   const [doubtSessionId, setDoubtSessionId] = useState<string | null>(null)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [speechEnabled, setSpeechEnabled] = useState(false)
+  const [advancing, setAdvancing] = useState(false)
+  const [celebration, setCelebration] = useState<CelebrationState | null>(null)
+  const [milestoneMessage, setMilestoneMessage] = useState<string | null>(null)
   const pendingSpeakAfterAdvanceRef = useRef(false)
+  const lastMilestoneRef = useRef(0)
 
-  const { speechStatus, speechError, speakNow, warmUp, isSupported } = useSpeech()
+  const { speechStatus, speechError, speakAsMentor: speakMentorLine, speakLessonContent, warmUp, isSupported } = useMentorVoice()
 
-  const slides = currentState.content.slides
+  const speakAsMentor = async (text: string, asLesson = true) => {
+    if (asLesson) {
+      await speakLessonContent(activeMentor, text)
+      return
+    }
+    await speakMentorLine(activeMentor, text)
+  }
+
+  const slides = currentState.content?.slides ?? []
   const currentSlide = slides[currentSlideIndex]
   const stateType = currentState.current_state?.state_type
   const explanationText = currentSlide?.explanation?.explanation_text ?? ''
+  const stateLabel = currentState.current_state?.label ?? 'Lesson'
+  const motivationalKicker = useMemo(() => pickRandom(MOTIVATIONAL_KICKERS), [currentState.current_state?.state_id])
 
   const avatarCaption = useMemo(() => {
     if (explanationText.trim() !== '') {
       return explanationText
     }
-    return currentState.current_state?.label ?? ''
-  }, [explanationText, currentState.current_state?.label])
+    return stateLabel
+  }, [explanationText, stateLabel])
+
+  const slideProgress = useMemo(() => {
+    if (stateType === 'pop_quiz' || stateType === 'doubts_resolution' || stateType === 'student_predict') {
+      return null
+    }
+    if (slides.length === 0) {
+      return null
+    }
+    return {
+      current: currentSlideIndex + 1,
+      total: slides.length,
+      percent: Math.round(((currentSlideIndex + 1) / slides.length) * 100),
+    }
+  }, [currentSlideIndex, slides.length, stateType])
 
   useEffect(() => {
     setCurrentSlideIndex(0)
+    lastMilestoneRef.current = 0
+    setMilestoneMessage(null)
   }, [currentState.current_state?.state_id])
 
   useEffect(() => {
@@ -58,18 +117,36 @@ export default function ClassroomLayout({
     }
     pendingSpeakAfterAdvanceRef.current = false
     if (explanationText.trim() !== '') {
-      speakNow(explanationText)
+      speakAsMentor(explanationText)
     }
-  }, [currentState.current_state?.state_id, explanationText, speechEnabled, speakNow])
+  }, [currentState.current_state?.state_id, explanationText, speechEnabled, speakLessonContent])
+
+  useEffect(() => {
+    if (slideProgress === null) {
+      return
+    }
+    const milestone = SLIDE_MILESTONES[slideProgress.percent]
+    if (milestone !== undefined && slideProgress.percent > lastMilestoneRef.current) {
+      lastMilestoneRef.current = slideProgress.percent
+      setMilestoneMessage(milestone)
+      if (slideProgress.percent === 100) {
+        setCelebration({
+          title: 'Section complete',
+          subtitle: milestone,
+          xp: XP_REWARDS.SLIDE,
+        })
+      }
+    }
+  }, [slideProgress])
 
   const handleEnableSpeech = async () => {
     warmUp()
     setSpeechEnabled(true)
     if (explanationText.trim() !== '') {
-      await speakNow(explanationText)
+      await speakAsMentor(explanationText)
       return
     }
-    await speakNow('Teacher voice is enabled. Click Continue to hear the lesson.')
+    await speakAsMentor('Voice is enabled. Click Continue when you are ready.')
   }
 
   const speakSlideExplanation = async (slideIndex: number) => {
@@ -78,32 +155,37 @@ export default function ClassroomLayout({
     }
     const slideExplanation = slides[slideIndex]?.explanation?.explanation_text ?? ''
     if (slideExplanation.trim() !== '') {
-      await speakNow(slideExplanation)
+      await speakAsMentor(slideExplanation)
     }
   }
 
   const handleContinue = async () => {
-    if (!speechEnabled) {
-      await handleEnableSpeech()
+    if (advancing) {
       return
     }
+    setAdvancing(true)
+    try {
+      if (stateType === 'student_predict') {
+        await onSubmitPrediction(predictionText)
+        onPrediction?.()
+        setPredictionText('')
+        pendingSpeakAfterAdvanceRef.current = true
+        return
+      }
 
-    if (stateType === 'student_predict') {
-      await onSubmitPrediction(predictionText)
-      setPredictionText('')
+      if (currentSlideIndex + 1 < slides.length) {
+        const nextSlideIndex = currentSlideIndex + 1
+        setCurrentSlideIndex(nextSlideIndex)
+        onSlideView?.()
+        await speakSlideExplanation(nextSlideIndex)
+        return
+      }
+
       pendingSpeakAfterAdvanceRef.current = true
-      return
+      await onAdvance()
+    } finally {
+      setAdvancing(false)
     }
-
-    if (currentSlideIndex + 1 < slides.length) {
-      const nextSlideIndex = currentSlideIndex + 1
-      setCurrentSlideIndex(nextSlideIndex)
-      await speakSlideExplanation(nextSlideIndex)
-      return
-    }
-
-    pendingSpeakAfterAdvanceRef.current = true
-    await onAdvance()
   }
 
   const openSage = async () => {
@@ -114,7 +196,7 @@ export default function ClassroomLayout({
     setShowSagePanel(true)
   }
 
-  const resolvedAvatarState: AvatarState =
+  const resolvedAvatarMode: ClassroomAvatarMode =
     stateType === 'pop_quiz'
       ? 'questioning'
       : stateType === 'student_predict' || showSagePanel
@@ -123,100 +205,234 @@ export default function ClassroomLayout({
           ? 'speaking'
           : 'idle'
 
+  useEffect(() => {
+    if (speechStatus === 'speaking') {
+      setExpression(activeMentor.expression.onSpeak)
+      return
+    }
+
+    const modeExpression = classroomModeToExpression(resolvedAvatarMode)
+    if (modeExpression === 'listening') {
+      setExpression(activeMentor.expression.onListen)
+    } else if (modeExpression === 'curious') {
+      setExpression('curious')
+    } else if (modeExpression === 'speaking' || modeExpression === 'explaining') {
+      setExpression(activeMentor.expression.onSpeak)
+    } else {
+      setExpression(activeMentor.expression.onIdle)
+    }
+  }, [resolvedAvatarMode, speechStatus, activeMentor, setExpression])
+
+  useEffect(() => {
+    if (celebration !== null) {
+      pulseExpression('celebrating')
+    }
+  }, [celebration, pulseExpression])
+
+  const showContinue =
+    stateType !== 'pop_quiz'
+    && stateType !== 'doubts_resolution'
+    && !(stateType === 'student_predict' && predictionText.trim() === '')
+
+  const continueLabel = advancing ? 'Continuing…' : 'Continue'
+
   return (
-    <div className="classroom-layout">
-      {!speechEnabled && isSupported ? (
-        <div className="speech-unlock-banner card">
-          <p>
-            Click below to enable the teacher&apos;s voice. Audio is generated by the server and works in Brave.
+    <div className="classroom-shell">
+      <LearningStatsBar compact sessionStep={sessionStep} />
+
+      <div className="lesson-chrome">
+        <div className="lesson-chrome-meta">
+          <p className="lesson-chrome-kicker">
+            <Icon icon={Radio} size={12} />
+            Live lesson
           </p>
-          <button type="button" className="btn btn-primary" onClick={handleEnableSpeech}>
-            Enable Teacher Voice
-          </button>
+          <p className="lesson-chrome-title">{stateLabel}</p>
+          <p className="lesson-chrome-motivation">{motivationalKicker}</p>
         </div>
-      ) : null}
-      {!isSupported ? (
-        <div className="speech-unlock-banner card">
-          <p>Your browser does not support text-to-speech. Read the explanation below the avatar.</p>
-        </div>
-      ) : null}
-      {speechError !== null ? (
-        <div className="error-banner speech-error-banner">{speechError}</div>
-      ) : null}
-      <section className="slide-area card">
-        <div className="state-label">{currentState.current_state?.label}</div>
-        {stateType === 'pop_quiz' ? (
-          <PopQuizPanel
-            questions={currentState.content.quiz_questions}
-            onSubmit={onQuizSubmit}
-            onComplete={onAdvance}
-          />
-        ) : stateType === 'student_predict' ? (
-          <div className="predict-panel">
-            <SlideRenderer elements={currentSlide?.elements ?? []} />
-            <textarea
-              className="textarea"
-              placeholder="Share your prediction..."
-              value={predictionText}
-              onChange={(event) => setPredictionText(event.target.value)}
-            />
+        {slideProgress !== null ? (
+          <div className="journey-progress lesson-progress-wrap">
+            <p className="journey-progress-label" id="slide-progress-label">
+              Slide {slideProgress.current} of {slideProgress.total}
+            </p>
+            <div
+              className="journey-progress-bar"
+              role="progressbar"
+              aria-labelledby="slide-progress-label"
+              aria-valuenow={slideProgress.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className={`journey-progress-fill${slideProgress.percent === 100 ? ' is-milestone' : ''}`}
+                style={{ width: `${slideProgress.percent}%` }}
+              />
+            </div>
           </div>
         ) : (
-          <SlideRenderer elements={currentSlide?.elements ?? []} />
+          <div className="journey-progress lesson-progress-wrap">
+            <p className="journey-progress-label" id="session-progress-label">
+              Step {sessionStep} of your session
+            </p>
+            <div
+              className="journey-progress-bar"
+              role="progressbar"
+              aria-labelledby="session-progress-label"
+              aria-valuenow={Math.min(sessionStep * 12, 96)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div className="journey-progress-fill" style={{ width: `${Math.min(sessionStep * 12, 96)}%` }} />
+            </div>
+          </div>
         )}
-        <div className="classroom-controls">
-          {stateType !== 'pop_quiz' && stateType !== 'doubts_resolution' ? (
-            <button type="button" className="btn btn-primary" onClick={handleContinue}>
-              {speechEnabled ? 'Continue' : 'Enable voice & continue'}
+        <div className="lesson-chrome-actions">
+          {isSupported ? (
+            <button
+              type="button"
+              className={`btn btn-secondary btn-with-icon${speechEnabled ? ' is-active-audio' : ''}`}
+              onClick={() => { void handleEnableSpeech() }}
+              aria-pressed={speechEnabled}
+            >
+              <Icon icon={speechEnabled ? Volume2 : VolumeX} size={16} />
+              {speechEnabled ? 'Audio on' : 'Enable audio'}
             </button>
           ) : null}
-          {stateType === 'doubts_resolution' ? (
-            <>
-              <button type="button" className="btn btn-sage" onClick={openSage}>Ask SAGE</button>
-              <button type="button" className="btn btn-secondary" onClick={onSkipDoubts}>Skip to next topic</button>
-            </>
-          ) : null}
         </div>
-      </section>
-      <aside className="avatar-area card">
-        <TeacherAvatar state={resolvedAvatarState} caption={avatarCaption} />
-        {explanationText.trim() !== '' ? (
+      </div>
+
+      <CelebrationMoment
+        show={celebration !== null}
+        title={celebration?.title ?? ''}
+        subtitle={celebration?.subtitle}
+        xp={celebration?.xp}
+        onDismiss={() => setCelebration(null)}
+      />
+
+      {milestoneMessage !== null && slideProgress?.percent !== 100 ? (
+        <p className="lesson-milestone">{milestoneMessage}</p>
+      ) : null}
+
+      {speechError !== null ? (
+        <ErrorState message={speechError} />
+      ) : null}
+
+      <div className="classroom-layout">
+        <section className="slide-area card">
+          <div className="slide-content">
+            {stateType === 'pop_quiz' ? (
+              <PopQuizPanel
+                questions={currentState.content?.quiz_questions ?? []}
+                onSubmit={onQuizSubmit}
+                onComplete={onAdvance}
+                onQuizResult={(correct) => {
+                  const reaction = reactToQuiz(correct)
+                  if (reaction.line !== '') {
+                    void speakAsMentor(reaction.line, false)
+                  }
+                  onQuizResult?.(correct)
+                }}
+              />
+            ) : stateType === 'student_predict' ? (
+              <div className="predict-panel">
+                <SlideRenderer elements={currentSlide?.elements ?? []} />
+                <label className="form-field">
+                  <span className="field-label">Your prediction</span>
+                  <textarea
+                    className="textarea"
+                    placeholder="What do you think happens next?"
+                    value={predictionText}
+                    onChange={(event) => setPredictionText(event.target.value)}
+                  />
+                  <p className="field-hint">There’s no wrong answer here — reasoning is the win. +{XP_REWARDS.PREDICTION} XP when you continue.</p>
+                </label>
+              </div>
+            ) : (
+              <SlideRenderer elements={currentSlide?.elements ?? []} />
+            )}
+          </div>
+
+          <div className="classroom-controls classroom-controls-desktop">
+            {stateType === 'doubts_resolution' ? (
+              <div className="sage-launch">
+                <div className="sage-launch-identity" aria-hidden="true">
+                  <Icon icon={Sparkles} size={20} className="sage-launch-icon" />
+                </div>
+                <div className="sage-launch-copy">
+                  <p className="sage-launch-kicker">AI tutor</p>
+                  <strong>Ask SAGE anything</strong>
+                  <p>Stuck? SAGE explains without judgment — +{XP_REWARDS.SAGE_ASK} XP per question.</p>
+                </div>
+                <div className="sage-launch-actions">
+                  <button type="button" className="btn btn-sage btn-with-icon" onClick={() => { void openSage() }}>
+                    <Icon icon={Sparkles} size={16} />
+                    Open SAGE
+                  </button>
+                  <button type="button" className="btn btn-ghost" onClick={() => { void onSkipDoubts() }}>Skip for now</button>
+                </div>
+              </div>
+            ) : null}
+            {showContinue ? (
+              <button
+                type="button"
+                className={`btn btn-primary btn-with-icon${advancing ? ' is-loading' : ''}`}
+                onClick={() => { void handleContinue() }}
+                disabled={advancing}
+              >
+                {continueLabel}
+                <Icon icon={ChevronRight} size={16} />
+              </button>
+            ) : null}
+          </div>
+        </section>
+
+        <aside className="avatar-area card avatar-area-compact">
+          <StudyMentorAvatar
+            mentor={activeMentor}
+            expression={expression}
+            caption={avatarCaption}
+            size="md"
+            ariaLabel={`${activeMentor.name}, your study mentor`}
+          />
+          {explanationText.trim() !== '' && speechEnabled ? (
+            <button
+              type="button"
+              className="btn btn-secondary btn-with-icon replay-btn"
+              onClick={() => { void speakAsMentor(explanationText) }}
+            >
+              <Icon icon={RotateCcw} size={16} />
+              Replay
+            </button>
+          ) : null}
+        </aside>
+      </div>
+
+      {showContinue ? (
+        <div className="classroom-sticky-cta">
           <button
             type="button"
-            className="btn btn-secondary replay-btn"
-            onClick={async () => {
-              warmUp()
-              setSpeechEnabled(true)
-              await speakNow(explanationText)
-            }}
+            className={`btn btn-primary btn-with-icon${advancing ? ' is-loading' : ''}`}
+            onClick={() => { void handleContinue() }}
+            disabled={advancing}
           >
-            Replay explanation
+            {continueLabel}
+            <Icon icon={ChevronRight} size={16} />
           </button>
-        ) : null}
-      </aside>
+        </div>
+      ) : null}
+
       {showSagePanel && doubtSessionId !== null ? (
         <SageDoubtPanel
-          onAsk={onAskSage}
+          lessonContext={stateLabel}
+          onAsk={(message) => onAskSage(doubtSessionId, message)}
           onClose={async () => {
-            await onCloseSage()
+            await onCloseSage(doubtSessionId)
             setShowSagePanel(false)
+            setDoubtSessionId(null)
           }}
+          onQuestionAsked={onSageQuestion}
         />
       ) : null}
-      <style>{`
-        .classroom-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; min-height: calc(100vh - 120px); }
-        .speech-unlock-banner { grid-column: 1 / -1; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: #eff6ff; border-color: #bfdbfe; }
-        .speech-error-banner { grid-column: 1 / -1; }
-        .slide-area, .avatar-area { padding: 1.25rem; }
-        .avatar-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .replay-btn { width: 100%; }
-        .state-label { color: var(--teach-muted); margin-bottom: 1rem; font-weight: 600; }
-        .classroom-controls { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
-        .predict-panel { display: flex; flex-direction: column; gap: 0.75rem; }
-        @media (max-width: 900px) {
-          .classroom-layout { grid-template-columns: 1fr; }
-        }
-      `}</style>
+
     </div>
   )
 }

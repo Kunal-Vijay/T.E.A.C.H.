@@ -1,4 +1,5 @@
-import apiClient from './client'
+import apiClient, { getWithCache } from './client'
+import { CACHE_TTL, invalidateCache } from './responseCache'
 import type {
   ClassPlanDetailResponse,
   ClassPlanResponse,
@@ -7,14 +8,28 @@ import type {
 } from '../../types/api.types'
 
 export const classPlanApi = {
-  create: (payload: CreateClassPlanRequest) =>
-    apiClient.post<ClassPlanResponse>('/api/v1/class-plans', payload),
+  create: async (payload: CreateClassPlanRequest) => {
+    const response = await apiClient.post<ClassPlanResponse>('/api/v1/class-plans', payload)
+    invalidateCache('class-plans')
+    return response
+  },
   list: (params?: Record<string, string | number>) =>
-    apiClient.get<PaginatedClassPlanList>('/api/v1/class-plans', { params }),
+    getWithCache<PaginatedClassPlanList>('/api/v1/class-plans', {
+      params,
+      cacheKey: `class-plans:${JSON.stringify(params ?? {})}`,
+      cacheTtlMs: CACHE_TTL.list,
+    }).then((data) => ({ data })),
   get: (planId: string) =>
-    apiClient.get<ClassPlanDetailResponse>(`/api/v1/class-plans/${planId}`),
-  publish: (planId: string) =>
-    apiClient.post<ClassPlanResponse>(`/api/v1/class-plans/${planId}/publish`),
+    getWithCache<ClassPlanDetailResponse>(`/api/v1/class-plans/${planId}`, {
+      cacheKey: `class-plan:${planId}`,
+      cacheTtlMs: CACHE_TTL.detail,
+    }).then((data) => ({ data })),
+  publish: async (planId: string) => {
+    const response = await apiClient.post<ClassPlanResponse>(`/api/v1/class-plans/${planId}/publish`)
+    invalidateCache('class-plan')
+    invalidateCache('class-plans')
+    return response
+  },
   generate: (planId: string) =>
     apiClient.post(`/api/v1/class-plans/${planId}/generate`),
 }

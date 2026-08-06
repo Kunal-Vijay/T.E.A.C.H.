@@ -1,0 +1,425 @@
+/* Premium delight — amber celebrations, progress, gamification */
+
+/* Achievement toast — anchored to lesson flow, not a modal overlay */
+.celebration-toast-host {
+  width: 100%;
+  pointer-events: none;
+}
+
+.celebration-toast-host--inline {
+  margin-top: calc(var(--space-2) * -1);
+  margin-bottom: var(--space-1);
+}
+
+.celebration-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 28rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  animation: celebration-toast-in var(--duration-medium) var(--ease-spring) both;
+}
+
+.celebration-toast.is-exiting {
+  animation: celebration-toast-out var(--duration-normal) var(--ease-out) both;
+}
+
+.celebration-toast-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--color-highlight-soft);
+  color: var(--color-highlight-hover);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+}
+
+.celebration-toast-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.celebration-toast-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--leading-snug);
+  color: var(--color-ink);
+}
+
+.celebration-toast-desc {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.celebration-toast-xp {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--color-highlight-hover);
+  background: var(--color-highlight-soft);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+@keyframes celebration-toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes celebration-toast-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@keyframes celebration-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Learning stats */
+.learning-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.learning-stats-compact {
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-2);
+}
+
+.learning-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+.learning-stat-streak {
+  color: var(--color-highlight-hover);
+}
+
+.learning-stat-goal {
+  flex: 1;
+  min-width: 120px;
+}
+
+.daily-goal-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  overflow: hidden;
+  min-width: 48px;
+  max-width: 80px;
+}
+
+.daily-goal-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-highlight), #fbbf24);
+  transition: width var(--duration-medium) var(--ease-out);
+}
+
+.learning-stat-session {
+  color: var(--color-accent-ink);
+}
+
+/* Journey progress */
+.journey-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 140px;
+  max-width: 320px;
+}
+
+.journey-progress-label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+
+.journey-progress-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.journey-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
+  transition: width var(--duration-medium) var(--ease-out);
+}
+
+.journey-progress-fill.is-milestone {
+  background: linear-gradient(90deg, var(--color-highlight), #fbbf24);
+}
+
+/* Quiz celebration */
+.quiz-feedback.correct.is-celebrating {
+  animation: quiz-celebrate var(--duration-medium) var(--ease-out) both;
+  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(180deg, #fffbeb 0%, var(--color-accent-soft) 100%);
+}
+
+.quiz-xp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-highlight-hover);
+  background: var(--color-highlight-soft);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+@keyframes quiz-celebrate {
+  from { transform: scale(0.98); opacity: 0.7; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Session complete */
+.session-complete-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.session-complete-card {
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  border-color: rgba(245, 158, 11, 0.35);
+  background: linear-gradient(180deg, var(--color-surface) 0%, #fffbeb 120%);
+}
+
+.session-complete-badge {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  background: var(--color-highlight-soft);
+  color: var(--color-highlight-hover);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  animation: celebration-in var(--duration-medium) var(--ease-out) both;
+}
+
+.session-complete-kicker {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-highlight-hover);
+}
+
+.session-complete-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+  max-width: 20ch;
+}
+
+.session-complete-lede {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--text-md);
+  color: var(--color-ink-soft);
+  line-height: var(--leading-relaxed);
+}
+
+.session-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.session-summary-stat {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.session-summary-stat strong {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--color-ink);
+  letter-spacing: -0.03em;
+}
+
+.session-summary-stat span {
+  font-size: var(--text-xs);
+  color: var(--color-ink-mute);
+  font-weight: 600;
+}
+
+.session-summary-stat-highlight {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: var(--color-highlight-soft);
+}
+
+.session-summary-stat-highlight strong {
+  color: var(--color-highlight-hover);
+}
+
+.session-complete-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+/* Lesson milestone inline */
+.lesson-milestone {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: var(--color-highlight-soft);
+  color: var(--color-highlight-hover);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  animation: celebration-in var(--duration-medium) var(--ease-out) both;
+}
+
+/* Toast celebrate */
+.toast-celebrate {
+  background: linear-gradient(135deg, #fffbeb 0%, var(--color-highlight-soft) 100%);
+  color: var(--color-highlight-hover);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.achievement-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.achievement-toast strong {
+  display: block;
+  font-size: var(--text-sm);
+}
+
+.achievement-toast span {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* SAGE personality */
+.sage-encouragement {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  font-size: var(--text-sm);
+  color: var(--color-accent-ink);
+  line-height: var(--leading-relaxed);
+}
+
+@media (max-width: 640px) {
+  .learning-stats {
+    width: 100%;
+  }
+
+  .session-complete-card {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .celebration-toast {
+    max-width: 100%;
+  }
+
+  .celebration-toast-desc {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration-toast,
+  .session-complete-badge,
+  .lesson-milestone,
+  .quiz-feedback.correct.is-celebrating {
+    animation: none !important;
+  }
+
+  .celebration-toast.is-exiting {
+    opacity: 0;
+  }
+}

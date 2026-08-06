@@ -4,12 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-VENV_PATH="${HOME}/.pyenv/versions/3.11.15/envs/teach-venv"
-if [ -f "${VENV_PATH}/bin/activate" ]; then
+if [ -f "${ROOT_DIR}/venv/bin/activate" ]; then
   # shellcheck disable=SC1091
-  source "${VENV_PATH}/bin/activate"
+  source "${ROOT_DIR}/venv/bin/activate"
+elif [ -f "${HOME}/.pyenv/versions/3.11.15/envs/teach-venv/bin/activate" ]; then
+  # shellcheck disable=SC1091
+  source "${HOME}/.pyenv/versions/3.11.15/envs/teach-venv/bin/activate"
 else
-  echo "teach-venv not found. Create it with: pyenv virtualenv 3.11.15 teach-venv"
+  echo "No Python venv found. Create one with: python3.12 -m venv venv"
   exit 1
 fi
 
@@ -23,7 +25,12 @@ fi
 export PYTHONPATH="$ROOT_DIR"
 
 if [ ! -f teach.db ]; then
-  python scripts/init_db.py
+  if [ -f teach_dump.sql ]; then
+    sqlite3 teach.db < teach_dump.sql
+    echo "Database restored from teach_dump.sql"
+  else
+    python scripts/init_db.py
+  fi
 fi
 
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
