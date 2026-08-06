@@ -13,13 +13,15 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-sans);
+  font-family: var(--font-family);
   background: var(--grad-page);
   color: var(--color-ink);
-  font-size: var(--text-md);
-  line-height: var(--leading-normal);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 ::selection {
@@ -32,28 +34,28 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-sans);
-  letter-spacing: -0.02em;
-  font-weight: 600;
+  font-family: var(--font-family);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-ink);
-  line-height: var(--leading-snug);
+  line-height: var(--leading-heading);
 }
 
 .page-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: var(--leading-tight);
-  font-size: var(--text-2xl);
-  margin: 0;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-heading);
+  font-size: var(--text-h1);
+  margin: 0 0 var(--space-3);
   color: var(--color-ink);
 }
 
 .page-kicker {
   margin: 0 0 var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--color-ink-mute);
 }
@@ -61,8 +63,8 @@ h1, h2, h3, h4 {
 .page-lede {
   margin: var(--space-2) 0 0;
   max-width: 42ch;
-  font-size: var(--text-md);
-  line-height: var(--leading-relaxed);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
   color: var(--color-ink-soft);
 }
 
@@ -204,9 +206,12 @@ button { font: inherit; cursor: pointer; }
   overflow: hidden;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: 0.8rem 1.3rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  padding: 0.625rem 1.25rem;
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-normal);
+  line-height: 1.25;
   transition:
     transform var(--duration-fast) var(--ease-out),
     background var(--duration-normal) var(--ease-out),
@@ -368,8 +373,8 @@ button { font: inherit; cursor: pointer; }
 .field-label {
   display: block;
   margin-bottom: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
   color: var(--color-ink-soft);
 }
 
@@ -388,10 +393,10 @@ button { font: inherit; cursor: pointer; }
   gap: 0.25rem;
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-wide);
   border: 1px solid var(--color-border);
   background: var(--color-surface-2);
   color: var(--color-ink-soft);

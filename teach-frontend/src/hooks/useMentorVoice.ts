@@ -1,11 +1,11 @@
 import { useCallback, useRef } from 'react'
-import { getLessonIntro, pickDialogue, shouldPlayLessonIntro } from '../lib/mentors/dialogue'
-import { buildSpeechChunks } from '../lib/speech/sentenceChunker'
+import { pickDialogue } from '../lib/mentors/dialogue'
+import { playbackController, type SegmentPlaybackEvent } from '../lib/speech/PlaybackController'
 import type { DialogueCategory, MentorDefinition } from '../types/mentor.types'
 import { useSpeech, type SpeakMentorOptions } from './useSpeech'
 
 export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
-  const { speechStatus, speechError, speakNow, speakSequence, stopSpeech, isSupported, isMuted, warmUp } = useSpeech()
+  const { speechStatus, speechError, speakNow, stopSpeech, withSpeaking, isSupported, isMuted, warmUp } = useSpeech()
   const demoTimerRef = useRef<number | null>(null)
 
   const clearDemoTimer = useCallback(() => {
@@ -13,13 +13,6 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
       window.clearTimeout(demoTimerRef.current)
       demoTimerRef.current = null
     }
-  }, [])
-
-  const buildChunks = useCallback((mentor: MentorDefinition, text: string) => {
-    return buildSpeechChunks(text, {
-      chunkSpeech: mentor.voice.chunkSpeech,
-      maxCharsPerChunk: mentor.voice.maxCharsPerChunk,
-    })
   }, [])
 
   const speakAsMentor = useCallback(async (
@@ -45,32 +38,41 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
     })
   }, [clearDemoTimer, isMuted, onExpression, speakNow, warmUp])
 
-  const speakLessonContent = useCallback(async (mentor: MentorDefinition, lessonText: string) => {
+  const speakLessonContent = useCallback(async (
+    mentor: MentorDefinition,
+    lessonText: string,
+    callbacks?: {
+      onSegmentStart?: (event: SegmentPlaybackEvent) => void
+      onCueStart?: (index: number, text: string) => void
+      onEnd?: () => void
+      onCancel?: () => void
+    },
+  ) => {
     if (isMuted || lessonText.trim() === '') {
       return false
     }
 
     clearDemoTimer()
     warmUp()
-
-    const segments: string[] = []
-    if (shouldPlayLessonIntro(mentor)) {
-      segments.push(getLessonIntro(mentor))
-    }
-    segments.push(...buildChunks(mentor, lessonText))
-
-    if (segments.length === 0) {
-      return false
-    }
-
     onExpression?.(true)
-    return speakSequence(segments, {
-      voice: mentor.voice,
-      mentor,
-      onSentenceStart: () => onExpression?.(true),
-      onEnd: () => onExpression?.(false),
-    })
-  }, [buildChunks, clearDemoTimer, isMuted, onExpression, speakSequence, warmUp])
+
+    return withSpeaking(() => playbackController.playLesson(mentor, lessonText, {
+      onSegmentStart: (event) => {
+        onExpression?.(true)
+        callbacks?.onSegmentStart?.(event)
+        if (event.cueIndex !== null) {
+          callbacks?.onCueStart?.(event.cueIndex, event.text)
+        }
+      },
+      onEnd: () => {
+        onExpression?.(false)
+        callbacks?.onEnd?.()
+      },
+      onCancel: () => {
+        callbacks?.onCancel?.()
+      },
+    }))
+  }, [clearDemoTimer, isMuted, onExpression, warmUp, withSpeaking])
 
   const previewVoice = useCallback(async (mentor: MentorDefinition, category: DialogueCategory = 'demoLines') => {
     const line = pickDialogue(mentor, category)
@@ -88,6 +90,7 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
 
   const stopPreview = useCallback(() => {
     clearDemoTimer()
+    playbackController.stop()
     stopSpeech()
     onExpression?.(false)
   }, [clearDemoTimer, onExpression, stopSpeech])

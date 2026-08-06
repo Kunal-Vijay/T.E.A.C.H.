@@ -1,4 +1,5 @@
 import { ttsApi } from '../../services/api/ttsApi'
+import { getPauseAfterMs } from '../../lib/speech/speechPause'
 import type { VoiceProfile } from '../../types/mentor.types'
 
 export type SpeechStatus = 'idle' | 'speaking' | 'unsupported' | 'error'
@@ -12,9 +13,19 @@ export type SpeakCallbacks = {
   onSentenceEnd?: (index: number, text: string) => void
 }
 
+/** One queued TTS clip with optional punctuation-aware gap before the next. */
+export type SpeechQueueItem = {
+  text: string
+  pauseAfterMs?: number
+}
+
 export type SpeakOptions = SpeakCallbacks & {
   voice?: VoiceProfile
   cacheKey?: string
+  /** Uniform gap override — skips punctuation-aware pacing when set. */
+  gapMs?: number
+  /** How many upcoming segments to prefetch while playing. */
+  prefetchAhead?: number
 }
 
 export class SpeechController {
@@ -24,6 +35,8 @@ export class SpeechController {
   private readonly maxCacheSize = 48
   private activeRequestId = 0
   private prefetchPromises = new Map<string, Promise<string>>()
+  private paused = false
+  private resumeWaiters: Array<() => void> = []
 
   isSupported(): boolean {
     return typeof window !== 'undefined' && typeof Audio !== 'undefined'
@@ -34,17 +47,17 @@ export class SpeechController {
   }
 
   async speak(text: string, options?: SpeakOptions): Promise<boolean> {
-    return this.speakSequence([text], options)
+    return this.speakSequence([{ text }], options)
   }
 
-  async speakSequence(chunks: string[], options?: SpeakOptions): Promise<boolean> {
+  async speakSequence(chunks: string[] | SpeechQueueItem[], options?: SpeakOptions): Promise<boolean> {
     if (!this.isSupported()) {
       options?.onEnd?.()
       return false
     }
 
-    const sentences = chunks.map((c) => c.trim()).filter((c) => c !== '')
-    if (sentences.length === 0) {
+    const items = normalizeSpeechQueue(chunks)
+    if (items.length === 0) {
       options?.onEnd?.()
       return false
     }
@@ -55,23 +68,31 @@ export class SpeechController {
 
     try {
       if (options?.voice?.pauseBeforeMs !== undefined && options.voice.pauseBeforeMs > 0) {
-        await delay(options.voice.pauseBeforeMs)
+        await delayInterruptible(options.voice.pauseBeforeMs, requestId, () => this.activeRequestId, () => this.waitIfPaused())
         if (requestId !== this.activeRequestId) {
           return false
         }
       }
 
-      void this.prefetch(sentences, options?.voice, 1)
+      const texts = items.map((item) => item.text)
+      void this.prefetch(texts, options?.voice, 1, options?.prefetchAhead ?? 2)
 
-      for (let index = 0; index < sentences.length; index += 1) {
+      for (let index = 0; index < items.length; index += 1) {
         if (requestId !== this.activeRequestId) {
           return false
         }
 
-        const sentence = sentences[index] ?? ''
+        const item = items[index] ?? { text: '' }
+        const sentence = item.text
+
+        await this.waitIfPaused()
+        if (requestId !== this.activeRequestId) {
+          return false
+        }
+
         options?.onSentenceStart?.(index, sentence)
 
-        void this.prefetch(sentences, options?.voice, index + 2)
+        void this.prefetch(texts, options?.voice, index + 2, options?.prefetchAhead ?? 2)
 
         const played = await this.playSentence(sentence, options, requestId)
         if (!played || requestId !== this.activeRequestId) {
@@ -80,10 +101,10 @@ export class SpeechController {
 
         options?.onSentenceEnd?.(index, sentence)
 
-        if (index < sentences.length - 1) {
-          const pauseMs = options?.voice?.pauseBetweenMs ?? 400
+        if (index < items.length - 1) {
+          const pauseMs = resolvePauseAfterMs(item, options)
           if (pauseMs > 0) {
-            await delay(pauseMs)
+            await delayInterruptible(pauseMs, requestId, () => this.activeRequestId, () => this.waitIfPaused())
           }
         }
       }
@@ -103,10 +124,61 @@ export class SpeechController {
 
   stop(): void {
     this.activeRequestId += 1
+    this.paused = false
+    this.flushResumeWaiters()
     if (this.currentAudio !== null) {
       this.currentAudio.pause()
       this.currentAudio.currentTime = 0
       this.currentAudio = null
+    }
+  }
+
+  pause(): void {
+    if (this.currentAudio === null) {
+      this.paused = true
+      return
+    }
+    this.paused = true
+    this.currentAudio.pause()
+  }
+
+  resume(): void {
+    if (!this.paused) {
+      return
+    }
+    this.paused = false
+    if (this.currentAudio !== null) {
+      void this.currentAudio.play()
+    }
+    this.flushResumeWaiters()
+  }
+
+  isPaused(): boolean {
+    return this.paused
+  }
+
+  private async waitIfPaused(): Promise<void> {
+    while (this.paused) {
+      await new Promise<void>((resolve) => {
+        this.resumeWaiters.push(resolve)
+      })
+    }
+  }
+
+  private flushResumeWaiters(): void {
+    const waiters = this.resumeWaiters.splice(0)
+    for (const resolve of waiters) {
+      resolve()
+    }
+  }
+
+  /** Prefetch audio for all segments before playback starts. */
+  prefetchAll(segments: string[], voice?: VoiceProfile): void {
+    for (const segment of segments) {
+      if (segment.trim() === '') {
+        continue
+      }
+      void this.resolveAudioUrl(segment, voice)
     }
   }
 
@@ -181,8 +253,13 @@ export class SpeechController {
     return audioUrl
   }
 
-  private prefetch(sentences: string[], voice: VoiceProfile | undefined, startIndex: number): void {
-    for (let i = startIndex; i < sentences.length && i < startIndex + 2; i += 1) {
+  private prefetch(
+    sentences: string[],
+    voice: VoiceProfile | undefined,
+    startIndex: number,
+    ahead = 2,
+  ): void {
+    for (let i = startIndex; i < sentences.length && i < startIndex + ahead; i += 1) {
       const sentence = sentences[i]
       if (sentence === undefined || sentence.trim() === '') {
         continue
@@ -225,10 +302,50 @@ function buildCacheKey(text: string, voice?: VoiceProfile): string {
   return `${text}::${voice.rate}:${voice.volume}`
 }
 
+function normalizeSpeechQueue(chunks: string[] | SpeechQueueItem[]): SpeechQueueItem[] {
+  return chunks
+    .map((chunk) => (typeof chunk === 'string' ? { text: chunk } : chunk))
+    .map((item) => ({ ...item, text: item.text.trim() }))
+    .filter((item) => item.text !== '')
+}
+
+function resolvePauseAfterMs(item: SpeechQueueItem, options?: SpeakOptions): number {
+  if (item.pauseAfterMs !== undefined) {
+    return item.pauseAfterMs
+  }
+  if (options?.gapMs !== undefined) {
+    return options.gapMs
+  }
+  return getPauseAfterMs(item.text, {
+    rate: options?.voice?.rate,
+    pacingMs: options?.voice?.pauseBetweenMs,
+  })
+}
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms)
   })
+}
+
+async function delayInterruptible(
+  ms: number,
+  requestId: number,
+  getActiveRequestId: () => number,
+  waitIfPaused: () => Promise<void>,
+): Promise<void> {
+  const endAt = Date.now() + ms
+  while (Date.now() < endAt) {
+    if (requestId !== getActiveRequestId()) {
+      return
+    }
+    await waitIfPaused()
+    const remaining = endAt - Date.now()
+    if (remaining <= 0) {
+      return
+    }
+    await delay(Math.min(remaining, 50))
+  }
 }
 
 export const speechController = new SpeechController()

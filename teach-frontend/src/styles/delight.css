@@ -52,7 +52,7 @@
 .celebration-toast-title {
   margin: 0;
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: -0.02em;
   line-height: var(--leading-snug);
   color: var(--color-ink);
@@ -76,7 +76,7 @@
   padding: 0.18rem 0.55rem;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.01em;
   color: var(--color-highlight-hover);
   background: var(--color-highlight-soft);
@@ -223,7 +223,7 @@
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-highlight-hover);
   background: var(--color-highlight-soft);
   border: 1px solid rgba(245, 158, 11, 0.35);
@@ -267,7 +267,7 @@
 .session-complete-kicker {
   margin: 0;
   font-size: var(--text-xs);
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-highlight-hover);
@@ -275,9 +275,9 @@
 
 .session-complete-title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-family);
   font-size: var(--text-2xl);
-  font-weight: 800;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: -0.04em;
   color: var(--color-ink);
   max-width: 20ch;
@@ -310,9 +310,9 @@
 }
 
 .session-summary-stat strong {
-  font-family: var(--font-display);
+  font-family: var(--font-family);
   font-size: var(--text-xl);
-  font-weight: 800;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-ink);
   letter-spacing: -0.03em;
 }

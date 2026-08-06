@@ -1,0 +1,572 @@
+/* ── Immersive AI classroom (full redesign) ── */
+
+.classroom-page-immersive {
+  max-width: none;
+  padding: 0;
+}
+
+.classroom-page-immersive .page-toolbar {
+  padding: var(--space-4) var(--space-5) 0;
+}
+
+.immersive-classroom {
+  position: relative;
+  min-height: min(92vh, 900px);
+  display: flex;
+  flex-direction: column;
+  margin: var(--space-4) var(--space-5) var(--space-6);
+  border-radius: calc(var(--radius-xl) + 4px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -10%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 16%, transparent), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, transparent), transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 94%, #0a0f1a) 0%, var(--color-bg) 100%);
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, var(--color-border));
+  box-shadow:
+    0 24px 80px color-mix(in srgb, #000 28%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+}
+
+/* ── Rhythm bar (minimal chrome) ── */
+.lesson-rhythm-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.lesson-rhythm-meta {
+  min-width: 0;
+}
+
+.lesson-rhythm-progress {
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-border) 80%, transparent);
+  overflow: hidden;
+}
+
+.lesson-rhythm-title {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-normal);
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-rhythm-slide {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-ink-mute);
+}
+
+.lesson-rhythm-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 80%, var(--mentor-accent, var(--color-accent)))
+  );
+  transition: width 420ms var(--ease-out);
+}
+
+/* ── Two-column teaching layout (70% learning · 30% mentor) ── */
+.teaching-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(260px, 3fr);
+  min-height: 0;
+}
+
+.learning-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 98%, transparent) 0%, var(--color-bg) 100%);
+}
+
+.mentor-teaching-panel {
+  min-height: 0;
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 14%, transparent), transparent 60%),
+    color-mix(in srgb, var(--color-bg) 92%, transparent);
+}
+
+.mentor-teaching-panel-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  min-height: 100%;
+}
+
+.mentor-teaching-panel-inner.is-speaking {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 20%, transparent);
+}
+
+/* ── Learning whiteboard shell ── */
+.learning-whiteboard {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(2rem, 4vw, 3rem) clamp(2rem, 5vw, 3rem);
+}
+
+.lesson-board-surface {
+  position: absolute;
+  inset: clamp(1rem, 2vw, 1.5rem);
+  border-radius: calc(var(--radius-lg) + 2px);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-ink) 3.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-ink) 3.5%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 95% 85% at 40% 20%, black 15%, transparent 78%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-medium) var(--ease-out);
+}
+
+.learning-whiteboard.is-live .lesson-board-surface {
+  opacity: 1;
+}
+
+.whiteboard-idle {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: min(420px, 50vh);
+  pointer-events: none;
+}
+
+.whiteboard-idle-text {
+  margin: 0;
+  max-width: 24ch;
+  text-align: center;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--color-ink-mute);
+}
+
+.learning-whiteboard .lesson-board {
+  position: relative;
+  z-index: 1;
+  min-height: min(420px, 50vh);
+  display: flex;
+  align-items: flex-start;
+}
+
+.learning-whiteboard .lesson-board-inner {
+  padding-block: var(--space-2);
+}
+
+.learning-panel .lesson-action-dock {
+  flex-shrink: 0;
+  justify-content: flex-start;
+  padding: var(--space-4) clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  background: transparent;
+}
+
+.learning-panel .lesson-action-btn {
+  min-width: auto;
+}
+
+/* ── Mentor panel ── */
+.mentor-panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.mentor-panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0.625rem var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.mentor-panel-btn:hover {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 40%, var(--color-border));
+  color: var(--color-ink);
+}
+
+.mentor-panel-btn.is-on {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 50%, var(--color-border));
+  color: var(--mentor-accent, var(--color-accent));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, var(--color-surface));
+}
+
+.mentor-panel-btn-ghost {
+  background: transparent;
+}
+
+/* ── Mentor theater (side panel sizing) ── */
+.mentor-teaching-panel .mentor-theater {
+  padding: var(--space-2) 0;
+}
+
+.mentor-teaching-panel .mentor-theater-ambient {
+  width: min(100%, 240px);
+  height: min(100%, 240px);
+}
+
+.mentor-teaching-panel .mentor-theater-ring-a {
+  width: min(100%, 200px);
+  height: min(100%, 200px);
+}
+
+.mentor-teaching-panel .mentor-theater-ring-b {
+  width: min(100%, 170px);
+  height: min(100%, 170px);
+}
+
+.mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
+  width: min(100%, 180px);
+  max-height: 200px;
+}
+
+.mentor-teaching-panel .teaching-subtitle {
+  width: 100%;
+}
+
+/* ── Mentor theater ── */
+.mentor-theater {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: var(--space-2) 0;
+}
+
+.mentor-theater-ambient {
+  position: absolute;
+  width: min(90vw, 420px);
+  height: min(90vw, 420px);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 28%, transparent) 0%, transparent 68%);
+  animation: theater-ambient 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.mentor-theater-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 22%, transparent);
+  pointer-events: none;
+}
+
+.mentor-theater-ring-a {
+  width: clamp(240px, 34vw, 340px);
+  height: clamp(240px, 34vw, 340px);
+  animation: theater-ring-a 6s linear infinite;
+}
+
+.mentor-theater-ring-b {
+  width: clamp(210px, 30vw, 300px);
+  height: clamp(210px, 30vw, 300px);
+  animation: theater-ring-b 8s linear infinite reverse;
+}
+
+.mentor-theater .study-mentor-hero .mentor-gif-avatar {
+  width: clamp(220px, 32vw, 340px);
+  max-height: clamp(240px, 36vw, 380px);
+}
+
+.mentor-theater-live {
+  position: absolute;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+  background: color-mix(in srgb, var(--color-accent-soft) 90%, transparent);
+  border: 1px solid var(--color-accent-border);
+}
+
+.mentor-theater-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: theater-live-pulse 1s ease-in-out infinite;
+}
+
+.mentor-expr-thinking .mentor-gif-avatar {
+  animation: mentor-think-bob 2.4s ease-in-out infinite;
+}
+
+/* ── Subtitles ── */
+.teaching-subtitle {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+  backdrop-filter: blur(10px);
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.teaching-subtitle.is-speaking {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 42%, var(--color-border));
+  box-shadow: 0 8px 40px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 18%, transparent);
+}
+
+.teaching-subtitle-idle .teaching-subtitle-waiting {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-mute);
+}
+
+.teaching-subtitle-prev {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--color-ink-mute);
+  opacity: 0.42;
+  animation: subtitle-fade-out var(--duration-medium) var(--ease-out) both;
+}
+
+.teaching-subtitle-current {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-normal);
+  color: var(--color-ink);
+  animation: subtitle-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teaching-kw,
+.concept-kw {
+  padding: 0 0.12em;
+  border-radius: 0.2em;
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, transparent);
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.teaching-subtitle-track {
+  margin-top: var(--space-3);
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-border) 70%, transparent);
+  overflow: hidden;
+}
+
+.teaching-subtitle-track-fill {
+  height: 100%;
+  background: var(--mentor-accent, var(--color-accent));
+  transition: width 380ms var(--ease-out);
+}
+
+/* ── Action dock (fallback) ── */
+.lesson-action-dock {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+}
+
+.lesson-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: min(100%, 16rem);
+  justify-content: center;
+  padding: 0.625rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-normal);
+  line-height: 1.25;
+  color: var(--color-on-accent);
+  background: linear-gradient(
+    135deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 70%, var(--mentor-accent, var(--color-accent)))
+  );
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 30%, transparent);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.lesson-action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.lesson-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Motion ── */
+@keyframes theater-ambient {
+  from { opacity: 0.55; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes theater-ring-a {
+  from { transform: rotate(0deg); opacity: 0.35; }
+  to { transform: rotate(360deg); opacity: 0.15; }
+}
+
+@keyframes theater-ring-b {
+  from { transform: rotate(0deg); opacity: 0.25; }
+  to { transform: rotate(-360deg); opacity: 0.1; }
+}
+
+@keyframes theater-live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+@keyframes mentor-think-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes whiteboard-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtitle-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtitle-fade-out {
+  from { opacity: 0.55; }
+  to { opacity: 0.42; }
+}
+
+@media (max-width: 1024px) {
+  .teaching-layout {
+    grid-template-columns: minmax(0, 13fr) minmax(240px, 7fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .immersive-classroom {
+    margin: var(--space-3) var(--space-3) var(--space-5);
+    min-height: auto;
+  }
+
+  .teaching-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .mentor-teaching-panel {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    max-height: min(42vh, 380px);
+  }
+
+  .mentor-teaching-panel-inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .mentor-teaching-panel .mentor-theater {
+    flex: 0 0 auto;
+  }
+
+  .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
+    width: 88px;
+    max-height: 96px;
+  }
+
+  .mentor-teaching-panel .mentor-theater-ambient,
+  .mentor-teaching-panel .mentor-theater-ring-a,
+  .mentor-teaching-panel .mentor-theater-ring-b {
+    display: none;
+  }
+
+  .mentor-teaching-panel .teaching-subtitle {
+    flex: 1;
+    min-width: 12rem;
+    padding: var(--space-3);
+  }
+
+  .mentor-panel-controls {
+    flex-direction: row;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .mentor-panel-btn {
+    flex: 1;
+  }
+
+  .learning-panel {
+    border-right: none;
+  }
+
+  .learning-whiteboard {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .learning-whiteboard .lesson-board {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mentor-theater-ambient,
+  .mentor-theater-ring-a,
+  .mentor-theater-ring-b,
+  .mentor-theater-live-dot,
+  .mentor-expr-thinking .mentor-gif-avatar,
+  .teaching-subtitle-current,
+  .teaching-subtitle-prev {
+    animation: none !important;
+  }
+
+  .lesson-rhythm-progress-fill,
+  .teaching-subtitle-track-fill {
+    transition: none !important;
+  }
+}

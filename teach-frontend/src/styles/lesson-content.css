@@ -1,4 +1,4 @@
-/* Lesson content — textbook-style reading presentation */
+/* Lesson content — readable, low-fatigue presentation */
 
 .lesson-content {
   display: flex;
@@ -13,55 +13,56 @@
 }
 
 .lesson-heading {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: var(--leading-snug);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-heading);
   color: var(--color-ink);
 }
 
 .lesson-subheading {
-  margin: var(--space-1) 0 0;
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--leading-snug);
+  margin: var(--space-1) 0 var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--text-card-title);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-heading);
   color: var(--color-ink);
 }
 
 .lesson-minor-heading {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: var(--leading-snug);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-heading);
   color: var(--color-ink);
 }
 
 .lesson-paragraph {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
   color: var(--color-ink-soft);
 }
 
 .lesson-paragraph + .lesson-paragraph {
-  margin-top: calc(var(--space-1) * -1);
+  margin-top: calc(var(--space-2) * -1);
 }
 
 .lesson-list {
-  margin: 0;
+  margin: 0 0 var(--space-4);
   padding-left: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .lesson-list li {
-  line-height: var(--leading-relaxed);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: var(--color-ink-soft);
 }
 
@@ -74,8 +75,8 @@
 }
 
 .lesson-callout {
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -84,9 +85,9 @@
 
 .lesson-callout-label {
   margin: 0 0 var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--color-ink-mute);
 }
@@ -94,11 +95,11 @@
 .lesson-callout-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .lesson-callout-body .lesson-content {
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .lesson-callout--definition,
@@ -144,25 +145,25 @@
 }
 
 .lesson-blockquote {
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--color-border-strong);
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
   background: var(--color-surface-2);
   color: var(--color-ink-soft);
-  font-size: var(--text-md);
-  line-height: var(--leading-relaxed);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
 }
 
 .lesson-code-block {
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface-2);
   overflow-x: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: var(--text-sm);
+  font-size: var(--text-caption);
   line-height: 1.6;
   color: var(--color-ink);
 }
@@ -179,7 +180,7 @@
 }
 
 .lesson-divider {
-  margin: var(--space-1) 0;
+  margin: var(--space-2) 0;
   border: none;
   border-top: 1px solid var(--color-border);
 }
@@ -194,14 +195,15 @@
 .lesson-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-sm);
+  font-size: var(--text-caption);
 }
 
 .lesson-table td {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
   vertical-align: top;
   color: var(--color-ink-soft);
+  line-height: var(--leading-body);
 }
 
 .lesson-table tr:last-child td {
@@ -209,7 +211,7 @@
 }
 
 .lesson-table tr:first-child td {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-ink);
   background: var(--color-surface-2);
 }
@@ -219,9 +221,10 @@
 }
 
 .quiz-feedback .lesson-content {
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .quiz-feedback .lesson-paragraph {
-  font-size: var(--text-sm);
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
 }

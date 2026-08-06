@@ -80,31 +80,64 @@
   --avatar-skin: #fbbf24;
   --avatar-shirt: var(--color-accent);
 
-  /* ── Typography ── */
-  --font-sans: 'Outfit', system-ui, sans-serif;
-  --font-display: 'Syne', 'Outfit', system-ui, sans-serif;
-  --teach-font: var(--font-sans);
-  --teach-display: var(--font-display);
+  /* ── Typography (Inter) ── */
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: var(--font-family);
+  --font-display: var(--font-family);
+  --teach-font: var(--font-family);
+  --teach-display: var(--font-family);
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1rem;
-  --text-lg: 1.125rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Type scale */
+  --text-micro: 0.75rem;       /* 12px */
+  --text-caption: 0.875rem;    /* 14px */
+  --text-body: 1rem;           /* 16px */
+  --text-body-lg: 1.125rem;    /* 18px */
+  --text-card-title: clamp(1.25rem, 2vw, 1.375rem);   /* 20–22px */
+  --text-h2: clamp(1.5rem, 2.5vw, 1.75rem);           /* 24–28px */
+  --text-h1: clamp(2rem, 3vw, 2.25rem);               /* 32–36px */
+  --text-display: clamp(3rem, 5vw, 3.5rem);           /* 48–56px */
+
+  /* Legacy size aliases */
+  --text-xs: var(--text-micro);
+  --text-sm: var(--text-caption);
+  --text-md: var(--text-body);
+  --text-lg: var(--text-body-lg);
   --text-xl: 1.25rem;
-  --text-2xl: clamp(1.5rem, 2.6vw, 1.85rem);
-  --text-3xl: clamp(1.75rem, 3.2vw, 2.35rem);
-  --text-hero: clamp(2.75rem, 10vw, 6.5rem);
+  --text-2xl: var(--text-h1);
+  --text-3xl: var(--text-display);
+  --text-hero: var(--text-display);
 
-  --leading-tight: 1.1;
-  --leading-snug: 1.25;
+  /* Line height */
+  --leading-display: 1.12;
+  --leading-heading: 1.3;
+  --leading-snug: 1.35;
   --leading-normal: 1.55;
-  --leading-relaxed: 1.65;
+  --leading-body: 1.625;
+  --leading-body-lg: 1.65;
+  --leading-relaxed: 1.7;
+  --leading-caption: 1.5;
+  --leading-tight: 1.2;
 
-  --type-display: var(--text-3xl);
-  --type-title: var(--text-2xl);
-  --type-subtitle: var(--text-lg);
-  --type-body: var(--text-md);
-  --type-meta: var(--text-sm);
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: -0.011em;
+  --tracking-wide: 0.04em;
+
+  /* Semantic type aliases */
+  --type-display: var(--text-display);
+  --type-title: var(--text-h1);
+  --type-section: var(--text-h2);
+  --type-card: var(--text-card-title);
+  --type-subtitle: var(--text-body-lg);
+  --type-body: var(--text-body);
+  --type-caption: var(--text-caption);
+  --type-meta: var(--text-caption);
+  --type-micro: var(--text-micro);
 
   /* ── Spacing (4px base) ── */
   --space-1: 0.25rem;

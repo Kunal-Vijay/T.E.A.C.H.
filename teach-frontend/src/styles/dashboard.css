@@ -74,7 +74,7 @@
   padding: 0.28rem 0.65rem;
   border-radius: var(--radius-full);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-ink-soft);
@@ -124,7 +124,7 @@
   color: var(--color-accent-ink);
   background: var(--color-accent-soft);
   border-color: rgba(153, 246, 228, 0.55);
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-inset);
 }
 
@@ -195,7 +195,7 @@
 .dashboard .class-card h3 {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
   letter-spacing: -0.015em;
   line-height: var(--leading-snug);
   color: var(--color-ink);

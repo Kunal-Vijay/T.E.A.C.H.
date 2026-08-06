@@ -266,7 +266,7 @@ export default function ClassroomPage() {
   }
 
   return (
-    <main className="container page-main">
+    <main className="container page-main classroom-page-immersive">
       <div className="page-toolbar">
         <Link to="/student" className="btn btn-secondary btn-with-icon">
           <Icon icon={ArrowLeft} size={16} />

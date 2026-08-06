@@ -80,12 +80,36 @@ export function useSpeech() {
     setSpeechStatus('idle')
   }, [])
 
+  const withSpeaking = useCallback(async (task: () => Promise<boolean>) => {
+    if (isMentorSpeechMuted()) {
+      return false
+    }
+
+    setSpeechError(null)
+    if (!speechController.isSupported()) {
+      setSpeechStatus('unsupported')
+      setSpeechError('Audio playback is not supported in this browser.')
+      return false
+    }
+
+    setSpeechStatus('speaking')
+    try {
+      return await task()
+    } catch {
+      setSpeechStatus('error')
+      return false
+    } finally {
+      setSpeechStatus('idle')
+    }
+  }, [])
+
   return {
     speechStatus,
     speechError,
     speakNow,
     speakSequence,
     stopSpeech,
+    withSpeaking,
     isSupported: speechController.isSupported(),
     isMuted: isMentorSpeechMuted(),
     warmUp: () => speechController.warmUp(),
