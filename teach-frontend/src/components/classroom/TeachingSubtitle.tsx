@@ -1,10 +1,7 @@
-import { highlightKeywords } from '../../lib/classroom/keywordHighlight'
-
 interface TeachingSubtitleProps {
   mentorName: string
   currentCue: string
   previousCue?: string
-  keywords: string[]
   cueIndex: number
   totalCues: number
   isSpeaking: boolean
@@ -15,7 +12,6 @@ export default function TeachingSubtitle({
   mentorName,
   currentCue,
   previousCue = '',
-  keywords,
   cueIndex,
   totalCues,
   isSpeaking,
@@ -24,8 +20,9 @@ export default function TeachingSubtitle({
   if (!hasStarted && currentCue.trim() === '') {
     return (
       <div className="teaching-subtitle teaching-subtitle-idle" aria-live="polite">
+        <p className="teaching-subtitle-kicker">Before we begin</p>
         <p className="teaching-subtitle-waiting">
-          {mentorName} is ready — tap begin when you are
+          {mentorName} is ready — start the lesson when you are.
         </p>
       </div>
     )
@@ -43,14 +40,19 @@ export default function TeachingSubtitle({
         </p>
       ) : null}
       <p className="teaching-subtitle-current">
-        {currentCue.trim() !== '' ? highlightKeywords(currentCue, keywords) : '…'}
+        {currentCue.trim() !== '' ? currentCue : '…'}
       </p>
       {totalCues > 1 ? (
-        <div className="teaching-subtitle-track" aria-hidden="true">
-          <div
-            className="teaching-subtitle-track-fill"
-            style={{ width: `${((cueIndex + 1) / totalCues) * 100}%` }}
-          />
+        <div className="teaching-subtitle-footer">
+          <span className="teaching-subtitle-cue">
+            Moment {cueIndex + 1} of {totalCues}
+          </span>
+          <div className="teaching-subtitle-track" aria-hidden="true">
+            <div
+              className="teaching-subtitle-track-fill"
+              style={{ width: `${((cueIndex + 1) / totalCues) * 100}%` }}
+            />
+          </div>
         </div>
       ) : null}
     </div>

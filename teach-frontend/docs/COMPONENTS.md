@@ -1,4 +1,4 @@
-# TEACH Frontend — Component Reference
+# T.E.A.C.H Frontend — Component Reference
 
 Engineering reference for shared UI, layout, and infrastructure components. UX behavior is unchanged; this documents contracts and integration points.
 
@@ -22,14 +22,60 @@ Engineering reference for shared UI, layout, and infrastructure components. UX b
 
 ## Shared UI (`components/ui/`)
 
-| Component | Props (key) | Notes |
-|-----------|-------------|-------|
-| `Icon` | `icon`, `size`, `className` | Lucide wrapper; consistent stroke/size |
-| `Modal` | `open`, `onClose`, `ariaLabel`, `panelClassName`, `children` | Focus trap, Escape to close, backdrop click |
-| `EmptyState` | `icon`, `title`, `description`, `action` | Empty catalog / list states |
-| `ErrorState` | `message`, `onRetry?`, `onDismiss?` | API and boundary failures |
-| `PageHeader` | `kicker`, `title`, `lede`, `actions?` | Page title block |
-| `SkeletonCardGrid` | `count` | Loading placeholder for card grids |
+Full API docs: [`src/components/ui/README.md`](../src/components/ui/README.md). Import via `components/ui`.
+
+### Layout & shell
+
+| Component | Purpose |
+|-----------|---------|
+| `AppPage` | Page `<main>` with student/teacher width variants |
+| `HubHero` | Dashboard hero band |
+| `PageSection` | Labeled catalog/content section |
+| `PageAlert` | Top error/confirmation slot |
+| `PageHeader` | Kicker, title, lede, action |
+| `SectionTitle` | In-panel section heading |
+| `GlassPanel` | Frosted hub surface |
+| `ActionGroup` | Horizontal header/toolbar actions |
+
+### Catalog
+
+| Component | Purpose |
+|-----------|---------|
+| `CardGrid` | Class catalog responsive grid |
+| `CatalogToolbar` | List count summary bar |
+| `ClassCardMeta` | Shared class card metadata rows |
+| `ClassCardSkeleton` | Catalog loading grid |
+| `StatusBadge` | Hub status or catalog ready pill |
+
+### Actions & feedback
+
+| Component | Purpose |
+|-----------|---------|
+| `Button` | Primary/secondary/ghost/highlight/sage variants |
+| `ButtonLink` | Router link styled as button |
+| `IconButton` | Accessible icon-only control |
+| `EmptyState` | Empty/loading/success/error block |
+| `ErrorState` | Dismissible inline error |
+| `LoadingSpinner` | Standalone spinner |
+| `ProgressBar` | Goal and journey progress tracks |
+| `Icon` | Lucide wrapper |
+| `Modal` | Focus-trapped dialog shell |
+| `SkeletonCardGrid` | Legacy light-theme card skeleton |
+| `DashboardHeroSkeleton` | Hero loading placeholder |
+
+## Theming
+
+Design tokens live in `src/styles/tokens.css` (imported via `theme.css`). Component CSS: `styles/components/*.css`, `hub.css`, `layout.css`. Do not introduce new colors outside the token palette.
+
+## Welcome / onboarding
+
+| Component | Path | Role |
+|-----------|------|------|
+| `ThemeSwitcher` | `components/nav/ThemeSwitcher.tsx` | Global workspace theme popover (Welcome + hub nav) |
+| `RoleSelectionCard` | `components/welcome/RoleSelectionCard.tsx` | Premium identity card (Student / Teacher) |
+| `RoleSelectionPicker` | `components/welcome/RoleSelectionPicker.tsx` | Welcome role radiogroup; auto-navigates on select |
+| `HeroFloatCard` | `components/welcome/HeroFloatCard.tsx` | Contextual classroom capability card |
+| `HeroScene` | `components/welcome/HeroScene.tsx` | AI Tutor hero with eight contextual orbit cards |
 
 ## Classroom
 
@@ -73,7 +119,3 @@ See `teach-frontend/.env.example`:
 - `VITE_SENTRY_DSN` — passed to monitoring hook consumers
 - `VITE_FLAG_SAGE_STREAMING` — SAGE streaming (future)
 - `VITE_FLAG_DELIGHT_GAMIFICATION` — XP/streak/achievements
-
-## Theming
-
-Design tokens live in `src/styles/theme.css`. Component styles: `global.css`, `dashboard.css`, `components.css`, `delight.css`, `motion.css`. Do not introduce new colors outside Midnight / Teal / Amber (celebrations only).

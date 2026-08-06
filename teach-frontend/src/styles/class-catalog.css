@@ -1,0 +1,84 @@
+/* ── Class catalog — feature-specific overrides ──
+   Shared hub card/grid styles: hub.css · components/cards.css
+   ───────────────────────────────────────────────────────────── */
+
+.teach-shell--hub .class-catalog-card.is-joining {
+  border-color: var(--hub-accent-border-hover);
+  box-shadow: 0 16px 48px var(--shadow-black-soft), 0 0 32px var(--hub-accent-glow-strong);
+}
+
+.teach-shell--hub .class-catalog-card-header {
+  position: relative;
+  z-index: 1;
+}
+
+.teach-shell--hub .class-catalog-card-title,
+.teach-shell--hub .class-catalog-meta,
+.teach-shell--hub .class-catalog-card-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.teach-shell--hub .class-catalog-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.teach-shell--hub .class-catalog-cta.is-loading {
+  pointer-events: none;
+}
+
+.teach-shell--hub .class-catalog-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), var(--shadow-hub-btn);
+}
+
+/* Skeleton dimensions */
+.teach-shell--hub .class-catalog-skeleton-badge {
+  height: 1.5rem;
+  width: 6.5rem;
+  border-radius: var(--radius-full);
+}
+
+.teach-shell--hub .class-catalog-skeleton-title {
+  height: 1.35rem;
+  width: 78%;
+  border-radius: var(--radius-sm);
+}
+
+.teach-shell--hub .class-catalog-skeleton-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.teach-shell--hub .class-catalog-skeleton-line {
+  height: 0.85rem;
+  width: 92%;
+  border-radius: var(--radius-xs);
+}
+
+.teach-shell--hub .class-catalog-skeleton-line-short {
+  width: 55%;
+}
+
+.teach-shell--hub .class-catalog-skeleton-cta {
+  height: 2.75rem;
+  width: 100%;
+  border-radius: var(--radius-full);
+  margin-top: auto;
+}
+
+.teach-shell--hub .teacher-class-skeleton-hint {
+  height: 1rem;
+  width: 5.5rem;
+  border-radius: var(--radius-xs);
+  margin-top: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .class-catalog-cta:hover:not(:disabled) {
+    transform: none;
+  }
+}

@@ -1,0 +1,403 @@
+/* ─────────────────────────────────────────────────────────────
+   App Navigation — unified TEACH nav system
+   Landing · Student hub · Teacher hub · Classroom exit
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --nav-height: 4rem;
+  --nav-bg: var(--hub-bg-modal);
+  --nav-border: var(--hub-border-subtle);
+  --nav-link-color: var(--hub-text-secondary);
+  --nav-link-hover-bg: var(--hub-border-faint);
+  --nav-link-active-color: var(--hub-accent);
+  --nav-link-active-bg: var(--hub-accent-soft);
+  --nav-link-active-border: var(--hub-accent-border);
+}
+
+/* ── Primary sticky bar (student + teacher hub) ── */
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  width: 100%;
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin-bottom: var(--space-6);
+}
+
+.app-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--layout-shell-width);
+  margin-inline: auto;
+  padding-inline: var(--layout-shell-padding-inline);
+  min-height: var(--nav-height);
+  padding-block: var(--space-3);
+  padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+}
+
+/* ── Brand cluster ── */
+.app-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.app-nav-logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  text-decoration: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.app-nav-logo:hover {
+  opacity: 0.82;
+}
+
+.app-nav-logo:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.app-nav-logo .teach-logo-mark {
+  color: var(--hub-text-primary);
+}
+
+.app-nav-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hub-text-light);
+  background: var(--hub-border-faint);
+  border: 1px solid var(--hub-border);
+  white-space: nowrap;
+}
+
+.app-nav-mentor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-1);
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-accent);
+  background: var(--hub-accent-glow);
+  border: 1px solid var(--hub-accent-border);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.app-nav-mentor:hover {
+  background: var(--hub-accent-muted);
+  border-color: var(--hub-accent-border-active);
+  box-shadow: 0 0 20px var(--hub-accent-soft);
+}
+
+.app-nav-mentor:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), 0 0 20px var(--hub-accent-soft);
+}
+
+.app-nav-mentor .study-mentor-sm .mentor-gif-avatar {
+  width: 36px;
+  max-height: 40px;
+}
+
+.app-nav-mentor .study-mentor {
+  flex-shrink: 0;
+  gap: 0;
+}
+
+/* ── Nav links ── */
+.app-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.app-nav-action-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app-nav-divider {
+  width: 1px;
+  height: 1.25rem;
+  background: var(--hub-border-strong);
+  flex-shrink: 0;
+}
+
+.app-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--text-caption);
+  line-height: 1;
+  color: var(--nav-link-color);
+  border: 1px solid transparent;
+  background: transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.app-nav-link:hover {
+  color: var(--hub-text-primary);
+  background: var(--nav-link-hover-bg);
+}
+
+.app-nav-link.is-active {
+  color: var(--nav-link-active-color);
+  background: var(--nav-link-active-bg);
+  border-color: var(--nav-link-active-border);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: inset 0 1px 0 var(--hub-inset-soft);
+}
+
+.app-nav-link.is-active .app-nav-icon {
+  opacity: 1;
+  color: var(--nav-link-active-color);
+}
+
+.app-nav-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.app-nav-link--exit {
+  color: var(--hub-text-muted);
+}
+
+.app-nav-link--exit:hover {
+  color: var(--hub-text-medium);
+  background: var(--hub-overlay-light);
+}
+
+.app-nav-icon {
+  opacity: 0.72;
+  flex-shrink: 0;
+}
+
+/* ── Landing nav (welcome) ── */
+.app-nav--landing {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.app-nav-inner--landing {
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 3.5rem;
+  padding-top: calc(var(--space-5) + env(safe-area-inset-top, 0px));
+  padding-bottom: var(--space-3);
+}
+
+.app-nav-landing-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.app-nav-landing-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .app-nav-inner--landing {
+    min-height: 3rem;
+    padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+    padding-bottom: var(--space-2);
+  }
+
+  .app-nav--landing .app-nav-tagline {
+    font-size: 0.65rem;
+  }
+}
+
+.app-nav-tagline {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hub-text-ghost);
+  line-height: var(--leading-caption);
+}
+
+/* ── Classroom exit — ghost breadcrumb (in rhythm bar / page chrome) ── */
+.classroom-exit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.35rem 0.5rem 0.35rem 0.35rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--hub-text-faded);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+}
+
+.classroom-exit-link:hover {
+  background: var(--hub-border-faint);
+  color: var(--hub-text-luminous);
+}
+
+.classroom-exit-link:hover .classroom-exit-link-icon {
+  transform: translateX(-2px);
+}
+
+.classroom-exit-link:active {
+  transform: scale(0.97);
+}
+
+.classroom-exit-link.is-exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.classroom-exit-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.classroom-exit-link-icon {
+  flex-shrink: 0;
+  transition: transform 200ms var(--ease-out);
+}
+
+.classroom-exit-link-label {
+  white-space: nowrap;
+}
+
+.teach-shell--classroom-route .classroom-exit-link--breadcrumb {
+  align-self: center;
+  margin-right: var(--space-1);
+}
+
+.teach-shell--classroom-route .classroom-page-chrome,
+.teach-shell--classroom-route .classroom-classic-chrome {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding:
+    calc(var(--space-3) + env(safe-area-inset-top, 0px))
+    clamp(var(--space-4), 4vw, var(--space-6))
+    var(--space-2);
+}
+
+.teach-shell--classroom-route .classroom-classic-chrome {
+  max-width: min(920px, 100%);
+  margin-inline: auto;
+  width: 100%;
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  padding-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .classroom-exit-link:hover .classroom-exit-link-icon {
+    transform: none;
+  }
+
+  .classroom-exit-link:active {
+    transform: none;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .app-nav-mentor span:last-child {
+    max-width: 8ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-nav-inner {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    min-height: auto;
+    padding-bottom: var(--space-4);
+    max-width: none;
+    width: calc(100% - var(--space-6));
+    padding-inline: 0;
+  }
+
+  .app-nav-links {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .app-nav-role {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-nav-tagline {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nav-logo:hover {
+    transform: none;
+  }
+}

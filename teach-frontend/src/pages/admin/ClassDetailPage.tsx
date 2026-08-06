@@ -1,9 +1,21 @@
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCallback, useEffect, useState } from 'react'
+import TeacherHubBackLink from '../../components/nav/TeacherHubBackLink'
 import StatusPanel from '../../components/status/StatusPanel'
-import ErrorState from '../../components/ui/ErrorState'
-import Icon from '../../components/ui/Icon'
+import {
+  ActionGroup,
+  AppPage,
+  Button,
+  ButtonLink,
+  ErrorState,
+  GlassPanel,
+  HubHero,
+  LoadingSpinner,
+  PageAlert,
+  PageHeader,
+  SectionTitle,
+  StatusBadge,
+} from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import { captureException } from '../../lib/monitoring'
 import { logDisplayedError, resolveDisplayedError } from '../../services/api/apiError'
@@ -172,30 +184,38 @@ export default function ClassDetailPage() {
 
   if (loading) {
     return (
-      <main className="container page-main">
+      <AppPage variant="teacher-detail">
+        <TeacherHubBackLink />
         <StatusPanel
           tone="loading"
           title="Preparing your classroom..."
           description="Loading this class plan and generation status."
         />
-      </main>
+      </AppPage>
     )
   }
 
   if (classPlan === null) {
     return (
-      <main className="container page-main">
+      <AppPage variant="teacher-detail">
+        <TeacherHubBackLink />
         {errorMessage !== null ? (
-          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+          <PageAlert>
+            <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+          </PageAlert>
         ) : (
           <StatusPanel
             tone="missing"
             title="We couldn't find that class."
             description="It may have been removed, or the link is out of date."
-            action={<Link className="btn btn-secondary" to="/teacher/classes">Back to Classes</Link>}
+            action={(
+              <ButtonLink variant="secondary" pill to="/teacher/classes">
+                Back to Classes
+              </ButtonLink>
+            )}
           />
         )}
-      </main>
+      </AppPage>
     )
   }
 
@@ -212,54 +232,73 @@ export default function ClassDetailPage() {
     && !isGenerationInProgress
     && !isGenerating
 
+  const isGeneratingActive = isGenerating || isGenerationInProgress
+  const showGenerateAction =
+    classPlan.status === 'published'
+    && !isGenerationComplete
+    && (showGenerateButton || isGeneratingActive)
+
+  const detailActions = (
+    <ActionGroup>
+      {classPlan.status === 'draft' ? (
+        <Button
+          variant="primary"
+          pill
+          loading={isPublishing}
+          disabled={isPublishing}
+          onClick={() => { void publishPlan() }}
+        >
+          {isPublishing ? 'Publishing…' : 'Publish'}
+        </Button>
+      ) : null}
+      {showGenerateAction ? (
+        <Button
+          variant="primary"
+          pill
+          withIcon={isGeneratingActive}
+          className="teacher-class-detail-generate-btn"
+          disabled={isGeneratingActive}
+          aria-busy={isGeneratingActive || undefined}
+          onClick={() => { void generateClass() }}
+        >
+          {isGeneratingActive ? (
+            <>
+              <LoadingSpinner size={16} label="Generating class" />
+              Generating...
+            </>
+          ) : (
+            resolvedGenerationStatus === 'failed' ? 'Retry Generate' : 'Generate Class'
+          )}
+        </Button>
+      ) : null}
+    </ActionGroup>
+  )
+
   return (
-    <main className="container page-main">
-      <div className="page-toolbar">
-        <Link to="/teacher/classes" className="btn btn-secondary btn-with-icon">
-          <Icon icon={ArrowLeft} size={16} />
-          Back to Classes
-        </Link>
-      </div>
-      {errorMessage !== null ? <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} /> : null}
-      <section className="card detail-card">
-        <div className="detail-header">
-          <div>
-            <div className="detail-badges">
-              <span className={`badge badge-${classPlan.status}`}>{classPlan.status}</span>
-              {isGenerationComplete ? <span className="badge badge-ready">ready</span> : null}
-            </div>
-            <p className="page-kicker">Class plan</p>
-            <h2 className="page-title">{classPlan.title}</h2>
-            <p className="detail-meta">{classPlan.subject} · {classPlan.chapter_name} · {classPlan.total_duration_minutes} min</p>
-          </div>
-          <div className="detail-actions">
-            {classPlan.status === 'draft' ? (
-              <button
-                type="button"
-                className={`btn btn-primary${isPublishing ? ' is-loading' : ''}`}
-                onClick={() => { void publishPlan() }}
-                disabled={isPublishing}
-              >
-                {isPublishing ? 'Publishing…' : 'Publish'}
-              </button>
-            ) : null}
-            {showGenerateButton ? (
-              <button
-                type="button"
-                className={`btn btn-highlight${isGenerating ? ' is-loading' : ''}`}
-                onClick={() => { void generateClass() }}
-                disabled={isGenerating}
-              >
-                {resolvedGenerationStatus === 'failed' ? 'Retry Generate' : 'Generate Class'}
-              </button>
-            ) : null}
-            {isGenerating || isGenerationInProgress ? (
-              <button type="button" className="btn btn-primary is-loading" disabled>
-                Generating…
-              </button>
-            ) : null}
-          </div>
+    <AppPage variant="teacher-detail">
+      {errorMessage !== null ? (
+        <PageAlert>
+          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+        </PageAlert>
+      ) : null}
+
+      <TeacherHubBackLink />
+
+      <HubHero className="teacher-class-detail-hero">
+        <div className="teacher-class-detail-badges">
+          <StatusBadge variant="hub" status={classPlan.status} />
+          {isGenerationComplete ? <StatusBadge variant="hub" status="ready" /> : null}
         </div>
+        <PageHeader
+          variant="hub"
+          kicker="Class plan"
+          title={classPlan.title}
+          lede={`${classPlan.subject} · ${classPlan.chapter_name} · ${classPlan.total_duration_minutes} min`}
+          action={detailActions}
+        />
+      </HubHero>
+
+      <GlassPanel className="teacher-class-detail-body" aria-label="Class plan details">
         {generationStatus !== null ? (
           isGenerationComplete ? (
             <StatusPanel
@@ -283,7 +322,7 @@ export default function ClassDetailPage() {
               description={generationStatus.error_message ?? 'Try Retry Generate to build the lesson again.'}
             />
           ) : (
-            <div className={`generation-status generation-status-${generationStatus.status}`}>
+            <div className="teacher-class-detail-generation-status">
               <strong>Generation:</strong> {generationStatus.status.replace(/_/g, ' ')}
               <span>Slides: {generationStatus.progress.slides_generated}</span>
               <span>Images: {generationStatus.progress.images_completed}/{generationStatus.progress.images_total}</span>
@@ -297,15 +336,19 @@ export default function ClassDetailPage() {
             description="Click Generate Class to create slides, quizzes, and the AI teacher workflow."
           />
         ) : null}
-        <div className="topics-list">
-          {classPlan.topics.map((topic) => (
-            <div className="topic-item" key={topic.topic_id}>
-              <h3>{topic.order}. {topic.title}</h3>
-              <p>{topic.duration_minutes} minutes</p>
-            </div>
-          ))}
+
+        <div className="teacher-class-detail-topics">
+          <SectionTitle>Lesson topics</SectionTitle>
+          <ul className="teacher-class-detail-topics-list">
+            {classPlan.topics.map((topic) => (
+              <li className="teacher-class-detail-topic" key={topic.topic_id}>
+                <h3>{topic.order}. {topic.title}</h3>
+                <p>{topic.duration_minutes} min</p>
+              </li>
+            ))}
+          </ul>
         </div>
-      </section>
-    </main>
+      </GlassPanel>
+    </AppPage>
   )
 }

@@ -1,0 +1,294 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 8 — Classroom lesson voice player
+   Playback status, enable prompt, waveform, and speech errors.
+   Scoped to dark classroom shell only.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.teach-shell--classroom-route .lesson-voice-player {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0 clamp(1rem, 3.5vw, 2.5rem) clamp(0.75rem, 2vw, 1.25rem);
+  padding: clamp(0.85rem, 2vw, 1rem) clamp(1rem, 2.5vw, 1.25rem);
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid var(--hub-border-subtle);
+  background:
+    linear-gradient(165deg, var(--hub-surface-heavy) 0%, var(--hub-surface-panel) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 var(--hub-border-ghost),
+    0 8px 28px var(--shadow-black-xxs);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-medium) var(--ease-out);
+}
+
+.teach-shell--classroom-route .lesson-voice-player.is-speaking {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 38%, var(--hub-border-subtle));
+  box-shadow:
+    inset 0 1px 0 var(--hub-border-faint),
+    0 10px 36px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 14%, transparent);
+}
+
+.teach-shell--classroom-route .lesson-voice-player.is-complete {
+  border-color: var(--hub-border);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.teach-shell--classroom-route .lesson-voice-player-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 85%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 12%, var(--hub-surface-1));
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 24%, transparent);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-status-label {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hub-text-medium);
+}
+
+.teach-shell--classroom-route .lesson-voice-player.is-speaking .lesson-voice-player-status-label {
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 88%, var(--hub-text-primary));
+}
+
+/* ── Waveform ── */
+.teach-shell--classroom-route .lesson-voice-waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.teach-shell--classroom-route .lesson-voice-waveform-bar {
+  display: block;
+  width: 3px;
+  height: 35%;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 55%, var(--hub-text-dimmer));
+  transform-origin: bottom center;
+}
+
+.teach-shell--classroom-route .lesson-voice-waveform.is-active .lesson-voice-waveform-bar {
+  animation: lesson-voice-wave 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes lesson-voice-wave {
+  0% {
+    transform: scaleY(0.35);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ── Cue progress ── */
+.teach-shell--classroom-route .lesson-voice-player-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.teach-shell--classroom-route .lesson-voice-player-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-cue {
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hub-text-ghost);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-track {
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--hub-border-subtle);
+  overflow: hidden;
+}
+
+.teach-shell--classroom-route .lesson-voice-player-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 75%, var(--mentor-accent, var(--color-accent)))
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 35%, transparent);
+  transition: width 380ms var(--ease-out);
+}
+
+/* ── Enable voice prompt ── */
+.teach-shell--classroom-route .lesson-voice-player--prompt {
+  align-items: center;
+  border-style: dashed;
+  border-color: var(--hub-border-strong);
+  background:
+    linear-gradient(165deg, var(--hub-surface-deep) 0%, var(--shadow-ghost-panel) 100%);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-prompt-mark {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 88%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, var(--hub-surface-1));
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 12%, transparent);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.teach-shell--classroom-route .lesson-voice-player-title {
+  margin: 0 0 0.2rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+  color: var(--hub-text-emphasis);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-hint {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--hub-text-dim);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-enable {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 38%, transparent);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 16%, var(--hub-surface-1));
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 92%, var(--hub-text-primary));
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-enable:hover {
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 24%, var(--hub-surface-1));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 52%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 16%, transparent);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-enable:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Unsupported + error ── */
+.teach-shell--classroom-route .lesson-voice-player--unsupported,
+.teach-shell--classroom-route .lesson-voice-player--error {
+  align-items: flex-start;
+}
+
+.teach-shell--classroom-route .lesson-voice-player--unsupported .lesson-voice-player-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: var(--hub-text-ghost);
+}
+
+.teach-shell--classroom-route .lesson-voice-player--error {
+  border-color: var(--hub-danger-border);
+  background:
+    linear-gradient(165deg, var(--color-danger-soft-medium) 0%, var(--shadow-ghost-input) 100%);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-error-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: var(--hub-danger-text);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-error-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.teach-shell--classroom-route .lesson-voice-player-error-title {
+  margin: 0 0 0.2rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-danger-text-strong);
+}
+
+.teach-shell--classroom-route .lesson-voice-player-error-message {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--color-danger-soft-strong);
+}
+
+@media (max-width: 820px) {
+  .teach-shell--classroom-route .lesson-voice-player {
+    margin-inline: var(--space-4);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .teach-shell--classroom-route .lesson-voice-player--prompt {
+    align-items: stretch;
+  }
+
+  .teach-shell--classroom-route .lesson-voice-player-enable {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--classroom-route .lesson-voice-waveform.is-active .lesson-voice-waveform-bar {
+    animation: none !important;
+  }
+
+  .teach-shell--classroom-route .lesson-voice-player-fill {
+    transition: none !important;
+  }
+}

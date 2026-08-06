@@ -1,4 +1,5 @@
 import { Volume2 } from 'lucide-react'
+import type { CSSProperties } from 'react'
 import type { MentorDefinition } from '../../types/mentor.types'
 import StudyMentorAvatar from './StudyMentorAvatar'
 import Icon from '../ui/Icon'
@@ -20,59 +21,70 @@ export default function MentorCard({
   onPreview,
   onFocus,
 }: MentorCardProps) {
+  const isActive = selected || previewing
+
   return (
     <article
-      className={`mentor-card card${selected ? ' is-selected' : ''}${previewing ? ' is-previewing' : ''}`}
-      aria-labelledby={`mentor-card-${mentor.id}`}
+      id={`mentor-card-${mentor.id}`}
+      role="option"
+      aria-selected={isActive}
+      className={`mentor-picker-card${isActive ? ' is-active' : ''}${selected ? ' is-selected' : ''}`}
+      style={{
+        '--mentor-accent': mentor.visual.accent,
+        '--mentor-glow': mentor.visual.glow,
+      } as CSSProperties}
     >
+      <div className="mentor-picker-card-glow" aria-hidden="true" />
+
       <button
         type="button"
-        className="mentor-card-hit"
+        className="mentor-picker-card-hit"
         onClick={onFocus}
         onFocus={onFocus}
-        aria-pressed={selected}
         aria-describedby={`mentor-card-desc-${mentor.id}`}
       >
-        <div className="mentor-card-preview">
+        <div className="mentor-picker-card-avatar">
           <StudyMentorAvatar
             mentor={mentor}
             expression={previewing ? 'happy' : 'idle'}
             size="sm"
+            showGlow={isActive}
             ariaLabel={`Preview ${mentor.name}`}
           />
         </div>
-        <div className="mentor-card-copy">
-          <h3 id={`mentor-card-${mentor.id}`}>{mentor.name}</h3>
-          <p className="mentor-card-tagline">{mentor.tagline}</p>
-          <ul className="mentor-card-traits" id={`mentor-card-desc-${mentor.id}`}>
+        <div className="mentor-picker-card-copy">
+          <h3 className="mentor-picker-card-name">{mentor.name}</h3>
+          <p className="mentor-picker-card-tagline">{mentor.tagline}</p>
+          <ul className="mentor-picker-card-traits" id={`mentor-card-desc-${mentor.id}`}>
             {mentor.personality.traits.map((trait) => (
               <li key={trait}>{trait}</li>
             ))}
           </ul>
         </div>
       </button>
-      <div className="mentor-card-actions">
+
+      <div className="mentor-picker-card-actions">
         <button
           type="button"
-          className="btn btn-secondary btn-with-icon mentor-card-voice"
+          className="mentor-picker-voice btn-with-icon"
           onClick={(event) => {
             event.stopPropagation()
             onPreview()
           }}
           aria-label={`Preview ${mentor.name}'s voice`}
         >
-          <Icon icon={Volume2} size={16} />
+          <Icon icon={Volume2} size={15} />
           Voice
         </button>
         <button
           type="button"
-          className={`btn btn-primary mentor-card-select${selected ? ' is-active' : ''}`}
+          className={`mentor-picker-select${selected ? ' is-selected' : ''}`}
           onClick={(event) => {
             event.stopPropagation()
             onSelect()
           }}
         >
-          {selected ? 'Selected' : 'Select'}
+          {selected ? 'Selected' : 'Choose'}
         </button>
       </div>
     </article>

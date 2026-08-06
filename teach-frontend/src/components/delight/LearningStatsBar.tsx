@@ -1,5 +1,6 @@
 import { Flame, Star, Target } from 'lucide-react'
 import Icon from '../ui/Icon'
+import ProgressBar from '../ui/ProgressBar'
 import { useLearningProgress } from '../../context/LearningProgressContext'
 
 interface LearningStatsBarProps {
@@ -15,27 +16,56 @@ export default function LearningStatsBar({ compact = false, sessionStep }: Learn
   )
 
   return (
-    <div className={`learning-stats${compact ? ' learning-stats-compact' : ''}`}>
-      <div className="learning-stat">
-        <Icon icon={Star} size={14} />
-        <span>{progress.xp.toLocaleString()} XP</span>
+    <div
+      className={`learning-stats${compact ? ' learning-stats-compact' : ''}`}
+      role="region"
+      aria-label="Your learning progress"
+    >
+      <div className="learning-stat-pill learning-stat-pill--xp">
+        <span className="learning-stat-icon" aria-hidden="true">
+          <Icon icon={Star} size={15} />
+        </span>
+        <span className="learning-stat-body">
+          <span className="learning-stat-value">{progress.xp.toLocaleString()}</span>
+          <span className="learning-stat-label">XP</span>
+        </span>
       </div>
+
       {progress.streak > 0 ? (
-        <div className="learning-stat learning-stat-streak">
-          <Icon icon={Flame} size={14} />
-          <span>{progress.streak} day{progress.streak === 1 ? '' : 's'}</span>
+        <div className="learning-stat-pill learning-stat-pill--streak">
+          <span className="learning-stat-icon" aria-hidden="true">
+            <Icon icon={Flame} size={15} />
+          </span>
+          <span className="learning-stat-body">
+            <span className="learning-stat-value">{progress.streak}</span>
+            <span className="learning-stat-label">day streak</span>
+          </span>
         </div>
       ) : null}
-      <div className="learning-stat learning-stat-goal">
-        <Icon icon={Target} size={14} />
-        <span>Daily {progress.lessonsCompletedToday}/{progress.dailyGoal}</span>
-        <div className="daily-goal-bar" aria-hidden="true">
-          <div className="daily-goal-fill" style={{ width: `${dailyPercent}%` }} />
-        </div>
+
+      <div className="learning-stat-pill learning-stat-pill--goal">
+        <span className="learning-stat-icon" aria-hidden="true">
+          <Icon icon={Target} size={15} />
+        </span>
+        <span className="learning-stat-body learning-stat-body--goal">
+          <span className="learning-stat-value">
+            {progress.lessonsCompletedToday}/{progress.dailyGoal}
+          </span>
+          <span className="learning-stat-label">daily goal</span>
+          <ProgressBar
+            variant="goal"
+            value={dailyPercent}
+            aria-label="Daily goal progress"
+          />
+        </span>
       </div>
+
       {sessionStep != null && sessionStep > 0 ? (
-        <div className="learning-stat learning-stat-session">
-          <span>Step {sessionStep}</span>
+        <div className="learning-stat-pill learning-stat-pill--session">
+          <span className="learning-stat-body">
+            <span className="learning-stat-value">Step {sessionStep}</span>
+            <span className="learning-stat-label">in session</span>
+          </span>
         </div>
       ) : null}
     </div>

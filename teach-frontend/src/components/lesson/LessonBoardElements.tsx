@@ -19,9 +19,11 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
 
         if (elementType === 'heading') {
           return (
-            <h2 key={`lb-heading-${index}`} className="lesson-board-heading">
-              <LessonContent source={String(element.content ?? '')} inline />
-            </h2>
+            <div key={`lb-heading-${index}`} className="lesson-board-block lesson-board-block--heading">
+              <h2 className="lesson-board-heading">
+                <LessonContent source={String(element.content ?? '')} inline />
+              </h2>
+            </div>
           )
         }
 
@@ -32,22 +34,20 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
           }
 
           return (
-            <ul
-              key={`lb-bullets-${index}`}
-              className="lesson-board-bullets"
-              aria-label="Key points"
-            >
-              {items.map((item, itemIndex) => (
-                <li key={`lb-bullet-${index}-${itemIndex}`} className="lesson-board-bullet">
-                  <span className="lesson-board-bullet-icon" aria-hidden="true">
-                    <Icon icon={Check} size={16} strokeWidth={2.5} />
-                  </span>
-                  <span className="lesson-board-bullet-body">
-                    <LessonContent source={item} inline />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div key={`lb-bullets-${index}`} className="lesson-board-block lesson-board-block--bullets">
+              <ul className="lesson-board-bullets" aria-label="Key points">
+                {items.map((item, itemIndex) => (
+                  <li key={`lb-bullet-${index}-${itemIndex}`} className="lesson-board-bullet">
+                    <span className="lesson-board-bullet-icon" aria-hidden="true">
+                      <Icon icon={Check} size={16} strokeWidth={2.5} />
+                    </span>
+                    <span className="lesson-board-bullet-body">
+                      <LessonContent source={item} inline />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )
         }
 
@@ -56,30 +56,35 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
             ? String(element.asset_url)
             : null
           return (
-            <figure key={`lb-image-${index}`} className="lesson-board-visual">
-              {assetUrl !== null && assetUrl !== '' && isSafeAssetUrl(assetUrl) ? (
-                <img src={assetUrl} alt="Lesson visual" loading="lazy" decoding="async" />
-              ) : (
-                <div className="lesson-board-visual-placeholder">Diagram</div>
-              )}
-            </figure>
+            <div key={`lb-image-${index}`} className="lesson-board-block lesson-board-block--visual">
+              <figure className="lesson-board-visual">
+                {assetUrl !== null && assetUrl !== '' && isSafeAssetUrl(assetUrl) ? (
+                  <img src={assetUrl} alt="Lesson visual" loading="lazy" decoding="async" />
+                ) : (
+                  <div className="lesson-board-visual-placeholder">Diagram</div>
+                )}
+              </figure>
+            </div>
           )
         }
 
         if (elementType === 'latex') {
           const html = katex.renderToString(String(element.content ?? ''), { throwOnError: false })
           return (
-            <div
-              key={`lb-latex-${index}`}
-              className="lesson-board-formula"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            <div key={`lb-latex-${index}`} className="lesson-board-block lesson-board-block--formula">
+              <div
+                className="lesson-board-formula"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </div>
           )
         }
 
         return (
-          <div key={`lb-text-${index}`} className="lesson-board-text">
-            <LessonContent source={String(element.content ?? '')} />
+          <div key={`lb-text-${index}`} className="lesson-board-block lesson-board-block--text">
+            <div className="lesson-board-text">
+              <LessonContent source={String(element.content ?? '')} />
+            </div>
           </div>
         )
       })}

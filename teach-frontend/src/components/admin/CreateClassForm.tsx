@@ -1,6 +1,6 @@
 import { Plus, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import Icon from '../ui/Icon'
+import { Button, GlassPanel, IconButton } from '../ui'
 import type { TopicInput } from '../../types/api.types'
 
 const emptyTopic = (): TopicInput => ({
@@ -42,9 +42,7 @@ function NoteListField({ label, notes, onChange, placeholder }: NoteListFieldPro
     <div className="note-list-field">
       <div className="note-list-header">
         <span className="note-list-label">{label}</span>
-        <button type="button" className="btn btn-icon" onClick={addNote} aria-label={`Add ${label}`}>
-          <Icon icon={Plus} size={16} />
-        </button>
+        <IconButton icon={Plus} label={`Add ${label}`} onClick={addNote} />
       </div>
       {displayNotes.map((note, noteIndex) => (
         <div className="note-row" key={`${label}-${noteIndex}`}>
@@ -55,14 +53,12 @@ function NoteListField({ label, notes, onChange, placeholder }: NoteListFieldPro
             onChange={(event) => updateNote(noteIndex, event.target.value)}
           />
           {displayNotes.length > 1 ? (
-            <button
-              type="button"
-              className="btn btn-icon btn-icon-remove"
+            <IconButton
+              icon={X}
+              label={`Remove ${label}`}
+              remove
               onClick={() => removeNote(noteIndex)}
-              aria-label={`Remove ${label}`}
-            >
-              <Icon icon={X} size={16} />
-            </button>
+            />
           ) : null}
         </div>
       ))}
@@ -222,7 +218,11 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
   }
 
   return (
-    <form className={`create-class-form card${loading ? ' loading' : ''}`} onSubmit={handleSubmit}>
+    <GlassPanel
+      as="form"
+      className={`create-class-form teacher-create-class-form${loading ? ' is-loading' : ''}`}
+      onSubmit={handleSubmit}
+    >
       <nav className="wizard-steps" aria-label="Create class steps">
         {WIZARD_STEPS.map((label, index) => (
           <span
@@ -326,9 +326,9 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
               <div className="topic-header">
                 <h3>Topic {topic.order}</h3>
                 {topics.length > 1 ? (
-                  <button type="button" className="btn btn-secondary" onClick={() => removeTopic(index)}>
+                  <Button type="button" variant="secondary" onClick={() => removeTopic(index)}>
                     Remove
-                  </button>
+                  </Button>
                 ) : null}
               </div>
               <label className="form-field">
@@ -381,9 +381,9 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
               />
             </div>
           ))}
-          <button type="button" className="btn btn-secondary" onClick={addTopic}>
+          <Button type="button" variant="secondary" onClick={addTopic}>
             Add topic
-          </button>
+          </Button>
         </div>
       ) : null}
 
@@ -407,22 +407,22 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
 
       <div className="wizard-actions">
         {step > 0 ? (
-          <button type="button" className="btn btn-secondary" onClick={goBack} disabled={loading}>
+          <Button type="button" variant="secondary" onClick={goBack} disabled={loading}>
             Back
-          </button>
+          </Button>
         ) : (
           <span />
         )}
         {step < WIZARD_STEPS.length - 1 ? (
-          <button type="button" className="btn btn-primary" onClick={goNext}>
+          <Button type="button" variant="primary" pill onClick={goNext}>
             Continue
-          </button>
+          </Button>
         ) : (
-          <button type="submit" className={`btn btn-primary${loading ? ' is-loading' : ''}`} disabled={loading}>
+          <Button type="submit" variant="primary" pill loading={loading} disabled={loading}>
             Save draft
-          </button>
+          </Button>
         )}
       </div>
-    </form>
+    </GlassPanel>
   )
 }

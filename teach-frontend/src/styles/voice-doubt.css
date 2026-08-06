@@ -1,0 +1,733 @@
+/* ─────────────────────────────────────────────────────────────
+   Doubt moment — premium conversational AI invite
+   ───────────────────────────────────────────────────────────── */
+
+.doubt-moment {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  animation: doubt-moment-fade-in var(--duration-medium) var(--ease-out) both;
+}
+
+.doubt-moment-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, var(--hub-accent-soft), transparent 65%),
+    var(--hub-bg-modal);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.doubt-moment-panel {
+  position: relative;
+  width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-white-border);
+  background:
+    linear-gradient(165deg, var(--color-white-shine-soft) 0%, var(--hub-inset-soft) 40%, var(--hub-surface-1) 100%);
+  box-shadow:
+    0 24px 64px var(--hub-bg-scrim-medium),
+    0 0 0 1px var(--hub-accent-fill-soft) inset,
+    0 0 80px var(--hub-accent-soft);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  animation: doubt-moment-panel-in var(--duration-medium) var(--ease-out) both;
+  animation-delay: 80ms;
+}
+
+.doubt-moment-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, var(--hub-accent-fill-medium), transparent 70%);
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Mentor + speech bubble */
+.doubt-moment-mentor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  animation: doubt-moment-mentor-in var(--duration-medium) var(--ease-out) both;
+  animation-delay: 160ms;
+}
+
+.doubt-moment-avatar-wrap {
+  position: relative;
+}
+
+.doubt-moment-avatar-wrap .study-mentor-lg {
+  animation: doubt-moment-avatar-breathe 3s ease-in-out infinite;
+}
+
+.doubt-moment-bubble {
+  position: relative;
+  width: min(100%, 22rem);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-white-shine-soft);
+  background:
+    linear-gradient(180deg, var(--color-white-strong) 0%, var(--color-accent-mint) 100%);
+  box-shadow:
+    0 8px 32px var(--hub-bg-scrim-faint),
+    0 0 0 1px var(--hub-accent-fill-soft) inset;
+  animation: doubt-moment-bubble-in var(--duration-normal) var(--ease-out) both;
+  animation-delay: 280ms;
+}
+
+.doubt-moment-bubble-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-ink);
+}
+
+.doubt-moment-bubble-text {
+  margin: 0;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.doubt-moment-bubble-tail {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--color-white-strong);
+  border-top: 1px solid var(--color-white-shine-soft);
+  border-left: 1px solid var(--color-white-shine-soft);
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 3px 0 0 0;
+}
+
+/* CTAs */
+.doubt-moment-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  animation: doubt-moment-rise var(--duration-normal) var(--ease-out) both;
+  animation-delay: 360ms;
+}
+
+.doubt-moment-voice-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: min(100%, 18rem);
+  padding: 1rem 1.75rem;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--color-white);
+  background: var(--grad-hub-primary);
+  box-shadow:
+    0 4px 20px var(--hub-surface-2),
+    0 0 0 1px var(--color-white-border) inset,
+    0 0 32px var(--hub-accent-fill-medium);
+  cursor: pointer;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.doubt-moment-voice-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 28px var(--shadow-ghost-medium),
+    0 0 0 1px var(--color-white-soft) inset,
+    0 0 48px var(--hub-accent-border-hover);
+}
+
+.doubt-moment-voice-cta:active {
+  transform: translateY(0);
+}
+
+.doubt-moment-voice-cta-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-white-border);
+}
+
+.doubt-moment-mic-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--hub-accent-bright-medium);
+  animation: doubt-mic-pulse 1.8s ease-out infinite;
+}
+
+.doubt-moment-type-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--color-white-border-emphasis);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white-high);
+  background: var(--hub-inset-highlight-strong);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+.doubt-moment-type-cta:hover {
+  transform: translateY(-1px);
+  background: var(--color-white-soft);
+  border-color: var(--hub-accent-strong);
+}
+
+/* Quick action chips */
+.doubt-moment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  animation: doubt-moment-rise var(--duration-normal) var(--ease-out) both;
+  animation-delay: 440ms;
+}
+
+.doubt-moment-chip {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-accent-border);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white-emphasis);
+  background: var(--hub-accent-soft);
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.doubt-moment-chip:hover {
+  transform: translateY(-1px);
+  background: var(--hub-border-interactive);
+  box-shadow: 0 4px 16px var(--hub-accent-fill-medium);
+}
+
+/* Continue tertiary */
+.doubt-moment-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white-subtle);
+  background: transparent;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+  animation: doubt-moment-rise var(--duration-normal) var(--ease-out) both;
+  animation-delay: 520ms;
+}
+
+.doubt-moment-continue:hover {
+  color: var(--color-white-medium);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Doubt sheet — voice / type bottom panel
+   ───────────────────────────────────────────────────────────── */
+
+.doubt-sheet-shell {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.doubt-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: var(--hub-bg-modal-heavy);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: doubt-moment-fade-in var(--duration-normal) var(--ease-out) both;
+}
+
+.doubt-sheet {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(88vh, 680px);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  padding: var(--space-5) var(--space-5) calc(var(--space-7) + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: 1px solid var(--color-white-soft);
+  border-bottom: none;
+  background:
+    linear-gradient(180deg, var(--color-white-bright) 0%, var(--color-accent-mint-strong) 100%);
+  box-shadow:
+    0 -12px 48px var(--hub-bg-scrim-soft),
+    0 0 0 1px var(--hub-accent-glow) inset;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  overflow-y: auto;
+  animation: doubt-sheet-in var(--duration-medium) var(--ease-out) both;
+}
+
+.doubt-sheet-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: radial-gradient(ellipse 80% 100% at 50% 0%, var(--hub-accent-fill-soft), transparent 70%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.doubt-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  position: relative;
+  z-index: 1;
+}
+
+.doubt-sheet-mentor-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.doubt-sheet-kicker {
+  margin: 0 0 0.15rem;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-accent-ink);
+}
+
+.doubt-sheet-title {
+  margin: 0;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+}
+
+.doubt-sheet-close {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-white-dim);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.doubt-sheet-close:hover {
+  border-color: var(--color-accent-border);
+  color: var(--color-ink);
+}
+
+/* Listening */
+.doubt-sheet-listening {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
+  text-align: center;
+}
+
+.doubt-sheet-mic-hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  color: var(--color-accent-ink);
+  background:
+    radial-gradient(circle at 30% 30%, var(--hub-accent-bright-soft), var(--hub-accent-soft));
+  border: 2px solid var(--color-accent-border);
+  box-shadow: 0 0 40px var(--hub-accent-fill-medium);
+}
+
+.doubt-sheet-mic-pulse {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  opacity: 0.5;
+  animation: doubt-mic-pulse 1.6s ease-out infinite;
+}
+
+.doubt-sheet-mic-pulse-b {
+  animation-delay: 0.6s;
+}
+
+.doubt-sheet-listening-label {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-ink);
+}
+
+.doubt-sheet-transcript {
+  margin: 0;
+  min-height: 3rem;
+  max-width: 28rem;
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+  font-style: italic;
+}
+
+/* Waveform (shared) */
+.voice-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 2.75rem;
+}
+
+.voice-waveform-bar {
+  width: 4px;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  transform-origin: center bottom;
+}
+
+.voice-waveform.is-active .voice-waveform-bar {
+  animation: doubt-wave 0.9s ease-in-out infinite alternate;
+}
+
+/* Review & typing */
+.doubt-sheet-review,
+.doubt-sheet-typing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.doubt-sheet-review-label {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+
+.doubt-sheet-review-text {
+  margin: 0;
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+}
+
+.doubt-sheet-input {
+  width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+  background: var(--color-white-emphasis);
+  resize: vertical;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.doubt-sheet-input:focus {
+  outline: none;
+  border-color: var(--color-accent-border);
+  box-shadow: 0 0 0 3px var(--hub-accent-fill-soft);
+}
+
+.doubt-sheet-input-large {
+  min-height: 7rem;
+}
+
+.doubt-sheet-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.doubt-sheet-send-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+  background: var(--grad-hub-primary);
+  box-shadow: 0 4px 16px var(--shadow-ghost-heavy);
+  cursor: pointer;
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.doubt-sheet-send-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px var(--shadow-ghost-deep), 0 0 24px var(--hub-accent-fill-medium);
+}
+
+.doubt-sheet-send-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.doubt-sheet-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink-soft);
+  background: var(--color-white-faint);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.doubt-sheet-secondary-btn:hover {
+  border-color: var(--color-accent-border);
+  color: var(--color-ink);
+}
+
+/* Thinking & answer */
+.doubt-sheet-thinking {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.doubt-sheet-thinking p {
+  margin: 0;
+  color: var(--color-ink-soft);
+}
+
+.doubt-sheet-thinking-dots {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.doubt-sheet-thinking-dots span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: doubt-dot 1s ease-in-out infinite;
+}
+
+.doubt-sheet-thinking-dots span:nth-child(2) { animation-delay: 150ms; }
+.doubt-sheet-thinking-dots span:nth-child(3) { animation-delay: 300ms; }
+
+.doubt-sheet-answer {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-accent-border);
+  background: linear-gradient(180deg, var(--color-white) 0%, var(--color-accent-soft) 100%);
+  animation: doubt-moment-rise var(--duration-normal) var(--ease-out) both;
+}
+
+.doubt-sheet-answer-text {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+}
+
+.doubt-sheet-alert {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  color: var(--color-highlight-hover);
+  background: var(--color-highlight-soft);
+  border: 1px solid var(--color-highlight-glow);
+}
+
+/* Mentor rings during doubt */
+.mentor-expr-listening .mentor-listen-ring {
+  opacity: 1;
+  animation: doubt-listen-ring 2s ease-in-out infinite;
+}
+
+.mentor-listen-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mentor-expr-thinking .mentor-think-pulse {
+  opacity: 1;
+  animation: doubt-mic-pulse 1.8s ease-out infinite;
+}
+
+.mentor-think-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px dashed color-mix(in srgb, var(--color-highlight) 60%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Keyframes */
+@keyframes doubt-moment-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes doubt-moment-panel-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes doubt-moment-mentor-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes doubt-moment-bubble-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes doubt-moment-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes doubt-moment-avatar-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes doubt-sheet-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes doubt-mic-pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.18); opacity: 0; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+
+@keyframes doubt-wave {
+  from { height: 0.45rem; opacity: 0.45; }
+  to { height: 1.85rem; opacity: 1; }
+}
+
+@keyframes doubt-dot {
+  0%, 100% { opacity: 0.35; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes doubt-listen-ring {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@media (max-width: 520px) {
+  .doubt-moment-panel {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+  }
+
+  .doubt-moment-voice-cta {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doubt-moment,
+  .doubt-moment-panel,
+  .doubt-moment-mentor,
+  .doubt-moment-bubble,
+  .doubt-moment-actions,
+  .doubt-moment-chips,
+  .doubt-moment-continue,
+  .doubt-sheet,
+  .doubt-sheet-backdrop,
+  .doubt-sheet-answer,
+  .doubt-moment-mic-pulse,
+  .doubt-sheet-mic-pulse,
+  .doubt-moment-avatar-wrap .study-mentor-lg,
+  .voice-waveform.is-active .voice-waveform-bar,
+  .doubt-sheet-thinking-dots span,
+  .mentor-expr-listening .mentor-listen-ring,
+  .mentor-expr-thinking .mentor-think-pulse {
+    animation: none !important;
+  }
+
+  .doubt-moment-voice-cta:hover,
+  .doubt-moment-type-cta:hover,
+  .doubt-moment-chip:hover,
+  .doubt-sheet-send-cta:hover:not(:disabled) {
+    transform: none;
+  }
+}

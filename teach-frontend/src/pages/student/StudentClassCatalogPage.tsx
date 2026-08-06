@@ -1,13 +1,21 @@
 import { useNavigate } from 'react-router-dom'
-import { LogIn } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import OnboardingPanel from '../../components/onboarding/OnboardingPanel'
-import PageHeader from '../../components/ui/PageHeader'
-import SkeletonCardGrid from '../../components/ui/SkeletonCardGrid'
-import StatusPanel from '../../components/status/StatusPanel'
-import ErrorState from '../../components/ui/ErrorState'
-import Icon from '../../components/ui/Icon'
+import ClassCatalogCard from '../../components/catalog/ClassCatalogCard'
 import LearningStatsBar from '../../components/delight/LearningStatsBar'
+import StatusPanel from '../../components/status/StatusPanel'
+import {
+  AppPage,
+  CardGrid,
+  CatalogToolbar,
+  ClassCardSkeleton,
+  DashboardHeroSkeleton,
+  ErrorState,
+  HubHero,
+  PageAlert,
+  PageHeader,
+  PageSection,
+} from '../../components/ui'
 import { dailyGoalLede } from '../../constants/delightCopy'
 import { useLearningProgress } from '../../context/LearningProgressContext'
 import { useToast } from '../../context/ToastContext'
@@ -32,9 +40,9 @@ interface AvailableClass {
 }
 
 const STUDENT_STEPS = [
-  { title: 'Join your class' },
-  { title: 'Attend the lesson' },
-  { title: 'Ask SAGE anything' },
+  { title: 'Join your class', detail: 'Pick a ready lesson from your catalog.' },
+  { title: 'Attend the lesson', detail: 'Learn with your AI Tutor — voice, slides, and quizzes.' },
+  { title: 'Ask SAGE anything', detail: 'Pause anytime to resolve doubts before moving on.' },
 ]
 
 function prefetchClassroomRoute(): void {
@@ -139,74 +147,77 @@ export default function StudentClassCatalogPage() {
   }
 
   return (
-    <main className="container page-main">
-      {errorMessage !== null ? <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} /> : null}
+    <AppPage variant="student">
+      {errorMessage !== null ? (
+        <PageAlert>
+          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+        </PageAlert>
+      ) : null}
 
       {loading ? (
-        <>
-          <PageHeader
-            kicker="Student"
-            title="Available classes"
-            lede="Join a ready lesson — slides, voice, quizzes, and SAGE included."
-          />
-          <SkeletonCardGrid count={6} />
-        </>
+        <div className="dashboard-loading">
+          <DashboardHeroSkeleton />
+          <ClassCardSkeleton count={6} />
+        </div>
       ) : null}
 
       {!loading && showOnboarding ? (
-        <OnboardingPanel
-          heading="Welcome to TEACH"
-          steps={STUDENT_STEPS}
-          ctaLabel="Browse Classes"
-          onCta={browseClasses}
-          footnote={
-            availableClasses.length === 0
-              ? 'No classes are ready yet. Ask your teacher to publish a class and generate it.'
-              : undefined
-          }
-        />
+        <div className="dashboard-onboarding-wrap">
+          <OnboardingPanel
+            heading="Welcome to T.E.A.C.H"
+            subtitle="Your AI classroom is ready. Here is how learning works."
+            steps={STUDENT_STEPS}
+            ctaLabel="Browse classes"
+            onCta={browseClasses}
+            footnote={
+              availableClasses.length === 0
+                ? 'No classes are ready yet. Ask your teacher to publish a class and generate it.'
+                : undefined
+            }
+          />
+        </div>
       ) : null}
 
       {!loading && !showOnboarding ? (
         <>
-          <PageHeader
-            kicker={mentor !== null ? `With ${mentor.name}` : 'Student'}
-            title="Available classes"
-            lede={dailyGoalLede(progress.lessonsCompletedToday, progress.dailyGoal, progress.streak)}
-          />
-          <LearningStatsBar />
-          <section className="catalog-section" aria-label="Class catalog">
+          <HubHero>
+            <PageHeader
+              variant="hub"
+              kicker={mentor !== null ? `Learning with ${mentor.name}` : 'Student hub'}
+              title="Your classes"
+              lede={dailyGoalLede(progress.lessonsCompletedToday, progress.dailyGoal, progress.streak)}
+            />
+            <LearningStatsBar />
+          </HubHero>
+
+          <PageSection label="Class catalog" catalog>
             {availableClasses.length > 0 ? (
-              <div className="grid-cards">
-                {availableClasses.map(({ classPlan, generation }) => {
-                  const isJoining = joiningId === generation.generation_id
-                  return (
-                    <div
-                      className="card class-card"
-                      key={generation.generation_id}
-                      onMouseEnter={prefetchClassroomRoute}
-                      onFocus={prefetchClassroomRoute}
-                    >
-                      <span className="badge badge-ready">Ready</span>
-                      <h3>{classPlan.title}</h3>
-                      <div className="class-meta">
-                        <p>{classPlan.subject} · Grade {classPlan.grade}</p>
-                        <p>{classPlan.chapter_name}</p>
-                        <p>{classPlan.total_duration_minutes} minutes</p>
-                      </div>
-                      <button
-                        type="button"
-                        className={`btn btn-primary btn-with-icon${isJoining ? ' is-loading' : ''}`}
-                        disabled={joiningId !== null}
-                        onClick={() => { void attendClass(generation.generation_id) }}
-                      >
-                        <Icon icon={LogIn} size={16} />
-                        {isJoining ? 'Joining…' : 'Attend Class'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
+              <>
+                <CatalogToolbar
+                  count={availableClasses.length}
+                  singularLabel=" class ready to attend"
+                  pluralLabel=" classes ready to attend"
+                />
+                <CardGrid>
+                  {availableClasses.map(({ classPlan, generation }) => {
+                    const isJoining = joiningId === generation.generation_id
+                    return (
+                      <ClassCatalogCard
+                        key={generation.generation_id}
+                        title={classPlan.title}
+                        subject={classPlan.subject}
+                        grade={classPlan.grade}
+                        chapterName={classPlan.chapter_name}
+                        durationMinutes={classPlan.total_duration_minutes}
+                        isJoining={isJoining}
+                        joinDisabled={joiningId !== null}
+                        onJoin={() => { void attendClass(generation.generation_id) }}
+                        onPrefetch={prefetchClassroomRoute}
+                      />
+                    )
+                  })}
+                </CardGrid>
+              </>
             ) : (
               <StatusPanel
                 tone="empty"
@@ -214,9 +225,9 @@ export default function StudentClassCatalogPage() {
                 description="Ask your teacher to publish and generate a class — then it will appear here, ready to attend."
               />
             )}
-          </section>
+          </PageSection>
         </>
       ) : null}
-    </main>
+    </AppPage>
   )
 }

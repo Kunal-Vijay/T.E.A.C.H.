@@ -1,5 +1,7 @@
+import { type ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
 import LearningWhiteboard from './LearningWhiteboard'
+import LessonVoicePlayer from './LessonVoicePlayer'
 import MentorTeachingPanel from './MentorTeachingPanel'
 import Icon from '../ui/Icon'
 import type { ExpressionState, MentorDefinition } from '../../types/mentor.types'
@@ -10,6 +12,7 @@ interface LessonRhythmBarProps {
   slideCurrent: number
   slideTotal: number
   sessionProgress: number
+  exitControl?: ReactNode
 }
 
 export function LessonRhythmBar({
@@ -17,23 +20,38 @@ export function LessonRhythmBar({
   slideCurrent,
   slideTotal,
   sessionProgress,
+  exitControl,
 }: LessonRhythmBarProps) {
   return (
-    <header className="lesson-rhythm-bar">
-      <div className="lesson-rhythm-meta">
-        <p className="lesson-rhythm-title">{lessonTitle}</p>
-        <p className="lesson-rhythm-slide">
-          Moment {slideCurrent} · {slideTotal}
+    <header className="classroom-rhythm lesson-rhythm-bar">
+      <div className="classroom-rhythm-top">
+        {exitControl ?? null}
+        <div className="classroom-rhythm-copy lesson-rhythm-meta">
+          <p className="classroom-rhythm-kicker">Live lesson</p>
+          <h2 className="classroom-rhythm-title lesson-rhythm-title">{lessonTitle}</h2>
+        </div>
+        <div className="classroom-rhythm-badge" aria-hidden="true">
+          <span className="classroom-rhythm-live-dot" />
+          Live
+        </div>
+        <p className="classroom-rhythm-moment lesson-rhythm-slide">
+          Moment <span className="classroom-rhythm-moment-current">{slideCurrent}</span>
+          <span className="classroom-rhythm-moment-sep">/</span>
+          {slideTotal}
         </p>
       </div>
       <div
-        className="lesson-rhythm-progress"
+        className="classroom-rhythm-track lesson-rhythm-progress"
         role="progressbar"
         aria-valuenow={sessionProgress}
         aria-valuemin={0}
         aria-valuemax={100}
+        aria-label="Lesson progress"
       >
-        <div className="lesson-rhythm-progress-fill" style={{ width: `${sessionProgress}%` }} />
+        <div
+          className="classroom-rhythm-fill lesson-rhythm-progress-fill"
+          style={{ width: `${sessionProgress}%` }}
+        />
       </div>
     </header>
   )
@@ -48,14 +66,14 @@ interface LessonActionDockProps {
 
 export function LessonActionDock({ label, disabled, loading, onContinue }: LessonActionDockProps) {
   return (
-    <footer className="lesson-action-dock">
+    <footer className="classroom-action-dock lesson-action-dock">
       <button
         type="button"
-        className={`lesson-action-btn${loading ? ' is-loading' : ''}`}
+        className={`classroom-action-btn lesson-action-btn${loading ? ' is-loading' : ''}`}
         onClick={onContinue}
         disabled={disabled}
       >
-        {label}
+        <span>{label}</span>
         <Icon icon={ChevronRight} size={18} />
       </button>
     </footer>
@@ -69,7 +87,6 @@ interface TeachingLayoutProps {
   slideKey: string | number
   currentCue: string
   previousCue: string
-  keywords: string[]
   cueIndex: number
   totalCues: number
   isSpeaking: boolean
@@ -77,6 +94,9 @@ interface TeachingLayoutProps {
   beat: TeachingBeat | null
   speechEnabled: boolean
   speechSupported: boolean
+  speechError: string | null
+  playbackComplete: boolean
+  onEnableSpeech: () => void
   onToggleSpeech: () => void
   onReplay: () => void
   canReplay: boolean
@@ -94,7 +114,6 @@ export function TeachingLayout({
   slideKey,
   currentCue,
   previousCue,
-  keywords,
   cueIndex,
   totalCues,
   isSpeaking,
@@ -102,6 +121,9 @@ export function TeachingLayout({
   beat,
   speechEnabled,
   speechSupported,
+  speechError,
+  playbackComplete,
+  onEnableSpeech,
   onToggleSpeech,
   onReplay,
   canReplay,
@@ -112,36 +134,50 @@ export function TeachingLayout({
   showContinue,
 }: TeachingLayoutProps) {
   return (
-    <div className="teaching-layout">
-      <section className="learning-panel" aria-label="Lesson content">
-        <LearningWhiteboard elements={slideElements} slideKey={slideKey} />
-        {showContinue ? (
-          <LessonActionDock
-            label={continueLabel}
-            disabled={continueDisabled}
-            loading={continueLoading}
-            onContinue={onContinue}
-          />
-        ) : null}
-      </section>
+    <div className="classroom-stage">
+      <div className="classroom-grid teaching-layout">
+        <section className="classroom-learn learning-panel" aria-label="Lesson content">
+          <div className="classroom-learn-body">
+            <LearningWhiteboard elements={slideElements} slideKey={slideKey} />
+            <LessonVoicePlayer
+              speechSupported={speechSupported}
+              speechEnabled={speechEnabled}
+              isSpeaking={isSpeaking}
+              hasStarted={hasStarted}
+              playbackComplete={playbackComplete}
+              cueIndex={cueIndex}
+              totalCues={totalCues}
+              speechError={speechError}
+              onEnableSpeech={onEnableSpeech}
+            />
+          </div>
+          {showContinue ? (
+            <LessonActionDock
+              label={continueLabel}
+              disabled={continueDisabled}
+              loading={continueLoading}
+              onContinue={onContinue}
+            />
+          ) : null}
+        </section>
 
-      <MentorTeachingPanel
-        mentor={mentor}
-        expression={expression}
-        currentCue={currentCue}
-        previousCue={previousCue}
-        keywords={keywords}
-        cueIndex={cueIndex}
-        totalCues={totalCues}
-        isSpeaking={isSpeaking}
-        hasStarted={hasStarted}
-        beatPhase={beat?.phase}
-        speechEnabled={speechEnabled}
-        speechSupported={speechSupported}
-        onToggleSpeech={onToggleSpeech}
-        onReplay={onReplay}
-        canReplay={canReplay}
-      />
+        <MentorTeachingPanel
+          mentor={mentor}
+          expression={expression}
+          currentCue={currentCue}
+          previousCue={previousCue}
+          cueIndex={cueIndex}
+          totalCues={totalCues}
+          isSpeaking={isSpeaking}
+          hasStarted={hasStarted}
+          beatPhase={beat?.phase}
+          speechEnabled={speechEnabled}
+          speechSupported={speechSupported}
+          onToggleSpeech={onToggleSpeech}
+          onReplay={onReplay}
+          canReplay={canReplay}
+        />
+      </div>
     </div>
   )
 }

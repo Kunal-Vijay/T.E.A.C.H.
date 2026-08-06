@@ -1,0 +1,138 @@
+/* ── Cards (light + hub) ── */
+
+.card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+.card::before { display: none; }
+
+.card-quiet {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+.card-flush {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.card-interactive:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-strong);
+}
+
+.card-interactive:active {
+  transform: translate3d(0, 0, 0);
+}
+
+.card-interactive:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-md), var(--focus-ring);
+}
+
+.card-featured {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-inset), var(--shadow-md);
+  background: var(--grad-surface);
+}
+
+/* Hub glass surfaces */
+.teach-shell--hub .hub-glass-panel,
+.teach-shell--hub .class-catalog-card,
+.teach-shell--hub .teacher-class-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border);
+  background: var(--hub-gradient-card), var(--hub-surface-1);
+  box-shadow: var(--shadow-hub-card);
+  backdrop-filter: var(--hub-blur);
+  -webkit-backdrop-filter: var(--hub-blur);
+}
+
+.teach-shell--hub .hub-glass-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: clamp(var(--space-5), 3vw, var(--space-6));
+  box-shadow: var(--shadow-hub-panel);
+}
+
+.teach-shell--hub .class-catalog-card,
+.teach-shell--hub .teacher-class-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  min-height: 100%;
+  padding: var(--card-padding);
+  overflow: hidden;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .class-catalog-card-glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 60%;
+  background: var(--hub-gradient-glow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .class-catalog-card:hover,
+.teach-shell--hub .teacher-class-card:hover {
+  transform: translate3d(0, -3px, 0);
+  border-color: var(--hub-border-card-hover);
+  box-shadow: var(--shadow-hub-card-hover);
+}
+
+.teach-shell--hub .class-catalog-card:hover .class-catalog-card-glow {
+  opacity: 1;
+}
+
+.teach-shell--hub .teacher-class-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.teach-shell--hub .teacher-class-card:focus-visible {
+  outline: none;
+  border-color: var(--hub-border-card-focus);
+  box-shadow: var(--focus-ring), 0 20px 52px var(--shadow-black-base);
+}
+
+.teach-shell--hub .class-catalog-card--skeleton,
+.teach-shell--hub .teacher-class-card--skeleton {
+  pointer-events: none;
+}
+
+.teach-shell--hub .class-catalog-card--skeleton:hover,
+.teach-shell--hub .teacher-class-card--skeleton:hover {
+  transform: none;
+  border-color: var(--hub-border);
+  box-shadow: var(--shadow-hub-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive:hover,
+  .card-interactive:active,
+  .teach-shell--hub .class-catalog-card:hover,
+  .teach-shell--hub .teacher-class-card:hover {
+    transform: none;
+  }
+}

@@ -1,103 +1,105 @@
-import {
-  BarChart3,
-  Brain,
-  Check,
-  MessageCircle,
-  Sparkles,
-  Zap,
-} from 'lucide-react'
 import MentorGifAvatar from '../mentor/MentorGifAvatar'
-import Icon from '../ui/Icon'
 import { getMentorGifAsset } from '../../lib/mentors/mentorAssets'
+import HeroFloatCard from './HeroFloatCard'
+import { HERO_FLOAT_CARDS, polarPoint } from './heroSceneConfig'
 
-/** Premium hero visual — live mentor surrounded by floating product UI cards. */
+const PARTICLE_SEEDS = [
+  { x: 38, y: 28, delay: 0 },
+  { x: 62, y: 24, delay: 1.2 },
+  { x: 72, y: 52, delay: 0.4 },
+  { x: 28, y: 58, delay: 0.8 },
+  { x: 54, y: 72, delay: 1.6 },
+  { x: 44, y: 42, delay: 2.1 },
+]
+
+/** Rich AI Tutor hero — contextual capability cards + intelligence field. */
 export default function HeroScene() {
-  const mentorAsset = getMentorGifAsset('nova')
+  const tutorAsset = getMentorGifAsset('nova')
 
   return (
     <div className="hero-scene" aria-hidden="true">
-      <div className="hero-scene-ambient" />
-      <div className="hero-scene-orbit hero-scene-orbit-a" />
-      <div className="hero-scene-orbit hero-scene-orbit-b" />
-
-      <div className="hero-float-card hero-float-card--subtitle hero-float-1">
-        <span className="hero-float-label">
-          <span className="hero-float-live-dot" />
-          Live narration
-        </span>
-        <p className="hero-float-quote">
-          &ldquo;What happens when you push a chair? Let&apos;s discover force together.&rdquo;
-        </p>
+      <div className="hero-scene-field">
+        <div className="hero-scene-radial hero-scene-radial-a" />
+        <div className="hero-scene-radial hero-scene-radial-b" />
+        <div className="hero-scene-ambient" />
       </div>
 
-      <div className="hero-float-card hero-float-card--lesson hero-float-2">
-        <span className="hero-float-label">Lesson board</span>
-        <p className="hero-float-title">Introduction to Force</p>
-        <ul className="hero-float-bullets">
-          <li><Icon icon={Check} size={14} strokeWidth={2.5} /> Forces are part of everyday life</li>
-          <li><Icon icon={Check} size={14} strokeWidth={2.5} /> Force involves two objects</li>
-          <li><Icon icon={Check} size={14} strokeWidth={2.5} /> Force changes motion or shape</li>
-        </ul>
+      <div className="hero-scene-rings" aria-hidden="true">
+        <div className="hero-scene-ring hero-scene-ring-a" />
+        <div className="hero-scene-ring hero-scene-ring-b" />
+        <div className="hero-scene-ring hero-scene-ring-c" />
       </div>
 
-      <div className="hero-float-card hero-float-card--quiz hero-float-3">
-        <span className="hero-float-icon-wrap hero-float-icon-wrap--amber">
-          <Icon icon={Zap} size={16} />
-        </span>
-        <div>
-          <p className="hero-float-kicker">Pop quiz</p>
-          <p className="hero-float-meta">Adaptive · 3 questions</p>
+      <svg className="hero-scene-connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="hero-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.05" />
+            <stop offset="50%" stopColor="var(--color-accent-bright)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.04" />
+          </linearGradient>
+        </defs>
+        {HERO_FLOAT_CARDS.map((card) => {
+          const end = polarPoint(card.angle, card.radiusPx)
+          const mid = polarPoint(card.angle, card.radiusPx * 0.5)
+          return (
+            <g key={card.id}>
+              <line
+                x1="50"
+                y1="50"
+                x2={end.x}
+                y2={end.y}
+                className="hero-scene-connection-line"
+              />
+              <circle
+                cx={mid.x}
+                cy={mid.y}
+                r="0.55"
+                className="hero-scene-knowledge-node"
+                style={{ animationDelay: `${card.floatDelay}s` }}
+              />
+            </g>
+          )
+        })}
+      </svg>
+
+      <div className="hero-scene-particles" aria-hidden="true">
+        {PARTICLE_SEEDS.map((particle, index) => (
+          <span
+            key={index}
+            className="hero-scene-particle"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              animationDelay: `${particle.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="hero-scene-orbit hero-scene-orbit-a">
+        {HERO_FLOAT_CARDS.map((card) => (
+          <HeroFloatCard key={card.id} card={card} />
+        ))}
+      </div>
+
+      <div className="hero-scene-tutor">
+        <div className="hero-scene-tutor-halo" />
+        <div className="hero-scene-tutor-pulse" />
+        <div className="hero-scene-tutor-glow" />
+        <div className="hero-scene-tutor-ring hero-scene-tutor-ring-a" />
+        <div className="hero-scene-tutor-ring hero-scene-tutor-ring-b" />
+        <div className="hero-scene-narration-wave" aria-hidden="true">
+          <span /><span /><span /><span />
         </div>
-      </div>
-
-      <div className="hero-float-card hero-float-card--sage hero-float-4">
-        <span className="hero-float-icon-wrap hero-float-icon-wrap--teal">
-          <Icon icon={Sparkles} size={16} />
-        </span>
-        <div>
-          <p className="hero-float-kicker">SAGE</p>
-          <p className="hero-float-meta">Ask anything · zero judgment</p>
-        </div>
-      </div>
-
-      <div className="hero-float-card hero-float-card--progress hero-float-5">
-        <span className="hero-float-icon-wrap hero-float-icon-wrap--teal">
-          <Icon icon={BarChart3} size={16} />
-        </span>
-        <div className="hero-float-progress">
-          <p className="hero-float-kicker">Session progress</p>
-          <div className="hero-float-progress-bar">
-            <div className="hero-float-progress-fill" />
+        <MentorGifAvatar mentorId="nova" asset={tutorAsset} label="" />
+        <div className="hero-scene-tutor-nameplate">
+          <div className="hero-scene-tutor-nameplate-top">
+            <span className="hero-scene-live-dot" />
+            <span className="hero-scene-tutor-status">Narrating</span>
           </div>
-          <p className="hero-float-meta">87% mastery this lesson</p>
+          <p className="hero-scene-tutor-name">Nova</p>
+          <p className="hero-scene-tutor-role">AI Tutor</p>
         </div>
-      </div>
-
-      <div className="hero-float-card hero-float-card--ai hero-float-6">
-        <span className="hero-float-icon-wrap hero-float-icon-wrap--midnight">
-          <Icon icon={Brain} size={16} />
-        </span>
-        <div>
-          <p className="hero-float-kicker">8 AI mentors</p>
-          <p className="hero-float-meta">Unique voice &amp; teaching style</p>
-        </div>
-      </div>
-
-      <div className="hero-scene-mentor">
-        <div className="hero-scene-mentor-glow" />
-        <div className="hero-scene-mentor-ring" />
-        <MentorGifAvatar mentorId="nova" asset={mentorAsset} label="" />
-        <div className="hero-scene-mentor-badge">
-          <span className="hero-scene-live-dot" />
-          Nova · AI Mentor
-        </div>
-      </div>
-
-      <div className="hero-float-card hero-float-card--chat hero-float-7">
-        <span className="hero-float-icon-wrap hero-float-icon-wrap--teal">
-          <Icon icon={MessageCircle} size={16} />
-        </span>
-        <p className="hero-float-chat">Why does the ball slow down?</p>
       </div>
     </div>
   )

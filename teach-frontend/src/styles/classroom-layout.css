@@ -1,0 +1,436 @@
+/* ─────────────────────────────────────────────────────────────
+   Classroom Layout — live stage + classic modes
+   Scoped to .teach-shell--classroom-route
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Live classroom shell ── */
+.teach-shell--classroom-route .classroom-live.immersive-classroom {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% -20%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 22%, transparent), transparent 58%),
+    radial-gradient(ellipse 70% 50% at 100% 100%, color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 10%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--hub-bg-scrim-fade) 0%, var(--hub-bg) 100%);
+  box-shadow: none;
+}
+
+.teach-shell--classroom-route .classroom-live::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--hub-grid-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hub-grid-faint) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 15%, black 8%, transparent 72%);
+}
+
+/* ── Rhythm bar (top chrome) ── */
+.teach-shell--classroom-route .classroom-rhythm {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding:
+    calc(var(--space-4) + env(safe-area-inset-top, 0px))
+    clamp(var(--space-4), 4vw, var(--space-6))
+    var(--space-4);
+  border-bottom: 1px solid var(--hub-border-faint);
+  background: var(--hub-bg-scrim);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.teach-shell--classroom-route .classroom-rhythm-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.teach-shell--classroom-route .classroom-rhythm-copy {
+  min-width: 0;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-kicker {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hub-accent);
+}
+
+.teach-shell--classroom-route .classroom-rhythm-title {
+  margin: 0;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-snug);
+  color: var(--hub-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-accent-border);
+  background: var(--hub-accent-glow);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hub-accent);
+  white-space: nowrap;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-live-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--hub-accent);
+  box-shadow: 0 0 8px var(--hub-accent-pulse);
+  animation: classroom-live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes classroom-live-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.teach-shell--classroom-route .classroom-rhythm-moment {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-text-dim);
+  white-space: nowrap;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-moment-current {
+  color: var(--hub-text-emphasis);
+  font-weight: var(--font-weight-semibold);
+}
+
+.teach-shell--classroom-route .classroom-rhythm-moment-sep {
+  margin-inline: 0.15rem;
+  opacity: 0.45;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--hub-border-subtle);
+  overflow: hidden;
+}
+
+.teach-shell--classroom-route .classroom-rhythm-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 80%, var(--mentor-accent, var(--color-accent)))
+  );
+  transition: width 420ms var(--ease-out);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 45%, transparent);
+}
+
+/* ── Stage + two-column grid ── */
+.teach-shell--classroom-route .classroom-stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.teach-shell--classroom-route .classroom-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  min-height: 0;
+}
+
+/* ── Learning column ── */
+.teach-shell--classroom-route .classroom-learn {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border-right: 1px solid var(--hub-border-faint);
+  background: transparent;
+}
+
+.teach-shell--classroom-route .classroom-learn-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.teach-shell--classroom-route .classroom-learn .learning-whiteboard {
+  flex: 1;
+  min-height: 0;
+  padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1rem, 3.5vw, 2.5rem);
+}
+
+/* ── Mentor column shell ── */
+.teach-shell--classroom-route .classroom-mentor {
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 18%, transparent), transparent 62%),
+    var(--hub-bg-scrim-light);
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+  min-height: 100%;
+  padding: clamp(var(--space-4), 3vw, var(--space-6)) clamp(var(--space-3), 2.5vw, var(--space-5));
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner.is-speaking {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 22%, transparent);
+}
+
+/* ── Action dock (learning column footer) ── */
+.teach-shell--classroom-route .classroom-action-dock {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-start;
+  padding: var(--space-4) clamp(var(--space-4), 4vw, var(--space-6));
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--hub-border-faint);
+  background: var(--grad-footer-scrim);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.teach-shell--classroom-route .classroom-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: min(100%, 14rem);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-white-border);
+  background: var(--grad-hub-primary);
+  color: var(--color-white);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-hub-btn-accent);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--classroom-route .classroom-action-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent-lg-strong);
+}
+
+.teach-shell--classroom-route .classroom-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.teach-shell--classroom-route .classroom-action-btn.is-loading {
+  pointer-events: none;
+}
+
+.teach-shell--classroom-route .classroom-action-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), 0 8px 28px var(--shadow-black-base);
+}
+
+/* ── Classic mode (quiz · predict · sage launch) ── */
+.teach-shell--classroom-route .classroom-classic {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: calc(100dvh - env(safe-area-inset-top, 0px));
+  padding:
+    var(--space-4)
+    clamp(var(--space-4), 4vw, var(--space-6))
+    calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+}
+
+.teach-shell--classroom-route .classroom-classic-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: min(920px, 100%);
+  margin-inline: auto;
+  width: 100%;
+}
+
+.teach-shell--classroom-route .classroom-classic-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border);
+  background:
+    var(--grad-glass-panel),
+    var(--hub-surface-1);
+  box-shadow:
+    0 20px 56px var(--shadow-black-base),
+    inset 0 1px 0 var(--hub-inset-highlight);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.teach-shell--classroom-route .classroom-classic-main .slide-content {
+  flex: 1;
+}
+
+.teach-shell--classroom-route .classroom-classic .classroom-controls-desktop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hub-border-subtle);
+}
+
+.teach-shell--classroom-route .classroom-classic .classroom-sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  padding: var(--space-3) var(--space-4);
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--hub-border-subtle);
+  background: var(--hub-bg-scrim-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.teach-shell--classroom-route .classroom-classic .classroom-sticky-cta .btn-primary {
+  width: 100%;
+  border-radius: var(--radius-full);
+}
+
+.teach-shell--classroom-route .classroom-classic .error-state {
+  border-color: var(--hub-danger-border);
+  background: var(--hub-danger-soft);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .teach-shell--classroom-route .classroom-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  }
+}
+
+@media (max-width: 900px) {
+  .teach-shell--classroom-route .classroom-rhythm {
+    padding-left: clamp(var(--space-4), 4vw, var(--space-6));
+  }
+
+  .teach-shell--classroom-route .classroom-rhythm-top {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+  }
+
+  .teach-shell--classroom-route .classroom-rhythm-copy {
+    grid-column: 2;
+  }
+
+  .teach-shell--classroom-route .classroom-exit-link--breadcrumb {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .teach-shell--classroom-route .classroom-rhythm-badge {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .teach-shell--classroom-route .classroom-rhythm-moment {
+    grid-column: 1 / -1;
+  }
+
+  .teach-shell--classroom-route .classroom-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .teach-shell--classroom-route .classroom-mentor {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    max-height: min(44vh, 400px);
+    border-bottom: 1px solid var(--hub-border-faint);
+  }
+
+  .teach-shell--classroom-route .classroom-mentor-inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .teach-shell--classroom-route .classroom-learn {
+    border-right: none;
+  }
+
+  .teach-shell--classroom-route .classroom-classic {
+    padding-left: clamp(var(--space-4), 4vw, var(--space-6));
+  }
+}
+
+@media (max-width: 640px) {
+  .teach-shell--classroom-route .classroom-rhythm-badge {
+    display: none;
+  }
+
+  .teach-shell--classroom-route .classroom-action-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--classroom-route .classroom-rhythm-live-dot,
+  .teach-shell--classroom-route .classroom-rhythm-fill {
+    animation: none;
+    transition: none;
+  }
+
+  .teach-shell--classroom-route .classroom-action-btn:hover:not(:disabled) {
+    transform: none;
+  }
+}

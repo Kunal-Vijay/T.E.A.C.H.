@@ -1,8 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import CreateClassForm from '../../components/admin/CreateClassForm'
-import PageHeader from '../../components/ui/PageHeader'
-import ErrorState from '../../components/ui/ErrorState'
+import TeacherHubBackLink from '../../components/nav/TeacherHubBackLink'
+import {
+  AppPage,
+  ErrorState,
+  HubHero,
+  PageAlert,
+  PageHeader,
+} from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import { captureException } from '../../lib/monitoring'
 import { resolveDisplayedError } from '../../services/api/apiError'
@@ -36,14 +42,25 @@ export default function CreateClassPage() {
   }
 
   return (
-    <main className="container page-main">
-      <PageHeader
-        kicker="New lesson"
-        title="Create class"
-        lede="Add topics and notes — TEACH will turn them into a live classroom."
-      />
-      {errorMessage !== null ? <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} /> : null}
+    <AppPage variant="teacher-form">
+      {errorMessage !== null ? (
+        <PageAlert>
+          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+        </PageAlert>
+      ) : null}
+
+      <TeacherHubBackLink />
+
+      <HubHero>
+        <PageHeader
+          variant="hub"
+          kicker="New lesson"
+          title="Create class"
+          lede="Add topics and notes — T.E.A.C.H will turn them into a live classroom."
+        />
+      </HubHero>
+
       <CreateClassForm onSubmit={handleSubmit} loading={loading} />
-    </main>
+    </AppPage>
   )
 }

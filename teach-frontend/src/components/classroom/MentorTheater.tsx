@@ -36,7 +36,7 @@ export default function MentorTheater({
         expression={resolvedExpression}
         size="hero"
         showGlow
-        ariaLabel={`${mentor.name} is your live mentor`}
+        ariaLabel={`${mentor.name} is your AI Tutor`}
       />
       {isSpeaking ? (
         <div className="mentor-theater-live" aria-hidden="true">

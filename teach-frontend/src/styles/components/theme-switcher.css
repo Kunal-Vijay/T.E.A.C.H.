@@ -1,0 +1,141 @@
+/* ── Global theme switcher (nav popover) ── */
+
+.theme-switcher {
+  position: relative;
+  display: inline-flex;
+}
+
+.theme-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-border);
+  background: var(--hub-border-ghost);
+  color: var(--hub-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.theme-switcher-trigger:hover {
+  color: var(--hub-text-primary);
+  background: var(--hub-border-faint);
+  border-color: var(--hub-border-interactive);
+}
+
+.theme-switcher-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.theme-switcher-popover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: var(--z-popover, 50);
+  min-width: 14.5rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hub-border-subtle);
+  background: color-mix(in srgb, var(--hub-bg-solid) 94%, transparent);
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 16px 48px var(--shadow-black-sm),
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 8%, transparent);
+  animation: theme-switcher-in 180ms var(--ease-out) both;
+}
+
+.theme-switcher-heading {
+  margin: 0 0 var(--space-2);
+  padding-inline: var(--space-2);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hub-text-ghost);
+}
+
+.theme-switcher-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.theme-switcher-option {
+  display: flex;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--hub-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.theme-switcher-option:hover {
+  background: var(--hub-border-faint);
+  color: var(--hub-text-primary);
+}
+
+.theme-switcher-option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.theme-switcher-option.is-selected {
+  color: var(--hub-accent);
+  background: var(--hub-accent-soft);
+}
+
+.theme-switcher-option-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.theme-switcher-check,
+.theme-switcher-check-placeholder {
+  width: 0.875rem;
+  flex-shrink: 0;
+}
+
+.theme-switcher-check {
+  color: var(--hub-accent);
+}
+
+@keyframes theme-switcher-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switcher-popover {
+    animation: none;
+  }
+}

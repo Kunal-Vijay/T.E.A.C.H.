@@ -23,7 +23,7 @@ export default function StudyMentorAvatar({
   ariaLabel,
 }: StudyMentorAvatarProps) {
   const asset = getMentorGifAsset(mentor.id)
-  const label = ariaLabel ?? `${mentor.name}, your study mentor`
+  const label = ariaLabel ?? `${mentor.name}, your AI Tutor`
 
   if (asset === null) {
     return null
@@ -31,6 +31,8 @@ export default function StudyMentorAvatar({
 
   const showCelebration = expression === 'celebrating' || expression === 'excited'
   const showSpeaking = expression === 'speaking' || expression === 'explaining'
+  const showListening = expression === 'listening' || expression === 'curious'
+  const showThinking = expression === 'thinking'
 
   return (
     <div
@@ -57,6 +59,12 @@ export default function StudyMentorAvatar({
         ) : null}
         {showSpeaking ? (
           <span className="mentor-speak-ring" aria-hidden="true" />
+        ) : null}
+        {showListening ? (
+          <span className="mentor-listen-ring" aria-hidden="true" />
+        ) : null}
+        {showThinking ? (
+          <span className="mentor-think-pulse" aria-hidden="true" />
         ) : null}
       </div>
       {caption !== undefined && caption !== '' ? (

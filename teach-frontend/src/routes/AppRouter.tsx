@@ -13,6 +13,7 @@ const ClassDetailPage = lazy(() => import('../pages/admin/ClassDetailPage'))
 const StudentClassCatalogPage = lazy(() => import('../pages/student/StudentClassCatalogPage'))
 const ClassroomPage = lazy(() => import('../pages/student/ClassroomPage'))
 const MentorSelectionPage = lazy(() => import('../pages/student/MentorSelectionPage'))
+const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const TeacherLayout = lazy(() => import('../components/layouts/TeacherLayout'))
 const StudentLayout = lazy(() => import('../components/layouts/StudentLayout'))
 const MentorGate = lazy(() => import('./MentorGate'))
@@ -37,6 +38,7 @@ function RouterContent() {
               <Route path="/teacher/classes" element={<AdminClassListPage />} />
               <Route path="/teacher/classes/new" element={<CreateClassPage />} />
               <Route path="/teacher/classes/:planId" element={<ClassDetailPage />} />
+              <Route path="/teacher/settings" element={<SettingsPage />} />
             </Route>
           </Route>
 
@@ -45,6 +47,7 @@ function RouterContent() {
               <Route path="/student/mentor" element={<MentorSelectionPage />} />
               <Route element={<MentorGate />}>
                 <Route path="/student" element={<StudentClassCatalogPage />} />
+                <Route path="/student/settings" element={<SettingsPage />} />
                 <Route path="/student/classroom/:generationId" element={<ClassroomPage />} />
               </Route>
             </Route>

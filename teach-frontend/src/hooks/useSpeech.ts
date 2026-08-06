@@ -6,7 +6,6 @@ import {
   type SpeechStatus,
 } from '../components/avatar/SpeechController'
 import { buildSpeechChunks } from '../lib/speech/sentenceChunker'
-import { isMentorSpeechMuted } from '../services/mentor/mentorPreferences'
 import type { MentorDefinition, VoiceProfile } from '../types/mentor.types'
 
 export interface SpeakMentorOptions {
@@ -24,10 +23,6 @@ export function useSpeech() {
   const [speechError, setSpeechError] = useState<string | null>(null)
 
   const speakSequence = useCallback(async (chunks: string[], options?: SpeakMentorOptions) => {
-    if (isMentorSpeechMuted()) {
-      return false
-    }
-
     setSpeechError(null)
     if (!speechController.isSupported()) {
       setSpeechStatus('unsupported')
@@ -81,10 +76,6 @@ export function useSpeech() {
   }, [])
 
   const withSpeaking = useCallback(async (task: () => Promise<boolean>) => {
-    if (isMentorSpeechMuted()) {
-      return false
-    }
-
     setSpeechError(null)
     if (!speechController.isSupported()) {
       setSpeechStatus('unsupported')
@@ -111,14 +102,13 @@ export function useSpeech() {
     stopSpeech,
     withSpeaking,
     isSupported: speechController.isSupported(),
-    isMuted: isMentorSpeechMuted(),
     warmUp: () => speechController.warmUp(),
   }
 }
 
 function buildSpeechErrorMessage(errorCode: SpeechErrorCode): string {
   if (errorCode === 'network') {
-    return 'Could not load mentor audio. Make sure the backend is running on port 8000.'
+    return 'Could not load AI Tutor audio. Make sure the backend is running on port 8000.'
   }
   if (errorCode === 'synthesis-failed') {
     return 'Audio playback failed. Check your browser tab is not muted and try again.'

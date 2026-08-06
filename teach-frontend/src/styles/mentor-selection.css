@@ -1,0 +1,501 @@
+/* ─────────────────────────────────────────────────────────────
+   Mentor Selection — /student/mentor
+   Scoped to .teach-shell--hub .mentor-selection-page
+   ───────────────────────────────────────────────────────────── */
+
+.teach-shell--hub .mentor-selection-page {
+  padding-bottom: var(--space-16);
+}
+
+/* ── Header ── */
+.teach-shell--hub .mentor-selection-header {
+  max-width: 46ch;
+  margin-bottom: var(--space-5);
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teach-shell--hub .mentor-selection-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-accent-border);
+  background: var(--hub-accent-glow);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .mentor-selection-title {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.035em;
+  line-height: var(--leading-display);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .mentor-selection-lede {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .mentor-selection-count {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-text-dim);
+  animation: teach-rise var(--duration-medium) var(--ease-out) 0.04s both;
+}
+
+.teach-shell--hub .mentor-selection-count strong {
+  color: var(--hub-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ── Layout ── */
+.teach-shell--hub .mentor-selection-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  gap: var(--space-6);
+  align-items: start;
+  animation: teach-rise var(--duration-medium) var(--ease-out) 0.08s both;
+}
+
+.teach-shell--hub .mentor-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.teach-shell--hub .mentor-selection-preview-desktop {
+  display: block;
+}
+
+/* ── Picker card ── */
+.teach-shell--hub .mentor-picker-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border-subtle);
+  background:
+    var(--grad-glass-card),
+    var(--hub-surface-1);
+  box-shadow:
+    0 10px 32px var(--shadow-black-xs),
+    inset 0 1px 0 var(--hub-inset-soft);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .mentor-picker-card-glow {
+  position: absolute;
+  inset: -30% -10% auto;
+  height: 55%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 22%, transparent), transparent 68%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .mentor-picker-card.is-active {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 40%, var(--hub-border-strong));
+  box-shadow:
+    var(--shadow-elevated-md),
+    0 0 32px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 14%, transparent),
+    inset 0 1px 0 var(--hub-inset-highlight-strong);
+  transform: translateY(-2px);
+}
+
+.teach-shell--hub .mentor-picker-card.is-active .mentor-picker-card-glow {
+  opacity: 1;
+}
+
+.teach-shell--hub .mentor-picker-card-hit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.teach-shell--hub .mentor-picker-card-hit:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+  border-radius: var(--radius-lg);
+}
+
+.teach-shell--hub .mentor-picker-card-avatar {
+  display: grid;
+  place-items: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--hub-border-ghost);
+  border: 1px solid var(--hub-border-faint);
+}
+
+.teach-shell--hub .mentor-picker-card-name {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .mentor-picker-card-tagline {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .mentor-picker-card-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teach-shell--hub .mentor-picker-card-traits li {
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 85%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+}
+
+.teach-shell--hub .mentor-picker-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-4);
+  margin-top: auto;
+}
+
+.teach-shell--hub .mentor-picker-voice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-border-strong);
+  background: var(--hub-overlay-light);
+  color: var(--hub-text-soft);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .mentor-picker-voice:hover {
+  color: var(--hub-text-primary);
+  border-color: var(--hub-border-hover);
+  background: var(--hub-border-subtle);
+}
+
+.teach-shell--hub .mentor-picker-select {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-white-border);
+  background: var(--grad-hub-primary);
+  color: var(--color-white);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-elevated-sm);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .mentor-picker-select:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hub-btn-soft);
+}
+
+.teach-shell--hub .mentor-picker-select.is-selected {
+  border-color: var(--hub-accent-border-focus);
+  background: var(--grad-accent-solid);
+}
+
+/* ── Preview panel ── */
+.teach-shell--hub .mentor-picker-preview {
+  position: sticky;
+  top: calc(var(--nav-height) + var(--space-4));
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border);
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 0%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 16%, transparent), transparent 62%),
+    var(--hub-surface-deep);
+  box-shadow:
+    0 20px 56px var(--shadow-black-base),
+    inset 0 1px 0 var(--hub-inset-highlight);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.teach-shell--hub .mentor-picker-preview-glow {
+  position: absolute;
+  inset: -20% 0 auto;
+  height: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 24%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.teach-shell--hub .mentor-picker-preview-hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--space-5);
+}
+
+.teach-shell--hub .mentor-picker-preview-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.teach-shell--hub .mentor-picker-preview-kicker {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .mentor-picker-preview-name {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-heading);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .mentor-picker-preview-tagline {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .mentor-picker-preview-meta {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-5);
+}
+
+.teach-shell--hub .mentor-picker-preview-meta dt {
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hub-text-ghost);
+}
+
+.teach-shell--hub .mentor-picker-preview-meta dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--hub-text-soft);
+}
+
+.teach-shell--hub .mentor-picker-preview-quote {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  border-left: 3px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 70%, transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--text-body);
+  font-style: italic;
+  line-height: var(--leading-body);
+  color: var(--hub-text-emphasis);
+  background: var(--hub-border-ghost);
+}
+
+.teach-shell--hub .mentor-picker-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.teach-shell--hub .mentor-picker-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .mentor-picker-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.teach-shell--hub .mentor-picker-action--ghost {
+  border-color: var(--hub-border-strong);
+  background: var(--hub-overlay-light);
+  color: var(--hub-text-medium);
+}
+
+.teach-shell--hub .mentor-picker-action--ghost:hover:not(:disabled) {
+  border-color: var(--hub-border-hover);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .mentor-picker-action--secondary {
+  border-color: var(--hub-accent-border);
+  background: var(--hub-accent-soft);
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .mentor-picker-action--secondary:hover:not(:disabled) {
+  border-color: var(--hub-accent-border-active);
+  background: var(--hub-accent-soft-medium);
+}
+
+.teach-shell--hub .mentor-picker-action--primary {
+  flex: 1 1 100%;
+  margin-top: var(--space-1);
+  padding: 0.75rem 1.25rem;
+  border-color: var(--color-white-border);
+  background: var(--grad-hub-primary);
+  color: var(--color-white);
+  box-shadow: 0 8px 28px var(--shadow-black-soft), 0 0 24px var(--hub-accent-soft);
+}
+
+.teach-shell--hub .mentor-picker-action--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent-lg);
+}
+
+.teach-shell--hub .mentor-picker-preview-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--hub-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--hub-surface-deep);
+  color: var(--hub-text-medium);
+  cursor: pointer;
+}
+
+.teach-shell--hub .mentor-picker-preview-close:hover {
+  color: var(--hub-text-primary);
+  border-color: var(--hub-border-hover);
+}
+
+/* ── Mobile modal ── */
+.teach-shell--hub .mentor-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: end center;
+  padding: var(--space-4);
+}
+
+.teach-shell--hub .mentor-picker-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background:
+    var(--gradient-stage-glow),
+    var(--hub-bg-overlay);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.teach-shell--hub .mentor-picker-modal .mentor-picker-preview {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teach-shell--hub .mentor-picker-preview--compact .mentor-picker-preview-hero {
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .teach-shell--hub .mentor-selection-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .teach-shell--hub .mentor-selection-preview-desktop {
+    display: none;
+  }
+
+  .teach-shell--hub .mentor-selection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teach-shell--hub .mentor-selection-count {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .mentor-selection-header,
+  .teach-shell--hub .mentor-selection-count,
+  .teach-shell--hub .mentor-selection-layout,
+  .teach-shell--hub .mentor-picker-modal .mentor-picker-preview {
+    animation: none;
+  }
+
+  .teach-shell--hub .mentor-picker-card.is-active,
+  .teach-shell--hub .mentor-picker-select:hover,
+  .teach-shell--hub .mentor-picker-action--primary:hover:not(:disabled) {
+    transform: none;
+  }
+}

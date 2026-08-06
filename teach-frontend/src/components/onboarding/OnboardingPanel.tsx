@@ -1,4 +1,5 @@
 import { Sparkles } from 'lucide-react'
+import { Button } from '../ui/Button'
 import Icon from '../ui/Icon'
 
 interface OnboardingStep {
@@ -16,7 +17,7 @@ interface OnboardingPanelProps {
 }
 
 export default function OnboardingPanel({
-  heading = 'Welcome to TEACH',
+  heading = 'Welcome to T.E.A.C.H',
   subtitle,
   steps,
   ctaLabel,
@@ -24,12 +25,12 @@ export default function OnboardingPanel({
   footnote,
 }: OnboardingPanelProps) {
   return (
-    <section className="onboarding card" aria-labelledby="onboarding-title">
+    <section className="onboarding onboarding-panel card" aria-labelledby="onboarding-title">
       <p className="page-kicker onboarding-kicker">
         <Icon icon={Sparkles} size={14} />
         Getting started
       </p>
-      <h2 id="onboarding-title" className="page-title onboarding-heading">{heading}</h2>
+      <h2 id="onboarding-title" className="onboarding-heading">{heading}</h2>
       {subtitle != null && subtitle !== '' ? (
         <p className="onboarding-subtitle">{subtitle}</p>
       ) : null}
@@ -37,16 +38,16 @@ export default function OnboardingPanel({
         {steps.map((step, index) => (
           <li key={step.title} className="onboarding-step">
             <span className="onboarding-step-index" aria-hidden="true">{index + 1}</span>
-            <div>
+            <div className="onboarding-step-copy">
               <h3>{step.title}</h3>
               {step.detail != null && step.detail !== '' ? <p>{step.detail}</p> : null}
             </div>
           </li>
         ))}
       </ol>
-      <button type="button" className="btn btn-primary onboarding-cta" onClick={onCta}>
+      <Button type="button" variant="primary" withIcon className="onboarding-cta" onClick={onCta}>
         {ctaLabel}
-      </button>
+      </Button>
       {footnote != null && footnote !== '' ? (
         <p className="onboarding-footnote">{footnote}</p>
       ) : null}

@@ -5,7 +5,7 @@ import type { DialogueCategory, MentorDefinition } from '../types/mentor.types'
 import { useSpeech, type SpeakMentorOptions } from './useSpeech'
 
 export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
-  const { speechStatus, speechError, speakNow, stopSpeech, withSpeaking, isSupported, isMuted, warmUp } = useSpeech()
+  const { speechStatus, speechError, speakNow, stopSpeech, withSpeaking, isSupported, warmUp } = useSpeech()
   const demoTimerRef = useRef<number | null>(null)
 
   const clearDemoTimer = useCallback(() => {
@@ -20,7 +20,7 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
     text: string,
     extra?: Pick<SpeakMentorOptions, 'onSentenceStart' | 'onSentenceEnd'>,
   ) => {
-    if (isMuted || text.trim() === '') {
+    if (text.trim() === '') {
       return false
     }
 
@@ -36,7 +36,7 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
       },
       onSentenceEnd: extra?.onSentenceEnd,
     })
-  }, [clearDemoTimer, isMuted, onExpression, speakNow, warmUp])
+  }, [clearDemoTimer, onExpression, speakNow, warmUp])
 
   const speakLessonContent = useCallback(async (
     mentor: MentorDefinition,
@@ -48,7 +48,7 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
       onCancel?: () => void
     },
   ) => {
-    if (isMuted || lessonText.trim() === '') {
+    if (lessonText.trim() === '') {
       return false
     }
 
@@ -72,7 +72,7 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
         callbacks?.onCancel?.()
       },
     }))
-  }, [clearDemoTimer, isMuted, onExpression, warmUp, withSpeaking])
+  }, [clearDemoTimer, onExpression, warmUp, withSpeaking])
 
   const previewVoice = useCallback(async (mentor: MentorDefinition, category: DialogueCategory = 'demoLines') => {
     const line = pickDialogue(mentor, category)
@@ -99,7 +99,6 @@ export function useMentorVoice(onExpression?: (speaking: boolean) => void) {
     speechStatus,
     speechError,
     isSupported,
-    isMuted,
     speakAsMentor,
     speakLessonContent,
     previewVoice,

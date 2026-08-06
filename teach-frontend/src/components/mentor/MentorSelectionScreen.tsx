@@ -66,26 +66,35 @@ export default function MentorSelectionScreen() {
   }
 
   return (
-    <div className="mentor-selection page-main" onKeyDown={handleKeyNav}>
+    <div className="mentor-selection" tabIndex={0} onKeyDown={handleKeyNav}>
       <header className="mentor-selection-header">
         <p className="mentor-selection-kicker">
           <Icon icon={Sparkles} size={14} />
           Your learning companion
         </p>
-        <h1>Choose your AI Study Mentor</h1>
+        <h1 className="mentor-selection-title">Choose your AI Tutor</h1>
         <p className="mentor-selection-lede">
-          Pick a mentor who matches your vibe. They&apos;ll guide you through lessons, celebrate wins,
-          and cheer you on when things get tricky.
+          Pick a tutor who matches your vibe. They&apos;ll guide you through lessons, celebrate wins,
+          and help whenever things get tricky.
         </p>
       </header>
 
+      <p className="mentor-selection-count">
+        <strong>{MENTOR_LIST.length}</strong> tutors · Use arrow keys to browse
+      </p>
+
       <div className="mentor-selection-layout">
-        <div className="mentor-selection-grid" role="listbox" aria-label="Available mentors" aria-activedescendant={`mentor-card-${focusedId}`}>
+        <div
+          className="mentor-selection-grid"
+          role="listbox"
+          aria-label="Available tutors"
+          aria-activedescendant={`mentor-card-${focusedId}`}
+        >
           {MENTOR_LIST.map((mentor) => (
             <MentorCard
               key={mentor.id}
               mentor={mentor}
-              selected={selectedId === mentor.id || focusedId === mentor.id}
+              selected={selectedId === mentor.id}
               previewing={focusedId === mentor.id}
               onFocus={() => handleCardFocus(mentor)}
               onPreview={() => handleVoicePreview(mentor)}
@@ -108,10 +117,15 @@ export default function MentorSelectionScreen() {
       </div>
 
       {mobilePreviewOpen && focusedMentor !== undefined ? (
-        <div className="mentor-preview-modal" role="dialog" aria-modal="true" aria-label={`${focusedMentor.name} preview`}>
+        <div
+          className="mentor-picker-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${focusedMentor.name} preview`}
+        >
           <button
             type="button"
-            className="mentor-preview-backdrop"
+            className="mentor-picker-modal-backdrop"
             aria-label="Close preview"
             onClick={() => setMobilePreviewOpen(false)}
           />

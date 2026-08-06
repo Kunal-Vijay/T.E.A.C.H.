@@ -4,6 +4,8 @@ import { XP_REWARDS } from '../../constants/xp'
 import { pickRandom, QUIZ_CORRECT_LINES, QUIZ_TRY_AGAIN_LINES } from '../../constants/delightCopy'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import Icon from '../ui/Icon'
+import { Button } from '../ui/Button'
+import ProgressBar from '../ui/ProgressBar'
 import LessonContent from '../lesson/LessonContent'
 import type { QuizAttemptResponse, QuizQuestion } from '../../types/api.types'
 
@@ -94,19 +96,12 @@ export default function PopQuizPanel({
             Question {currentQuestionIndex + 1} of {questions.length}
             {correctCount > 0 ? ` · ${correctCount} correct` : ''}
           </p>
-          <div
-            className="journey-progress-bar"
-            role="progressbar"
-            aria-valuenow={quizProgressPercent}
-            aria-valuemin={0}
-            aria-valuemax={100}
+          <ProgressBar
+            variant="journey"
+            value={quizProgressPercent}
+            milestone
             aria-label={`Quiz progress: question ${currentQuestionIndex + 1} of ${questions.length}`}
-          >
-            <div
-              className={`journey-progress-fill${quizProgressPercent === 100 ? ' is-milestone' : ''}`}
-              style={{ width: `${quizProgressPercent}%` }}
-            />
-          </div>
+          />
         </div>
         <h3>{currentQuestion.question_text}</h3>
       </div>
@@ -141,10 +136,9 @@ export default function PopQuizPanel({
           <div className="quiz-feedback-copy">
             <LessonContent source={feedback.feedback_explanation} />
           </div>
-          <button type="button" className="btn btn-primary btn-with-icon" onClick={handleNext}>
+          <Button type="button" variant="primary" withIcon icon={ChevronRight} onClick={handleNext}>
             {currentQuestionIndex + 1 >= questions.length ? 'Continue lesson' : 'Next question'}
-            <Icon icon={ChevronRight} size={16} />
-          </button>
+          </Button>
         </div>
       ) : null}
     </div>

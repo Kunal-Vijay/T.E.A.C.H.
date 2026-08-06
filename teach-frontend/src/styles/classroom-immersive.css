@@ -18,13 +18,14 @@
   border-radius: calc(var(--radius-xl) + 4px);
   overflow: hidden;
   background:
+    var(--env-classroom-vignette),
     radial-gradient(ellipse 90% 70% at 50% -10%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 16%, transparent), transparent 60%),
     radial-gradient(ellipse 60% 50% at 80% 100%, color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, transparent), transparent 55%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 94%, #0a0f1a) 0%, var(--color-bg) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 94%, var(--color-black-soft)) 0%, var(--color-bg) 100%);
   border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, var(--color-border));
   box-shadow:
-    0 24px 80px color-mix(in srgb, #000 28%, transparent),
-    inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+    0 24px 80px color-mix(in srgb, var(--color-black) 28%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 6%, transparent);
 }
 
 /* ── Rhythm bar (minimal chrome) ── */
@@ -98,6 +99,9 @@
 .mentor-teaching-panel {
   min-height: 0;
   overflow-y: auto;
+}
+
+:not(.teach-shell--classroom-route) .mentor-teaching-panel {
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 14%, transparent), transparent 60%),
     color-mix(in srgb, var(--color-bg) 92%, transparent);
@@ -112,12 +116,12 @@
   min-height: 100%;
 }
 
-.mentor-teaching-panel-inner.is-speaking {
+:not(.teach-shell--classroom-route) .mentor-teaching-panel-inner.is-speaking {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 20%, transparent);
 }
 
-/* ── Learning whiteboard shell ── */
-.learning-whiteboard {
+/* ── Learning whiteboard shell (legacy light layout — not dark classroom route) ── */
+:not(.teach-shell--classroom-route) .learning-whiteboard {
   flex: 1;
   position: relative;
   min-height: 0;
@@ -125,7 +129,7 @@
   padding: clamp(2rem, 4vw, 3rem) clamp(2rem, 5vw, 3rem);
 }
 
-.lesson-board-surface {
+:not(.teach-shell--classroom-route) .lesson-board-surface {
   position: absolute;
   inset: clamp(1rem, 2vw, 1.5rem);
   border-radius: calc(var(--radius-lg) + 2px);
@@ -139,11 +143,11 @@
   transition: opacity var(--duration-medium) var(--ease-out);
 }
 
-.learning-whiteboard.is-live .lesson-board-surface {
+:not(.teach-shell--classroom-route) .learning-whiteboard.is-live .lesson-board-surface {
   opacity: 1;
 }
 
-.whiteboard-idle {
+:not(.teach-shell--classroom-route) .whiteboard-idle {
   position: relative;
   z-index: 1;
   display: grid;
@@ -152,7 +156,7 @@
   pointer-events: none;
 }
 
-.whiteboard-idle-text {
+:not(.teach-shell--classroom-route) .whiteboard-idle-text {
   margin: 0;
   max-width: 24ch;
   text-align: center;
@@ -161,7 +165,7 @@
   color: var(--color-ink-mute);
 }
 
-.learning-whiteboard .lesson-board {
+:not(.teach-shell--classroom-route) .learning-whiteboard .lesson-board {
   position: relative;
   z-index: 1;
   min-height: min(420px, 50vh);
@@ -169,8 +173,22 @@
   align-items: flex-start;
 }
 
-.learning-whiteboard .lesson-board-inner {
+:not(.teach-shell--classroom-route) .learning-whiteboard .lesson-board-inner {
   padding-block: var(--space-2);
+}
+
+/* Dark classroom route — shell positioning owned by lesson-board.css */
+.teach-shell--classroom-route .learning-whiteboard {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.teach-shell--classroom-route .lesson-board-surface {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity var(--duration-medium) var(--ease-out);
 }
 
 .learning-panel .lesson-action-dock {
@@ -185,8 +203,8 @@
   min-width: auto;
 }
 
-/* ── Mentor panel ── */
-.mentor-panel-controls {
+/* ── Mentor panel (legacy light layout — not dark classroom route) ── */
+:not(.teach-shell--classroom-route) .mentor-panel-controls {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -194,7 +212,7 @@
   padding-top: var(--space-2);
 }
 
-.mentor-panel-btn {
+:not(.teach-shell--classroom-route) .mentor-panel-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -212,47 +230,47 @@
   transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
-.mentor-panel-btn:hover {
+:not(.teach-shell--classroom-route) .mentor-panel-btn:hover {
   border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 40%, var(--color-border));
   color: var(--color-ink);
 }
 
-.mentor-panel-btn.is-on {
+:not(.teach-shell--classroom-route) .mentor-panel-btn.is-on {
   border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 50%, var(--color-border));
   color: var(--mentor-accent, var(--color-accent));
   background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, var(--color-surface));
 }
 
-.mentor-panel-btn-ghost {
+:not(.teach-shell--classroom-route) .mentor-panel-btn-ghost {
   background: transparent;
 }
 
 /* ── Mentor theater (side panel sizing) ── */
-.mentor-teaching-panel .mentor-theater {
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater {
   padding: var(--space-2) 0;
 }
 
-.mentor-teaching-panel .mentor-theater-ambient {
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ambient {
+  width: min(100%, 280px);
+  height: min(100%, 280px);
+}
+
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ring-a {
   width: min(100%, 240px);
   height: min(100%, 240px);
 }
 
-.mentor-teaching-panel .mentor-theater-ring-a {
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ring-b {
   width: min(100%, 200px);
   height: min(100%, 200px);
 }
 
-.mentor-teaching-panel .mentor-theater-ring-b {
-  width: min(100%, 170px);
-  height: min(100%, 170px);
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
+  width: min(100%, 220px);
+  max-height: 240px;
 }
 
-.mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
-  width: min(100%, 180px);
-  max-height: 200px;
-}
-
-.mentor-teaching-panel .teaching-subtitle {
+:not(.teach-shell--classroom-route) .mentor-teaching-panel .teaching-subtitle {
   width: 100%;
 }
 
@@ -327,8 +345,8 @@
   animation: mentor-think-bob 2.4s ease-in-out infinite;
 }
 
-/* ── Subtitles ── */
-.teaching-subtitle {
+/* ── Subtitles (legacy light layout — not dark classroom route) ── */
+:not(.teach-shell--classroom-route) .teaching-subtitle {
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
   text-align: center;
@@ -338,18 +356,18 @@
   transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.teaching-subtitle.is-speaking {
+:not(.teach-shell--classroom-route) .teaching-subtitle.is-speaking {
   border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 42%, var(--color-border));
   box-shadow: 0 8px 40px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 18%, transparent);
 }
 
-.teaching-subtitle-idle .teaching-subtitle-waiting {
+:not(.teach-shell--classroom-route) .teaching-subtitle-idle .teaching-subtitle-waiting {
   margin: 0;
   font-size: var(--text-sm);
   color: var(--color-ink-mute);
 }
 
-.teaching-subtitle-prev {
+:not(.teach-shell--classroom-route) .teaching-subtitle-prev {
   margin: 0 0 var(--space-2);
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
@@ -358,7 +376,7 @@
   animation: subtitle-fade-out var(--duration-medium) var(--ease-out) both;
 }
 
-.teaching-subtitle-current {
+:not(.teach-shell--classroom-route) .teaching-subtitle-current {
   margin: 0;
   font-family: var(--font-family);
   font-size: var(--text-body-lg);
@@ -378,7 +396,7 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.teaching-subtitle-track {
+:not(.teach-shell--classroom-route) .teaching-subtitle-track {
   margin-top: var(--space-3);
   height: 2px;
   border-radius: var(--radius-full);
@@ -386,7 +404,7 @@
   overflow: hidden;
 }
 
-.teaching-subtitle-track-fill {
+:not(.teach-shell--classroom-route) .teaching-subtitle-track-fill {
   height: 100%;
   background: var(--mentor-accent, var(--color-accent));
   transition: width 380ms var(--ease-out);
@@ -502,7 +520,7 @@
     max-height: min(42vh, 380px);
   }
 
-  .mentor-teaching-panel-inner {
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel-inner {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -510,34 +528,34 @@
     gap: var(--space-3);
   }
 
-  .mentor-teaching-panel .mentor-theater {
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater {
     flex: 0 0 auto;
   }
 
-  .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater .study-mentor-hero .mentor-gif-avatar {
     width: 88px;
     max-height: 96px;
   }
 
-  .mentor-teaching-panel .mentor-theater-ambient,
-  .mentor-teaching-panel .mentor-theater-ring-a,
-  .mentor-teaching-panel .mentor-theater-ring-b {
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ambient,
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ring-a,
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .mentor-theater-ring-b {
     display: none;
   }
 
-  .mentor-teaching-panel .teaching-subtitle {
+  :not(.teach-shell--classroom-route) .mentor-teaching-panel .teaching-subtitle {
     flex: 1;
     min-width: 12rem;
     padding: var(--space-3);
   }
 
-  .mentor-panel-controls {
+  :not(.teach-shell--classroom-route) .mentor-panel-controls {
     flex-direction: row;
     width: 100%;
     margin-top: 0;
   }
 
-  .mentor-panel-btn {
+  :not(.teach-shell--classroom-route) .mentor-panel-btn {
     flex: 1;
   }
 

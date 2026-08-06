@@ -31,7 +31,7 @@ export function useTeachingSession(
 
   useEffect(() => {
     resetSession()
-  }, [explanationText, slideElements, resetSession])
+  }, [explanationText, resetSession])
 
   const applyCueIndex = useCallback((index: number) => {
     setActiveCueIndex(index)
@@ -77,7 +77,19 @@ export function useTeachingSession(
   const advanceCueManually = useCallback(() => {
     const next = Math.min(activeCueIndex + 1, Math.max(0, cues.length - 1))
     applyCueIndex(next)
+    if (next >= cues.length - 1) {
+      setIsPlaying(false)
+    }
   }, [activeCueIndex, applyCueIndex, cues.length])
+
+  const markManualPlaybackComplete = useCallback(() => {
+    setIsPlaying(false)
+    if (cues.length > 0) {
+      applyCueIndex(cues.length - 1)
+    } else {
+      setHasStarted(true)
+    }
+  }, [applyCueIndex, cues.length])
 
   const activeBeat: TeachingBeat | null = beats[activeBeatIndex] ?? null
   const currentCue = cues[activeCueIndex] ?? ''
@@ -101,6 +113,7 @@ export function useTeachingSession(
     onCueStart,
     onPlaybackEnd,
     advanceCueManually,
+    markManualPlaybackComplete,
     resetSession,
     setIsPlaying,
   }

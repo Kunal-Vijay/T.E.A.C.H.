@@ -4,14 +4,13 @@ import { mentorBehavior, mentorExpression } from '../mentorDefaults'
 
 const visual = (
   shape: MentorDefinition['visual']['shape'],
-  secondary: string,
 ): MentorDefinition['visual'] => ({
   shape,
   accent: `var(--mentor-${shape}-accent)`,
   accentSoft: `var(--mentor-${shape}-soft)`,
   glow: `var(--mentor-${shape}-glow)`,
   skin: `var(--mentor-${shape}-skin)`,
-  secondary,
+  secondary: `var(--mentor-${shape}-secondary)`,
 })
 
 function defineMentor(
@@ -43,7 +42,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'playful',
       vocabulary: 'casual',
     },
-    visual: visual('nova', '#f59e0b'),
+    visual: visual('nova'),
     voice: {
       rate: 1.14,
       pitch: 1.12,
@@ -81,7 +80,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'none',
       vocabulary: 'professional',
     },
-    visual: visual('atlas', '#475569'),
+    visual: visual('atlas'),
     voice: {
       rate: 0.86,
       pitch: 0.88,
@@ -119,7 +118,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'witty',
       vocabulary: 'casual',
     },
-    visual: visual('spark', '#0ea5e9'),
+    visual: visual('spark'),
     voice: {
       rate: 1.16,
       pitch: 1.18,
@@ -157,7 +156,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'light',
       vocabulary: 'poetic',
     },
-    visual: visual('luna', '#e9d5ff'),
+    visual: visual('luna'),
     voice: {
       rate: 0.88,
       pitch: 1.04,
@@ -195,7 +194,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'none',
       vocabulary: 'professional',
     },
-    visual: visual('sage', '#0f766e'),
+    visual: visual('sage'),
     voice: {
       rate: 0.92,
       pitch: 0.94,
@@ -233,7 +232,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'light',
       vocabulary: 'concise',
     },
-    visual: visual('pixel', '#2dd4bf'),
+    visual: visual('pixel'),
     voice: {
       rate: 1.1,
       pitch: 1.0,
@@ -271,7 +270,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'playful',
       vocabulary: 'story-driven',
     },
-    visual: visual('astro', '#fbbf24'),
+    visual: visual('astro'),
     voice: {
       rate: 1.06,
       pitch: 1.06,
@@ -309,7 +308,7 @@ export const MENTOR_CONFIGS: MentorDefinition[] = [
       humor: 'witty',
       vocabulary: 'story-driven',
     },
-    visual: visual('ember', '#fb923c'),
+    visual: visual('ember'),
     voice: {
       rate: 1.02,
       pitch: 1.08,

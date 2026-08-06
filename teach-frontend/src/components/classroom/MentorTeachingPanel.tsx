@@ -9,7 +9,6 @@ interface MentorTeachingPanelProps {
   expression: ExpressionState
   currentCue: string
   previousCue: string
-  keywords: string[]
   cueIndex: number
   totalCues: number
   isSpeaking: boolean
@@ -22,12 +21,21 @@ interface MentorTeachingPanelProps {
   canReplay: boolean
 }
 
+function mentorPanelStatus(isSpeaking: boolean, hasStarted: boolean) {
+  if (isSpeaking) {
+    return { label: 'Teaching', mod: 'live' as const }
+  }
+  if (!hasStarted) {
+    return { label: 'Ready', mod: 'ready' as const }
+  }
+  return { label: 'Standby', mod: 'standby' as const }
+}
+
 export default function MentorTeachingPanel({
   mentor,
   expression,
   currentCue,
   previousCue,
-  keywords,
   cueIndex,
   totalCues,
   isSpeaking,
@@ -39,22 +47,36 @@ export default function MentorTeachingPanel({
   onReplay,
   canReplay,
 }: MentorTeachingPanelProps) {
+  const status = mentorPanelStatus(isSpeaking, hasStarted)
+
   return (
-    <aside className="mentor-teaching-panel" aria-label={`${mentor.name} teaching`}>
-      <div className={`mentor-teaching-panel-inner${isSpeaking ? ' is-speaking' : ''}`}>
-        <MentorTheater
-          mentor={mentor}
-          expression={expression}
-          isSpeaking={isSpeaking}
-          hasStarted={hasStarted}
-          beatPhase={beatPhase}
-        />
+    <aside className="classroom-mentor mentor-teaching-panel" aria-label={`${mentor.name} teaching`}>
+      <div className={`classroom-mentor-inner mentor-teaching-panel-inner${isSpeaking ? ' is-speaking' : ''}`}>
+        <header className="mentor-panel-header">
+          <div className="mentor-panel-identity">
+            <span className="mentor-panel-kicker">Your AI Tutor</span>
+            <p className="mentor-panel-name">{mentor.name}</p>
+          </div>
+          <span className={`mentor-panel-status mentor-panel-status--${status.mod}`}>
+            {status.mod === 'live' ? <span className="mentor-panel-status-dot" aria-hidden="true" /> : null}
+            {status.label}
+          </span>
+        </header>
+
+        <div className="mentor-panel-stage">
+          <MentorTheater
+            mentor={mentor}
+            expression={expression}
+            isSpeaking={isSpeaking}
+            hasStarted={hasStarted}
+            beatPhase={beatPhase}
+          />
+        </div>
 
         <TeachingSubtitle
           mentorName={mentor.name}
           currentCue={currentCue}
           previousCue={previousCue}
-          keywords={keywords}
           cueIndex={cueIndex}
           totalCues={totalCues}
           isSpeaking={isSpeaking}

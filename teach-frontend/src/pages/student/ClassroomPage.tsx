@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import ClassroomExitLink from '../../components/nav/ClassroomExitLink'
 import ClassroomLayout from '../../components/classroom/ClassroomLayout'
 import SessionCompleteScreen from '../../components/delight/SessionCompleteScreen'
 import CelebrationMoment from '../../components/delight/CelebrationMoment'
 import StatusPanel from '../../components/status/StatusPanel'
 import ErrorState from '../../components/ui/ErrorState'
-import Icon from '../../components/ui/Icon'
 import {
   COURSE_COMPLETE_LINES,
   LESSON_COMPLETE_LINES,
@@ -224,32 +223,39 @@ export default function ClassroomPage() {
 
   if (errorMessage !== null) {
     return (
-      <main className="container page-main">
-        <ErrorState message={errorMessage} />
-        <Link to="/student" className="btn btn-secondary btn-with-icon">
-          <Icon icon={ArrowLeft} size={16} />
-          Back to Classes
-        </Link>
+      <main className="classroom-canvas">
+        <header className="classroom-page-chrome">
+          <ClassroomExitLink variant="standalone" />
+        </header>
+        <div className="container page-main">
+          <ErrorState message={errorMessage} />
+        </div>
       </main>
     )
   }
 
   if (currentState === null || sessionId === null) {
     return (
-      <main className="container page-main">
-        <StatusPanel
-          tone="loading"
-          title="Preparing your classroom..."
-          description="Setting up slides, voice, and your live lesson flow."
-        />
+      <main className="classroom-canvas">
+        <div className="container page-main">
+          <StatusPanel
+            tone="loading"
+            title="Preparing your classroom..."
+            description="Setting up slides, voice, and your live lesson flow."
+          />
+        </div>
       </main>
     )
   }
 
   if (currentState.session_status === 'completed') {
     return (
-      <main className="container page-main">
-        <SessionCompleteScreen
+      <main className="classroom-canvas">
+        <header className="classroom-page-chrome">
+          <ClassroomExitLink variant="standalone" />
+        </header>
+        <div className="container page-main">
+          <SessionCompleteScreen
           summary={{
             id: sessionId,
             completedAt: new Date().toISOString(),
@@ -261,18 +267,21 @@ export default function ClassroomPage() {
           }}
           onClose={() => { /* summary is the end state */ }}
         />
+        </div>
       </main>
     )
   }
 
+  const lessonInProgress =
+    currentState.session_status === 'active'
+    && sessionStep > 1
+
+  const exitControl = (
+    <ClassroomExitLink requireConfirm={lessonInProgress} variant="breadcrumb" />
+  )
+
   return (
-    <main className="container page-main classroom-page-immersive">
-      <div className="page-toolbar">
-        <Link to="/student" className="btn btn-secondary btn-with-icon">
-          <Icon icon={ArrowLeft} size={16} />
-          Back to Classes
-        </Link>
-      </div>
+    <main className="classroom-canvas">
       <CelebrationMoment
         show={celebration !== null}
         title={celebration?.title ?? ''}
@@ -283,6 +292,7 @@ export default function ClassroomPage() {
       <ClassroomLayout
         currentState={currentState}
         sessionStep={sessionStep}
+        exitControl={exitControl}
         onAdvance={handleAdvance}
         onSubmitPrediction={async (predictionText) => {
           try {
@@ -364,6 +374,13 @@ export default function ClassroomPage() {
           trackXp(XP_REWARDS.SAGE_ASK)
           const achievement = recordSageQuestion()
           showAchievement(achievement)
+        }}
+        onReleaseDoubtSession={async (doubtSessionId) => {
+          try {
+            await sageApi.close(doubtSessionId)
+          } catch {
+            /* Mid-lesson doubt — closing is best-effort; lesson state stays put */
+          }
         }}
       />
     </main>

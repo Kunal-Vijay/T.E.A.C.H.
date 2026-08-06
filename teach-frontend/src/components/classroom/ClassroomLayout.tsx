@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Sparkles } from 'lucide-react'
 import { TeachingLayout, LessonRhythmBar } from './ImmersiveClassroom'
 import PopQuizPanel from '../quiz/PopQuizPanel'
 import SageDoubtPanel from '../sage/SageDoubtPanel'
+import VoiceDoubtPrompt from '../voice-doubt/VoiceDoubtPrompt'
+import VoiceDoubtSheet, { type VoiceDoubtSheetMode, type VoiceDoubtSheetPhase } from '../voice-doubt/VoiceDoubtSheet'
 import CelebrationMoment from '../delight/CelebrationMoment'
 import ErrorState from '../ui/ErrorState'
 import Icon from '../ui/Icon'
 import SlideRenderer from '../slides/SlideRenderer'
 import { pickRandom, SLIDE_MILESTONES, LESSON_COMPLETE_LINES } from '../../constants/delightCopy'
+import { pickDoubtInvitation } from '../../constants/doubtCopy'
 import { XP_REWARDS } from '../../constants/xp'
 import { useTeachingSession } from '../../hooks/useTeachingSession'
+import { useLessonSectionFlow } from '../../hooks/useLessonSectionFlow'
 import { useMentor } from '../../context/MentorContext'
 import { classroomModeToExpression } from '../../lib/mentors'
 import { getMentorById } from '../../lib/mentors'
@@ -26,6 +30,7 @@ interface CelebrationState {
 interface ClassroomLayoutProps {
   currentState: CurrentStateResponse
   sessionStep: number
+  exitControl?: ReactNode
   onAdvance: () => Promise<void>
   onSubmitPrediction: (predictionText: string) => Promise<void>
   onQuizSubmit: (questionId: string, selectedOptionId: string) => Promise<import('../../types/api.types').QuizAttemptResponse>
@@ -37,10 +42,12 @@ interface ClassroomLayoutProps {
   onPrediction?: () => void
   onQuizResult?: (correct: boolean) => void
   onSageQuestion?: () => void
+  onReleaseDoubtSession?: (doubtSessionId: string) => Promise<void>
 }
 
 export default function ClassroomLayout({
   currentState,
+  exitControl,
   onAdvance,
   onSubmitPrediction,
   onQuizSubmit,
@@ -52,6 +59,7 @@ export default function ClassroomLayout({
   onPrediction,
   onQuizResult,
   onSageQuestion,
+  onReleaseDoubtSession,
 }: ClassroomLayoutProps) {
   const { mentor, expression, setExpression, pulseExpression, reactToQuiz } = useMentor()
   const activeMentor = mentor ?? getMentorById('sage')
@@ -64,6 +72,17 @@ export default function ClassroomLayout({
   const [celebration, setCelebration] = useState<CelebrationState | null>(null)
   const [syncedSubtitle, setSyncedSubtitle] = useState({ current: '', previous: '' })
   const lastMilestoneRef = useRef(0)
+  const doubtPromptSpokenRef = useRef(false)
+  const markNarrationCompleteRef = useRef<() => void>(() => {})
+  const narrationCompleteTimerRef = useRef<number | null>(null)
+
+  const [doubtSheet, setDoubtSheet] = useState<{
+    mode: VoiceDoubtSheetMode
+    phase: VoiceDoubtSheetPhase
+    answerText?: string
+  } | null>(null)
+  const [voiceDoubtPermissionMsg, setVoiceDoubtPermissionMsg] = useState<string | null>(null)
+  const [doubtInvitationLine, setDoubtInvitationLine] = useState('Ask me anything before we continue.')
 
   const { speechStatus, speechError, speakAsMentor: speakMentorLine, speakLessonContent, stopPreview, warmUp, isSupported } = useMentorVoice()
 
@@ -72,17 +91,48 @@ export default function ClassroomLayout({
   const stateType = currentState.current_state?.state_type
   const slideElements = useMemo(() => currentSlide?.elements ?? [], [currentSlide?.elements])
   const explanationText = currentSlide?.explanation?.explanation_text ?? ''
-  const stateLabel = currentState.current_state?.label ?? 'Lesson'
+  const slideDoubtKey = `${currentState.current_state?.state_id ?? 'state'}-${currentSlideIndex}`
 
   const isLiveLesson =
     stateType !== 'pop_quiz'
     && stateType !== 'student_predict'
     && stateType !== 'doubts_resolution'
 
+  const sectionFlow = useLessonSectionFlow({
+    slideKey: slideDoubtKey,
+    isLiveLesson,
+  })
+
+  const {
+    phase: sectionPhase,
+    isTeaching,
+    lessonPaused,
+    showVoiceDoubtPrompt,
+    readyToContinue,
+    markNarrationComplete,
+    onReplayStarted,
+    openDoubt,
+    finishDoubt,
+  } = sectionFlow
+
+  markNarrationCompleteRef.current = markNarrationComplete
+
+  const stateLabel = currentState.current_state?.label ?? 'Lesson'
+
   const session = useTeachingSession(explanationText, slideElements)
 
   const sessionRef = useRef(session)
   sessionRef.current = session
+
+  const scheduleNarrationComplete = useCallback(() => {
+    if (narrationCompleteTimerRef.current !== null) {
+      return
+    }
+    narrationCompleteTimerRef.current = window.setTimeout(() => {
+      narrationCompleteTimerRef.current = null
+      markNarrationCompleteRef.current()
+    }, 1200)
+  }, [])
 
   const playLesson = useCallback(async (text: string) => {
     if (text.trim() === '') {
@@ -102,10 +152,13 @@ export default function ClassroomLayout({
           sessionRef.current.setIsPlaying(true)
         }
       },
-      onEnd: () => sessionRef.current.onPlaybackEnd(),
+      onEnd: () => {
+        sessionRef.current.onPlaybackEnd()
+        scheduleNarrationComplete()
+      },
       onCancel: () => setSyncedSubtitle({ current: '', previous: '' }),
     })
-  }, [activeMentor, speakLessonContent])
+  }, [activeMentor, speakLessonContent, scheduleNarrationComplete])
 
   const playLessonRef = useRef(playLesson)
   playLessonRef.current = playLesson
@@ -123,7 +176,33 @@ export default function ClassroomLayout({
   useEffect(() => {
     session.resetSession()
     setSyncedSubtitle({ current: '', previous: '' })
+    setDoubtSheet(null)
+    setVoiceDoubtPermissionMsg(null)
+    doubtPromptSpokenRef.current = false
+    if (narrationCompleteTimerRef.current !== null) {
+      window.clearTimeout(narrationCompleteTimerRef.current)
+      narrationCompleteTimerRef.current = null
+    }
   }, [currentSlideIndex, explanationText, session.resetSession])
+
+  useEffect(() => {
+    if (!isLiveLesson || !isTeaching) {
+      return
+    }
+    if (speechStatus !== 'idle') {
+      return
+    }
+    if (!session.playbackComplete) {
+      return
+    }
+    scheduleNarrationComplete()
+  }, [
+    isLiveLesson,
+    isTeaching,
+    speechStatus,
+    session.playbackComplete,
+    scheduleNarrationComplete,
+  ])
 
   useEffect(() => {
     if (!speechEnabled || !isLiveLesson || explanationText.trim() === '') {
@@ -170,13 +249,18 @@ export default function ClassroomLayout({
   const handleStartWithoutAudio = () => {
     if (session.cues.length > 0) {
       session.onCueStart(0)
-    } else {
-      session.onPlaybackEnd()
+      return
     }
+    session.markManualPlaybackComplete()
+    scheduleNarrationComplete()
   }
 
   const handleReplay = () => {
     stopPreview()
+    onReplayStarted()
+    setDoubtSheet(null)
+    setVoiceDoubtPermissionMsg(null)
+    doubtPromptSpokenRef.current = false
     setSyncedSubtitle({ current: '', previous: '' })
     if (speechEnabled && explanationText.trim() !== '') {
       void playLesson(explanationText)
@@ -188,8 +272,136 @@ export default function ClassroomLayout({
     }
   }
 
+  useEffect(() => {
+    if (!showVoiceDoubtPrompt) {
+      return
+    }
+    if (doubtPromptSpokenRef.current) {
+      return
+    }
+    doubtPromptSpokenRef.current = true
+    const line = pickDoubtInvitation()
+    setDoubtInvitationLine(line)
+    stopPreview()
+    if (speechEnabled) {
+      void speakMentorLine(activeMentor, line)
+    }
+  }, [showVoiceDoubtPrompt, speechEnabled, activeMentor, speakMentorLine, stopPreview])
+
+  const submitDoubtQuestion = async (sessionId: string, message: string) => {
+    setDoubtSheet((previous) => (
+      previous !== null
+        ? { ...previous, phase: 'thinking' }
+        : { mode: 'type', phase: 'thinking' }
+    ))
+    setExpression(activeMentor.expression.onThink)
+
+    const response = await onAskSage(sessionId, message)
+    onSageQuestion?.()
+
+    setDoubtSheet((previous) => (
+      previous !== null
+        ? { ...previous, phase: 'answer', answerText: response.ai_response }
+        : { mode: 'type', phase: 'answer', answerText: response.ai_response }
+    ))
+
+    if (speechEnabled) {
+      await speakMentorLine(activeMentor, response.ai_response, {
+        onSentenceStart: (_index, sentence) => {
+          setSyncedSubtitle((previous) => ({
+            previous: previous.current,
+            current: sentence,
+          }))
+        },
+      })
+    } else {
+      setSyncedSubtitle({ current: response.ai_response, previous: '' })
+    }
+
+    if (onReleaseDoubtSession !== undefined) {
+      await onReleaseDoubtSession(sessionId)
+    }
+
+    dismissVoiceDoubtForSlide()
+  }
+
+  const dismissVoiceDoubtForSlide = () => {
+    setDoubtSheet(null)
+    setVoiceDoubtPermissionMsg(null)
+    setDoubtSessionId(null)
+    finishDoubt()
+  }
+
+  const openVoiceDoubt = async (mode: VoiceDoubtSheetMode) => {
+    stopPreview()
+    warmUp()
+    setVoiceDoubtPermissionMsg(null)
+    openDoubt()
+    try {
+      const sessionId = await onOpenSage()
+      setDoubtSessionId(sessionId)
+      setDoubtSheet({
+        mode,
+        phase: mode === 'voice' ? 'listening' : 'typing',
+      })
+    } catch {
+      setDoubtSheet(null)
+    }
+  }
+
+  const handleVoiceDoubtSend = async (message: string) => {
+    if (doubtSessionId === null) {
+      return
+    }
+
+    try {
+      await submitDoubtQuestion(doubtSessionId, message)
+    } catch {
+      setDoubtSheet((previous) => (
+        previous !== null
+          ? { ...previous, phase: previous.mode === 'voice' ? 'listening' : 'typing' }
+          : previous
+      ))
+    }
+  }
+
+  const handleQuickAsk = async (message: string) => {
+    stopPreview()
+    warmUp()
+    setVoiceDoubtPermissionMsg(null)
+    openDoubt()
+    try {
+      const sessionId = await onOpenSage()
+      setDoubtSessionId(sessionId)
+      await submitDoubtQuestion(sessionId, message)
+    } catch {
+      setDoubtSheet(null)
+      setDoubtSessionId(null)
+    }
+  }
+
+  const handleVoiceDoubtClose = () => {
+    stopPreview()
+    if (doubtSessionId !== null && onReleaseDoubtSession !== undefined) {
+      void onReleaseDoubtSession(doubtSessionId)
+    }
+    dismissVoiceDoubtForSlide()
+  }
+
+  const handleSwitchToType = () => {
+    setVoiceDoubtPermissionMsg(
+      'Microphone access isn\'t available. You can type your question instead.',
+    )
+    openDoubt()
+    setDoubtSheet((previous) => (
+      previous !== null
+        ? { ...previous, mode: 'type', phase: 'typing' }
+        : { mode: 'type', phase: 'typing' }
+    ))
+  }
+
   const handleContinue = async () => {
-    if (advancing) {
+    if (advancing || lessonPaused) {
       return
     }
 
@@ -199,7 +411,18 @@ export default function ClassroomLayout({
     }
 
     if (isLiveLesson && !speechEnabled && session.hasStarted && !session.playbackComplete) {
+      const nextIndex = Math.min(
+        session.activeCueIndex + 1,
+        Math.max(0, session.cues.length - 1),
+      )
       session.advanceCueManually()
+      if (nextIndex >= session.cues.length - 1 && session.cues.length > 0) {
+        scheduleNarrationComplete()
+      }
+      return
+    }
+
+    if (isLiveLesson && !readyToContinue) {
       return
     }
 
@@ -235,15 +458,29 @@ export default function ClassroomLayout({
   }
 
   const resolvedAvatarMode: ClassroomAvatarMode =
-    stateType === 'pop_quiz'
-      ? 'questioning'
-      : stateType === 'student_predict' || showSagePanel
+    sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'listening'
+      ? 'listening'
+      : sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking'
         ? 'listening'
-        : speechStatus === 'speaking'
-          ? 'speaking'
-          : 'idle'
+        : stateType === 'pop_quiz'
+          ? 'questioning'
+          : stateType === 'student_predict' || showSagePanel
+            ? 'listening'
+            : speechStatus === 'speaking'
+              ? 'speaking'
+              : 'idle'
 
   useEffect(() => {
+    if (showVoiceDoubtPrompt) {
+      setExpression('smile')
+      return
+    }
+
+    if (sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking') {
+      setExpression(activeMentor.expression.onThink)
+      return
+    }
+
     if (speechStatus === 'speaking') {
       setExpression(activeMentor.expression.onSpeak)
       return
@@ -259,7 +496,7 @@ export default function ClassroomLayout({
     } else {
       setExpression(activeMentor.expression.onIdle)
     }
-  }, [resolvedAvatarMode, speechStatus, activeMentor, setExpression])
+  }, [resolvedAvatarMode, speechStatus, activeMentor, setExpression, sectionPhase, doubtSheet?.phase, showVoiceDoubtPrompt])
 
   useEffect(() => {
     if (celebration !== null) {
@@ -267,10 +504,23 @@ export default function ClassroomLayout({
     }
   }, [celebration, pulseExpression])
 
-  const showContinue =
-    stateType !== 'pop_quiz'
-    && stateType !== 'doubts_resolution'
-    && !(stateType === 'student_predict' && predictionText.trim() === '')
+  const showContinue = (() => {
+    if (isLiveLesson) {
+      if (lessonPaused) {
+        return false
+      }
+      if (readyToContinue) {
+        return true
+      }
+      if (!speechEnabled && isTeaching) {
+        return stateType !== 'pop_quiz' && stateType !== 'doubts_resolution'
+      }
+      return false
+    }
+    return stateType !== 'pop_quiz'
+      && stateType !== 'doubts_resolution'
+      && !(stateType === 'student_predict' && predictionText.trim() === '')
+  })()
 
   const continueLabel = (() => {
     if (advancing) {
@@ -299,12 +549,13 @@ export default function ClassroomLayout({
 
   if (isLiveLesson) {
     return (
-      <div className="immersive-classroom" style={mentorTheme}>
+      <div className="classroom-live immersive-classroom" style={mentorTheme}>
         <LessonRhythmBar
           lessonTitle={stateLabel}
           slideCurrent={currentSlideIndex + 1}
           slideTotal={Math.max(slides.length, 1)}
           sessionProgress={session.sessionProgress}
+          exitControl={exitControl}
         />
 
         <CelebrationMoment
@@ -315,8 +566,6 @@ export default function ClassroomLayout({
           onDismiss={() => setCelebration(null)}
         />
 
-        {speechError !== null ? <ErrorState message={speechError} /> : null}
-
         <TeachingLayout
           mentor={activeMentor}
           expression={expression}
@@ -324,7 +573,6 @@ export default function ClassroomLayout({
           slideKey={`${currentState.current_state?.state_id ?? 'state'}-${currentSlideIndex}`}
           currentCue={subtitleCurrent}
           previousCue={subtitlePrevious}
-          keywords={session.activeBeat?.keywords ?? []}
           cueIndex={session.activeCueIndex}
           totalCues={session.cues.length}
           isSpeaking={isSpeaking}
@@ -332,15 +580,42 @@ export default function ClassroomLayout({
           beat={session.activeBeat}
           speechEnabled={speechEnabled}
           speechSupported={isSupported}
+          speechError={speechError}
+          playbackComplete={session.playbackComplete}
+          onEnableSpeech={() => { void handleEnableSpeech() }}
           onToggleSpeech={() => { void handleEnableSpeech() }}
           onReplay={handleReplay}
           canReplay={explanationText.trim() !== ''}
           continueLabel={continueLabel}
-          continueDisabled={advancing || (isSpeaking && speechEnabled)}
+          continueDisabled={advancing || (isSpeaking && speechEnabled) || lessonPaused}
           continueLoading={advancing}
           onContinue={() => { void handleContinue() }}
           showContinue={showContinue}
         />
+
+        <VoiceDoubtPrompt
+          visible={showVoiceDoubtPrompt}
+          mentor={activeMentor}
+          invitationLine={doubtInvitationLine}
+          onAskVoice={() => { void openVoiceDoubt('voice') }}
+          onAskType={() => { void openVoiceDoubt('type') }}
+          onQuickAsk={(message) => { void handleQuickAsk(message) }}
+          onSkip={dismissVoiceDoubtForSlide}
+        />
+
+        {doubtSheet !== null ? (
+          <VoiceDoubtSheet
+            open
+            mode={doubtSheet.mode}
+            mentor={activeMentor}
+            phase={doubtSheet.phase}
+            answerText={doubtSheet.answerText}
+            permissionDeniedMessage={voiceDoubtPermissionMsg}
+            onClose={handleVoiceDoubtClose}
+            onSend={handleVoiceDoubtSend}
+            onSwitchToType={handleSwitchToType}
+          />
+        ) : null}
 
         {showSagePanel && doubtSessionId !== null ? (
           <SageDoubtPanel
@@ -359,7 +634,10 @@ export default function ClassroomLayout({
   }
 
   return (
-    <div className="classroom-shell">
+    <div className="classroom-classic classroom-shell">
+      {exitControl !== undefined ? (
+        <div className="classroom-classic-chrome">{exitControl}</div>
+      ) : null}
       <CelebrationMoment
         show={celebration !== null}
         title={celebration?.title ?? ''}
@@ -370,8 +648,8 @@ export default function ClassroomLayout({
 
       {speechError !== null ? <ErrorState message={speechError} /> : null}
 
-      <div className="classroom-layout classroom-layout-classic">
-        <section className="slide-area card">
+      <div className="classroom-classic-layout classroom-layout classroom-layout-classic">
+        <section className="classroom-classic-main slide-area card">
           <div className="slide-content">
             {stateType === 'pop_quiz' ? (
               <PopQuizPanel

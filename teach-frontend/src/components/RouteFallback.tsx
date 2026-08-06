@@ -1,11 +1,10 @@
-import PageHeader from './ui/PageHeader'
-import SkeletonCardGrid from './ui/SkeletonCardGrid'
+import { AppPage, PageHeader, SkeletonCardGrid } from './ui'
 
 export default function RouteFallback() {
   return (
-    <main className="container page-main">
-      <PageHeader kicker="TEACH" title="Loading…" lede="Preparing this view." />
+    <AppPage>
+      <PageHeader kicker="T.E.A.C.H" title="Loading…" lede="Preparing this view." />
       <SkeletonCardGrid count={3} />
-    </main>
+    </AppPage>
   )
 }

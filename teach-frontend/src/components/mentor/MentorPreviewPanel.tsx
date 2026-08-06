@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import type { CSSProperties } from 'react'
 import { Play, Volume2, X } from 'lucide-react'
 import { pickDialogue } from '../../lib/mentors/dialogue'
 import { useMentorVoice } from '../../hooks/useMentorVoice'
@@ -36,57 +37,73 @@ export default function MentorPreviewPanel({
   return (
     <section
       ref={panelRef}
-      className={`mentor-preview card${compact ? ' mentor-preview-compact' : ''}`}
+      className={`mentor-picker-preview${compact ? ' mentor-picker-preview--compact' : ''}`}
       tabIndex={-1}
       aria-labelledby={`mentor-preview-${mentor.id}`}
+      style={{
+        '--mentor-accent': mentor.visual.accent,
+        '--mentor-glow': mentor.visual.glow,
+      } as CSSProperties}
     >
+      <div className="mentor-picker-preview-glow" aria-hidden="true" />
+
       {onClose !== undefined ? (
-        <button type="button" className="mentor-preview-close btn btn-ghost" onClick={onClose} aria-label="Close preview">
+        <button
+          type="button"
+          className="mentor-picker-preview-close"
+          onClick={onClose}
+          aria-label="Close preview"
+        >
           <Icon icon={X} size={18} />
         </button>
       ) : null}
 
-      <div className="mentor-preview-hero">
-          <StudyMentorAvatar
-            mentor={mentor}
-            expression={previewExpression}
-            size={compact ? 'md' : 'hero'}
+      <div className="mentor-picker-preview-hero">
+        <StudyMentorAvatar
+          mentor={mentor}
+          expression={previewExpression}
+          size={compact ? 'md' : 'hero'}
+          showGlow
           caption={isSpeaking ? demoLine : greetingLine}
         />
       </div>
 
-      <div className="mentor-preview-details">
-        <p className="mentor-preview-kicker">AI Study Mentor</p>
-        <h2 id={`mentor-preview-${mentor.id}`}>{mentor.name}</h2>
-        <p className="mentor-preview-tagline">{mentor.tagline}</p>
+      <div className="mentor-picker-preview-body">
+        <p className="mentor-picker-preview-kicker">AI Tutor</p>
+        <h2 id={`mentor-preview-${mentor.id}`} className="mentor-picker-preview-name">
+          {mentor.name}
+        </h2>
+        <p className="mentor-picker-preview-tagline">{mentor.tagline}</p>
 
-        <dl className="mentor-preview-meta">
+        <dl className="mentor-picker-preview-meta">
           <div>
             <dt>Personality</dt>
             <dd>{mentor.personality.traits.join(' · ')}</dd>
           </div>
           <div>
-            <dt>Voice style</dt>
+            <dt>Voice</dt>
             <dd>{mentor.personality.speakingStyle}</dd>
           </div>
           <div>
-            <dt>Teaching style</dt>
+            <dt>Teaching</dt>
             <dd>{mentor.teachingStyle}</dd>
           </div>
           <div>
-            <dt>Best subjects</dt>
+            <dt>Best for</dt>
             <dd>{mentor.bestSubjects.join(', ')}</dd>
           </div>
         </dl>
 
-        <blockquote className="mentor-preview-quote">&ldquo;{demoLine}&rdquo;</blockquote>
+        <blockquote className="mentor-picker-preview-quote">
+          &ldquo;{demoLine}&rdquo;
+        </blockquote>
 
-        <div className="mentor-preview-actions">
+        <div className="mentor-picker-preview-actions">
           {isSupported ? (
             <>
               <button
                 type="button"
-                className="btn btn-secondary btn-with-icon"
+                className="mentor-picker-action mentor-picker-action--ghost btn-with-icon"
                 onClick={() => { void previewVoice(mentor) }}
                 disabled={isSpeaking}
               >
@@ -95,16 +112,20 @@ export default function MentorPreviewPanel({
               </button>
               <button
                 type="button"
-                className="btn btn-accent btn-with-icon"
+                className="mentor-picker-action mentor-picker-action--secondary btn-with-icon"
                 onClick={() => { void playDemo(mentor) }}
                 disabled={isSpeaking}
               >
                 <Icon icon={Play} size={16} />
-                Try 30-second demo
+                30s demo
               </button>
             </>
           ) : null}
-          <button type="button" className="btn btn-primary mentor-preview-select" onClick={onSelect}>
+          <button
+            type="button"
+            className="mentor-picker-action mentor-picker-action--primary"
+            onClick={onSelect}
+          >
             Choose {mentor.name}
           </button>
         </div>

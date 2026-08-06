@@ -1,0 +1,268 @@
+/* ── Role selection — primary Welcome onboarding step ── */
+
+.welcome-role {
+  width: 100%;
+}
+
+.welcome-role-header {
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+.welcome-role-title {
+  margin: 0;
+  font-size: clamp(1.0625rem, 2.2vw, 1.2rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--hub-text-primary);
+  line-height: var(--leading-snug);
+}
+
+.welcome-role-lede {
+  margin: 0.35rem 0 0;
+  font-size: var(--text-caption);
+  color: var(--hub-text-muted);
+  line-height: 1.45;
+}
+
+.welcome-role-track {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+  align-items: stretch;
+}
+
+.role-card {
+  --role-accent: var(--color-accent);
+  --role-accent-soft: var(--color-accent-bright);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--hub-border);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--hub-accent) 4%, transparent),
+      transparent 48%
+    ),
+    var(--grad-glass-card),
+    color-mix(in srgb, var(--hub-surface-1) 96%, var(--hub-accent) 4%);
+  box-shadow: 0 10px 32px var(--shadow-black-xs);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 250ms var(--ease-spring),
+    border-color 250ms var(--ease-spring),
+    box-shadow 250ms var(--ease-spring),
+    background 250ms var(--ease-out);
+}
+
+.role-card--teacher {
+  --role-accent: var(--color-accent-border);
+  --role-accent-soft: var(--color-slate-light);
+}
+
+.role-card-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.role-card-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--role-accent) 25%, var(--hub-border));
+  background: color-mix(in srgb, var(--role-accent) 8%, var(--hub-border-ghost));
+  color: var(--role-accent-soft);
+  transition:
+    border-color 250ms var(--ease-out),
+    background 250ms var(--ease-out);
+}
+
+.role-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.role-card-title {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-snug);
+  color: var(--hub-text-primary);
+  transition: font-weight 250ms var(--ease-out);
+}
+
+.role-card-subtitle {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--hub-text-secondary);
+}
+
+.role-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role-card-chips li {
+  padding: 0.28rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-border-ghost);
+  background: var(--hub-border-ghost);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+  color: var(--hub-text-soft);
+}
+
+.role-card-check {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: var(--radius-full);
+  background: var(--role-accent);
+  color: var(--color-primary);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--role-accent) 45%, transparent);
+  animation: role-check-in 250ms var(--ease-spring) both;
+}
+
+@keyframes role-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.role-card:hover {
+  border-color: color-mix(in srgb, var(--hub-accent) 35%, var(--hub-border-interactive));
+  transform: translateY(-4px) scale(1.015);
+  box-shadow:
+    0 14px 40px var(--shadow-black-xs),
+    0 0 32px color-mix(in srgb, var(--hub-accent) 10%, transparent);
+}
+
+.role-card:active {
+  transform: translateY(-1px) scale(1.005);
+  transition-duration: 120ms;
+}
+
+.role-card:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.role-card.is-selected {
+  border-width: 2px;
+  border-color: var(--hub-accent-border-active);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--hub-accent) 12%, transparent),
+      transparent 55%
+    ),
+    var(--grad-glass-card),
+    var(--hub-surface-1);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 22%, transparent),
+    0 16px 44px color-mix(in srgb, var(--hub-accent) 16%, transparent);
+  transform: translateY(-2px);
+}
+
+.role-card.is-selected .role-card-title {
+  font-weight: var(--font-weight-bold);
+}
+
+.role-card.is-selected .role-card-icon-wrap {
+  border-color: color-mix(in srgb, var(--hub-accent) 40%, var(--hub-border));
+  background: var(--hub-accent-glow);
+  color: var(--color-accent-bright);
+}
+
+.role-card.is-selected .role-card-chips li {
+  border-color: color-mix(in srgb, var(--hub-accent) 20%, var(--hub-border-ghost));
+  color: var(--hub-text-secondary);
+}
+
+.role-card.is-pending {
+  border-color: var(--hub-accent-border-active);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 30%, transparent),
+    0 20px 52px color-mix(in srgb, var(--hub-accent) 22%, transparent);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.role-card.is-disabled {
+  opacity: 0.55;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.role-card.is-disabled:hover {
+  transform: none;
+  box-shadow: 0 10px 32px var(--shadow-black-xs);
+}
+
+@media (min-width: 1024px) {
+  .role-card {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .role-card-subtitle {
+    font-size: var(--text-micro);
+  }
+
+  .role-card-chips li {
+    font-size: 0.65rem;
+    padding: 0.22rem 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .welcome-role-track {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-card {
+    transition:
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .role-card:hover,
+  .role-card.is-selected,
+  .role-card:active {
+    transform: none;
+  }
+
+  .role-card-check {
+    animation: none !important;
+  }
+}

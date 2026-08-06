@@ -4,8 +4,8 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-/** Wrap matching keywords in a highlight span for subtitles and concept cards. */
-export function highlightKeywords(text: string, keywords: string[], className = 'teaching-kw'): ReactNode[] {
+/** Wrap matching keywords in a highlight span — concept cards only, not live subtitles. */
+export function highlightKeywords(text: string, keywords: string[], className = 'concept-kw'): ReactNode[] {
   if (keywords.length === 0 || text.trim() === '') {
     return [text]
   }
