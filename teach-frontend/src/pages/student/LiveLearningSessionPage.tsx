@@ -1,15 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import LearningWhiteboard from '../../components/classroom/LearningWhiteboard'
+import SessionPreparingView from '../../components/classroom/SessionPreparingView'
 import SessionTutorStage from '../../components/classroom/SessionTutorStage'
 import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../components/ui'
 import { useLiveSessionTutorSpeech } from '../../hooks/useLiveSessionTutorSpeech'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
+import {
+  FIRST_TURN_POLL_INTERVAL_MS,
+  getFirstTurnError,
+  isFirstTurnFailed,
+  isFirstTurnPreparing,
+} from '../../lib/sessionFirstTurn'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
-import type { LearningSessionResponse, SessionSlide } from '../../types/learning.types'
+import type { LearningSessionResponse, SessionSlide, SessionTurn } from '../../types/learning.types'
 import { LEARNING_MODE_LABELS } from '../../types/learning.types'
+
+const SESSION_ENTER_MS = 520
 
 function extractSlideHeading(slide: SessionSlide | undefined): string {
   if (slide == null) {
@@ -81,6 +90,19 @@ function latestSpokenLine(revealedText: string): string {
   return sentences[sentences.length - 1]
 }
 
+function turnsForDisplay(turns: SessionTurn[], hideLatestTutorWhileSpeaking: boolean): SessionTurn[] {
+  const sorted = [...turns].sort((left, right) => left.order - right.order)
+  if (!hideLatestTutorWhileSpeaking) {
+    return sorted
+  }
+  for (let index = sorted.length - 1; index >= 0; index -= 1) {
+    if (sorted[index]?.role === 'tutor') {
+      return sorted.filter((_, turnIndex) => turnIndex !== index)
+    }
+  }
+  return sorted
+}
+
 export default function LiveLearningSessionPage() {
   const { sessionId = '' } = useParams()
   const navigate = useNavigate()
@@ -88,10 +110,15 @@ export default function LiveLearningSessionPage() {
   const [message, setMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
+  const [retryingFirstTurn, setRetryingFirstTurn] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [awaitingContinue, setAwaitingContinue] = useState(false)
+  const [preparingExiting, setPreparingExiting] = useState(false)
+  const [sessionEntering, setSessionEntering] = useState(false)
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
+  const wasPreparingRef = useRef(false)
   const {
     revealedText,
     speechStatus,
@@ -110,13 +137,16 @@ export default function LiveLearningSessionPage() {
     reset,
   } = useVoiceRecognition()
   const isListening = phase === 'listening'
-  const isTutorAudible = speechStatus === 'speaking' || speechStatus === 'loading'
+  const isNovaSpeaking = speechStatus === 'speaking' || speechStatus === 'paused'
   const canInteractWithSession =
     session?.status === 'active'
     || (
       session?.status === 'completed'
       && (session.mode === 'teach' || session.mode === 'doubt')
     )
+
+  const preparingFirstTurn = session != null && isFirstTurnPreparing(session)
+  const firstTurnFailed = session != null && isFirstTurnFailed(session)
 
   const slides = session?.current_visual?.slides ?? []
   const currentSlide = slides[slideIndex]
@@ -135,20 +165,59 @@ export default function LiveLearningSessionPage() {
         ? extractSlideHeading(currentSlide)
         : session?.latest_tutor_message?.trim() ?? ''
 
+  const visibleTurns = useMemo(
+    () => turnsForDisplay(session?.turns ?? [], speechStatus === 'speaking' || speechStatus === 'paused'),
+    [session?.turns, speechStatus],
+  )
+
   useEffect(() => {
     slideIndexRef.current = slideIndex
   }, [slideIndex])
 
+  const applySession = useCallback((nextSession: LearningSessionResponse) => {
+    setSession((current) => {
+      const isFreshLoad = current == null
+      if (isFreshLoad || current.current_visual?.id !== nextSession.current_visual?.id) {
+        setSlideIndex(0)
+        setAwaitingContinue(false)
+        lastSpokenKeyRef.current = null
+      }
+      return nextSession
+    })
+  }, [])
+
+  useEffect(() => {
+    if (preparingFirstTurn) {
+      wasPreparingRef.current = true
+      return undefined
+    }
+    if (wasPreparingRef.current && session != null && !firstTurnFailed) {
+      setPreparingExiting(true)
+      setSessionEntering(true)
+      wasPreparingRef.current = false
+      const timer = window.setTimeout(() => {
+        setPreparingExiting(false)
+        setSessionEntering(false)
+      }, SESSION_ENTER_MS)
+      return () => window.clearTimeout(timer)
+    }
+    return undefined
+  }, [preparingFirstTurn, session, firstTurnFailed])
+
+  const showPreparingOverlay =
+    initialLoading || preparingFirstTurn || firstTurnFailed || preparingExiting
+  const showActiveSession =
+    session != null && !firstTurnFailed && (!preparingFirstTurn || preparingExiting)
+
   useEffect(() => {
     let cancelled = false
     const load = async () => {
+      setInitialLoading(true)
+      setErrorMessage(null)
       try {
         const response = await learningSessionApi.get(sessionId)
         if (!cancelled) {
-          setSession(response.data)
-          setSlideIndex(0)
-          setAwaitingContinue(false)
-          lastSpokenKeyRef.current = null
+          applySession(response.data)
         }
       } catch (error) {
         if (cancelled) {
@@ -163,6 +232,10 @@ export default function LiveLearningSessionPage() {
         if (resolved !== null) {
           setErrorMessage(resolved)
         }
+      } finally {
+        if (!cancelled) {
+          setInitialLoading(false)
+        }
       }
     }
     void load()
@@ -170,7 +243,37 @@ export default function LiveLearningSessionPage() {
       cancelled = true
       resetSpeechTracking()
     }
-  }, [sessionId, resetSpeechTracking])
+  }, [sessionId, resetSpeechTracking, applySession])
+
+  useEffect(() => {
+    if (session == null || !preparingFirstTurn || firstTurnFailed) {
+      return undefined
+    }
+
+    let cancelled = false
+    const poll = async () => {
+      try {
+        const response = await learningSessionApi.get(sessionId, { poll: true })
+        if (!cancelled) {
+          applySession(response.data)
+        }
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+        captureException(error, { page: 'live_session', action: 'poll_first_turn' })
+      }
+    }
+
+    const timer = window.setInterval(() => {
+      void poll()
+    }, FIRST_TURN_POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [session, preparingFirstTurn, firstTurnFailed, sessionId, applySession])
 
   useEffect(() => {
     setSlideIndex(0)
@@ -190,7 +293,7 @@ export default function LiveLearningSessionPage() {
   }, [slides.length])
 
   useEffect(() => {
-    if (session == null || currentExplanation === '') {
+    if (session == null || preparingFirstTurn || currentExplanation === '') {
       return
     }
     const spokenKey = `${visualId}:${slideIndex}:${currentExplanation}`
@@ -206,7 +309,7 @@ export default function LiveLearningSessionPage() {
         advanceAfterSpeech()
       },
     )
-  }, [session, currentExplanation, slideIndex, visualId, speakTutorText, advanceAfterSpeech])
+  }, [session, preparingFirstTurn, currentExplanation, slideIndex, visualId, speakTutorText, advanceAfterSpeech])
 
   useEffect(() => {
     if (session == null) {
@@ -241,7 +344,13 @@ export default function LiveLearningSessionPage() {
 
   const submitMessage = async (text: string, channel: 'chat' | 'speech') => {
     const trimmed = text.trim()
-    if (trimmed === '' || session == null || !canInteractWithSession || submitting) {
+    if (
+      trimmed === ''
+      || session == null
+      || !canInteractWithSession
+      || submitting
+      || preparingFirstTurn
+    ) {
       return
     }
     interruptSpeech()
@@ -255,11 +364,8 @@ export default function LiveLearningSessionPage() {
         message: trimmed,
         channel,
       })
-      setSession(response.data)
+      applySession(response.data)
       setMessage('')
-      setSlideIndex(0)
-      setAwaitingContinue(false)
-      lastSpokenKeyRef.current = null
       reset()
     } catch (error) {
       captureException(error, { page: 'live_session', action: 'submit' })
@@ -276,6 +382,30 @@ export default function LiveLearningSessionPage() {
     }
   }
 
+  const retryFirstTurn = async () => {
+    if (session == null) {
+      return
+    }
+    setRetryingFirstTurn(true)
+    setErrorMessage(null)
+    try {
+      const response = await learningSessionApi.retryFirstTurn(session.id)
+      applySession(response.data)
+    } catch (error) {
+      captureException(error, { page: 'live_session', action: 'retry_first_turn' })
+      const resolved = resolveDisplayedError(
+        error,
+        { component: 'LiveLearningSessionPage', action: 'retry_first_turn' },
+        'Could not retry lesson preparation',
+      )
+      if (resolved !== null) {
+        setErrorMessage(resolved)
+      }
+    } finally {
+      setRetryingFirstTurn(false)
+    }
+  }
+
   const continueLesson = () => {
     if (hasMoreSlides) {
       interruptSpeech()
@@ -288,7 +418,7 @@ export default function LiveLearningSessionPage() {
   }
 
   const handleSpeakClick = () => {
-    if (!canInteractWithSession || submitting) {
+    if (!canInteractWithSession || submitting || preparingFirstTurn) {
       return
     }
     if (isListening) {
@@ -308,29 +438,15 @@ export default function LiveLearningSessionPage() {
     void submitMessage(message, 'chat')
   }
 
-  const tutorStageLabel = useMemo(() => {
-    if (isListening) {
-      return 'Nova is listening'
-    }
-    if (submitting) {
-      return 'Nova is thinking'
-    }
-    if (speechStatus === 'loading') {
-      return 'Nova is preparing to speak'
-    }
-    if (speechStatus === 'speaking') {
-      return 'Nova is speaking — you can interrupt anytime'
-    }
-    if (speechStatus === 'paused') {
-      return 'Nova is paused'
-    }
-    return 'Nova is ready — ask anytime'
-  }, [isListening, submitting, speechStatus])
-
-  if (session == null) {
+  if (session == null && !initialLoading) {
     return (
       <AppPage>
-        <PageSection label="Loading session">{errorMessage ?? 'Loading session…'}</PageSection>
+        <PageSection label="Session unavailable">
+          <ErrorState
+            message={errorMessage ?? 'Failed to load session'}
+            onDismiss={() => navigate('/student')}
+          />
+        </PageSection>
       </AppPage>
     )
   }
@@ -340,105 +456,139 @@ export default function LiveLearningSessionPage() {
 
   return (
     <AppPage>
-      <PageSection label={`${LEARNING_MODE_LABELS[session.mode]} session`}>
-        <div className="live-session-header">
-          <div>
-            <p className="page-kicker">{LEARNING_MODE_LABELS[session.mode]}</p>
-            <h1>Live session</h1>
-            <p>
-              Goal: {session.goal_status} · Status: {session.status}
-              {slides.length > 0 ? ` · Slide ${slideIndex + 1} of ${slides.length}` : ''}
-              {isSpeechActive ? ' · Type or speak anytime to interrupt Nova' : ''}
-            </p>
-          </div>
-          <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
-            Exit
-          </Button>
-        </div>
-        {errorMessage !== null ? (
-          <PageAlert>
-            <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
-          </PageAlert>
-        ) : null}
-        <div className="live-session-layout live-session-layout--tutor-right">
-          <div className="live-session-main">
-            <LearningWhiteboard
-              elements={boardElements}
-              slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
-              variant="marker"
-            />
-            {awaitingContinue && !isSpeechActive ? (
-              <div className="session-composer-actions">
-                <Button
-                  type="button"
-                  disabled={submitting || session.status !== 'active'}
-                  onClick={() => continueLesson()}
-                >
-                  {hasMoreSlides ? 'Next slide' : 'Continue teaching'}
-                </Button>
-              </div>
-            ) : null}
-            {!isSpeechActive && !awaitingContinue && hasMoreSlides ? (
-              <div className="session-composer-actions">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={submitting || session.status !== 'active'}
-                  onClick={() => continueLesson()}
-                >
-                  Next slide
-                </Button>
-              </div>
-            ) : null}
-            <div className="session-composer session-composer-interactive">
-              {isSpeechActive ? (
-                <p className="session-composer-hint">
-                  Nova is talking — you can still type or tap Speak. Sending a message stops Nova and gets an answer.
+      <PageSection label={session != null ? `${LEARNING_MODE_LABELS[session.mode]} session` : 'Opening session'}>
+        {showActiveSession && session != null ? (
+          <div className={`live-session-active${sessionEntering ? ' is-entering' : ''}`}>
+            <div className="live-session-header">
+              <div>
+                <p className="page-kicker">{LEARNING_MODE_LABELS[session.mode]}</p>
+                <h1>Live session</h1>
+                <p>
+                  Goal: {session.goal_status} · Status: {session.status}
+                  {slides.length > 0 ? ` · Slide ${slideIndex + 1} of ${slides.length}` : ''}
+                  {isSpeechActive ? ' · Type or speak anytime to interrupt Nova' : ''}
                 </p>
-              ) : null}
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                onKeyDown={handleComposerKeyDown}
-                placeholder="Type a question anytime — Enter to send, Shift+Enter for a new line…"
-                disabled={!canInteractWithSession}
-                aria-disabled={!canInteractWithSession}
-              />
-              <div className="session-composer-actions">
-                <Button
-                  type="button"
-                  loading={submitting}
-                  disabled={!canSendMessage}
-                  onClick={() => void submitMessage(message, 'chat')}
-                >
-                  Send
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!canInteractWithSession}
-                  onClick={handleSpeakClick}
-                >
-                  {isListening ? 'Stop & send voice' : 'Speak'}
-                </Button>
               </div>
+              <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
+                Exit
+              </Button>
             </div>
-            {session.goal_status === 'completed' ? (
+            {errorMessage !== null ? (
               <PageAlert>
-                <p>Mode goal completed. You can exit anytime.</p>
+                <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
               </PageAlert>
             ) : null}
+            <div className="live-session-layout live-session-layout--tutor-right">
+              <div className="live-session-main">
+                <LearningWhiteboard
+                  elements={boardElements}
+                  slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
+                  variant="marker"
+                />
+                {visibleTurns.length > 0 ? (
+                  <div className="session-conversation" aria-label="Conversation">
+                    {visibleTurns.map((turn) => (
+                      <div
+                        key={turn.id}
+                        className={`session-conversation-turn session-conversation-turn--${turn.role}`}
+                      >
+                        <span className="session-conversation-role">
+                          {turn.role === 'tutor' ? 'Nova' : 'You'}
+                        </span>
+                        <p>{turn.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {awaitingContinue && !isSpeechActive ? (
+                  <div className="session-composer-actions">
+                    <Button
+                      type="button"
+                      disabled={submitting || session.status !== 'active'}
+                      onClick={() => continueLesson()}
+                    >
+                      {hasMoreSlides ? 'Next slide' : 'Continue teaching'}
+                    </Button>
+                  </div>
+                ) : null}
+                {!isSpeechActive && !awaitingContinue && hasMoreSlides ? (
+                  <div className="session-composer-actions">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={submitting || session.status !== 'active'}
+                      onClick={() => continueLesson()}
+                    >
+                      Next slide
+                    </Button>
+                  </div>
+                ) : null}
+                <div className="session-composer session-composer-interactive">
+                  {isSpeechActive ? (
+                    <p className="session-composer-hint">
+                      Nova is talking — you can still type or tap Speak. Sending a message stops Nova and gets an answer.
+                    </p>
+                  ) : null}
+                  <textarea
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value)}
+                    onKeyDown={handleComposerKeyDown}
+                    placeholder="Type a question anytime — Enter to send, Shift+Enter for a new line…"
+                    disabled={!canInteractWithSession}
+                    aria-disabled={!canInteractWithSession}
+                  />
+                  <div className="session-composer-actions">
+                    <Button
+                      type="button"
+                      loading={submitting}
+                      disabled={!canSendMessage}
+                      onClick={() => void submitMessage(message, 'chat')}
+                    >
+                      Send
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={!canInteractWithSession}
+                      onClick={handleSpeakClick}
+                    >
+                      {isListening ? 'Stop & send voice' : 'Speak'}
+                    </Button>
+                  </div>
+                </div>
+                {session.goal_status === 'completed' ? (
+                  <PageAlert>
+                    <p>Mode goal completed. You can exit anytime.</p>
+                  </PageAlert>
+                ) : null}
+              </div>
+              <SessionTutorStage
+                speaking={isNovaSpeaking}
+                listening={isListening}
+                submitting={submitting || speechStatus === 'loading'}
+                liveCaption=""
+                mode={session.mode}
+                subtitle={tutorSubtitle}
+                showPauseControl={showTutorPauseControl}
+                isPaused={isPaused}
+                onTogglePause={togglePauseSpeech}
+              />
+            </div>
           </div>
-          <SessionTutorStage
-            speaking={isTutorAudible || speechStatus === 'paused'}
-            listening={isListening}
-            subtitle={tutorSubtitle}
-            statusLabel={tutorStageLabel}
-            showPauseControl={showTutorPauseControl}
-            isPaused={isPaused}
-            onTogglePause={togglePauseSpeech}
-          />
-        </div>
+        ) : null}
+
+        {showPreparingOverlay ? (
+          <div className={`session-preparing-overlay${preparingExiting ? ' is-exiting' : ''}`}>
+            <SessionPreparingView
+              mode={session?.mode ?? 'teach'}
+              failed={firstTurnFailed}
+              errorMessage={session != null ? getFirstTurnError(session) ?? errorMessage : errorMessage}
+              retrying={retryingFirstTurn}
+              exiting={preparingExiting}
+              onRetry={() => void retryFirstTurn()}
+            />
+          </div>
+        ) : null}
       </PageSection>
     </AppPage>
   )

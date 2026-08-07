@@ -10,6 +10,8 @@ import type {
 } from '../../types/learning.types'
 
 const SESSION_TIMEOUT_MS = 120_000
+const SESSION_START_TIMEOUT_MS = 15_000
+const SESSION_POLL_TIMEOUT_MS = 15_000
 
 export const learningSessionApi = {
   start: (payload: {
@@ -19,13 +21,20 @@ export const learningSessionApi = {
     param_overrides?: StudentParamOverrides
   }) =>
     apiClient.post<LearningSessionResponse>('/api/v1/learning-sessions', payload, {
-      timeout: SESSION_TIMEOUT_MS,
+      timeout: SESSION_START_TIMEOUT_MS,
     }),
 
-  get: (sessionId: string) =>
+  get: (sessionId: string, options?: { poll?: boolean }) =>
     apiClient.get<LearningSessionResponse>(`/api/v1/learning-sessions/${sessionId}`, {
-      timeout: SESSION_TIMEOUT_MS,
+      timeout: options?.poll ? SESSION_POLL_TIMEOUT_MS : SESSION_TIMEOUT_MS,
     }),
+
+  retryFirstTurn: (sessionId: string) =>
+    apiClient.post<LearningSessionResponse>(
+      `/api/v1/learning-sessions/${sessionId}/retry-first-turn`,
+      {},
+      { timeout: SESSION_START_TIMEOUT_MS },
+    ),
 
   submitTurn: (sessionId: string, payload: { message: string; channel: InputChannel }) =>
     apiClient.post<LearningSessionResponse>(

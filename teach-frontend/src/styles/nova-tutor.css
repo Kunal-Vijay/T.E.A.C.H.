@@ -214,6 +214,22 @@
   opacity: 0;
 }
 
+/* Preparing — idle PNG stays still; aura animates around it (no GIF). */
+.nova-tutor[data-nova-preparing='true'] .nova-tutor__ambient {
+  animation: nova-tutor-preparing-glow 4.5s ease-in-out infinite;
+}
+
+@keyframes nova-tutor-preparing-glow {
+  0%, 100% {
+    opacity: 0.88;
+    filter: blur(14px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(18px);
+  }
+}
+
 @keyframes nova-tutor-float {
   0%, 100% { transform: translate3d(0, 0, 0); }
   50% { transform: translate3d(0, calc(var(--nova-float-distance) * -1), 0); }
@@ -253,7 +269,8 @@
 
   .nova-tutor__figure,
   .nova-tutor__canvas,
-  .nova-tutor__shadow {
+  .nova-tutor__shadow,
+  .nova-tutor[data-nova-preparing='true'] .nova-tutor__ambient {
     animation: none !important;
   }
 

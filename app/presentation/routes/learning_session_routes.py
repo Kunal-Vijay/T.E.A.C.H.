@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
+from app.application.background.learning_session_background import run_sync_generate_first_tutor_turn
 from app.application.dtos.learning_session.learning_session_dto import (
     LearningSessionResponseDTO,
     StartLearningSessionRequestDTO,
@@ -12,6 +13,8 @@ from app.application.dtos.learning_session.learning_session_dto import (
 )
 from app.application.services.learning_session_service import LearningSessionService
 from app.core.dependencies import get_learning_session_service
+from app.domain.enums import LearningMode
+from app.domain.exceptions import ValidationException
 
 router = APIRouter(prefix="/api/v1/learning-sessions", tags=["Learning Sessions"])
 
@@ -19,9 +22,27 @@ router = APIRouter(prefix="/api/v1/learning-sessions", tags=["Learning Sessions"
 @router.post("", status_code=201, response_model=LearningSessionResponseDTO)
 def start_learning_session(
     request_dto: StartLearningSessionRequestDTO,
+    background_tasks: BackgroundTasks,
     service: LearningSessionService = Depends(get_learning_session_service),
 ) -> LearningSessionResponseDTO:
-    return service.start_session(request_dto)
+    response = service.start_session(request_dto)
+    if response.mode != LearningMode.VIVA:
+        background_tasks.add_task(run_sync_generate_first_tutor_turn, response.id)
+    return response
+
+
+@router.post("/{session_id}/retry-first-turn", response_model=LearningSessionResponseDTO)
+def retry_first_tutor_turn(
+    session_id: UUID,
+    background_tasks: BackgroundTasks,
+    service: LearningSessionService = Depends(get_learning_session_service),
+) -> LearningSessionResponseDTO:
+    try:
+        response = service.retry_first_tutor_turn(session_id)
+        background_tasks.add_task(run_sync_generate_first_tutor_turn, session_id)
+        return response
+    except ValidationException as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 @router.get("/{session_id}", response_model=LearningSessionResponseDTO)
