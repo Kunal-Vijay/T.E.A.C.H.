@@ -1,0 +1,284 @@
+/* ─────────────────────────────────────────────────────────────
+   Aurora — Vercel × Cursor × Warp
+
+   Dark blue-black base · muted indigo & teal · creative AI feel.
+   Atmospheric, not neon — no RGB gaming aesthetics.
+   Only color tokens — spacing and components unchanged.
+   ───────────────────────────────────────────────────────────── */
+
+[data-theme="aurora"] {
+  /* ── Semantic theme tokens ── */
+  --theme-bg: #f1f5f9;
+  --theme-bg-secondary: #e8edf5;
+  --theme-surface: #ffffff;
+  --theme-card: #ffffff;
+  --theme-border: #dde4ee;
+  --theme-border-strong: #c8d3e3;
+  --theme-primary: #111827;
+  --theme-primary-hover: #1f2937;
+  --theme-secondary: #475569;
+  --theme-accent: #6366f1;
+  --theme-accent-hover: #4f46e5;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-success: #22c55e;
+  --theme-warning: #f59e0b;
+  --theme-danger: #ef4444;
+  --theme-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --theme-glass: rgba(20, 27, 46, 0.58);
+  --theme-overlay: rgba(226, 232, 240, 0.06);
+
+  /* ── Content palette (classroom / forms) ── */
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-bright: #818cf8;
+  --color-accent-soft: #eef2ff;
+  --color-accent-mid: #e0e7ff;
+  --color-accent-ink: #4338ca;
+  --color-accent-border: #c7d2fe;
+  --color-accent-border-strong: rgba(129, 140, 248, 0.42);
+
+  --color-highlight: var(--theme-warning);
+  --color-highlight-hover: #d97706;
+  --color-highlight-soft: rgba(245, 158, 11, 0.12);
+  --color-highlight-warm: #fffbeb;
+  --color-highlight-border: rgba(245, 158, 11, 0.38);
+  --color-highlight-glow: rgba(245, 158, 11, 0.24);
+  --color-highlight-soft-medium: rgba(245, 158, 11, 0.16);
+  --color-highlight-soft-strong: rgba(245, 158, 11, 0.2);
+  --color-highlight-intense: rgba(245, 158, 11, 0.42);
+  --color-highlight-faint: rgba(245, 158, 11, 0.08);
+
+  --color-surface-3: #dde4ee;
+
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-danger-ink: #b91c1c;
+  --color-danger-soft-medium: rgba(239, 68, 68, 0.12);
+  --color-danger-soft-strong: rgba(254, 202, 202, 0.78);
+
+  --color-ink-border: rgba(15, 23, 42, 0.1);
+  --color-black-soft: #0f1524;
+
+  /* ── Hub shell — deep aurora night ── */
+  --hub-bg: #0b0f1a;
+  --hub-bg-elevated: #141b2e;
+  --hub-text-primary: #e8edf5;
+  --hub-text-secondary: rgba(226, 232, 240, 0.64);
+  --hub-text-muted: rgba(226, 232, 240, 0.46);
+  --hub-text-subtle: rgba(226, 232, 240, 0.56);
+  --hub-text-faint: rgba(226, 232, 240, 0.32);
+  --hub-text-strong: rgba(226, 232, 240, 0.94);
+  --hub-text-emphasis: rgba(226, 232, 240, 0.88);
+  --hub-text-body: rgba(226, 232, 240, 0.8);
+  --hub-text-medium: rgba(226, 232, 240, 0.74);
+  --hub-text-soft: rgba(226, 232, 240, 0.66);
+  --hub-text-dim: rgba(226, 232, 240, 0.48);
+  --hub-text-ghost: rgba(226, 232, 240, 0.4);
+  --hub-text-whisper: rgba(226, 232, 240, 0.24);
+  --hub-text-faded: rgba(226, 232, 240, 0.44);
+  --hub-text-light: rgba(226, 232, 240, 0.62);
+  --hub-text-bright: rgba(226, 232, 240, 0.72);
+  --hub-text-luminous: rgba(226, 232, 240, 0.76);
+  --hub-text-quiet: rgba(226, 232, 240, 0.38);
+  --hub-text-dimmer: rgba(226, 232, 240, 0.32);
+
+  /* Indigo primary · teal secondary */
+  --hub-accent: #a5b4fc;
+  --hub-accent-base: #818cf8;
+  --hub-accent-icon: rgba(165, 180, 252, 0.78);
+  --hub-accent-icon-soft: rgba(165, 180, 252, 0.62);
+  --hub-accent-soft: rgba(99, 102, 241, 0.1);
+  --hub-accent-soft-strong: rgba(99, 102, 241, 0.13);
+  --hub-accent-soft-medium: rgba(99, 102, 241, 0.16);
+  --hub-accent-border: rgba(129, 140, 248, 0.26);
+  --hub-accent-border-strong: rgba(129, 140, 248, 0.32);
+  --hub-accent-border-hover: rgba(129, 140, 248, 0.36);
+  --hub-accent-border-active: rgba(129, 140, 248, 0.4);
+  --hub-accent-border-focus: rgba(45, 212, 191, 0.38);
+  --hub-accent-glow: rgba(99, 102, 241, 0.08);
+  --hub-accent-glow-strong: rgba(99, 102, 241, 0.14);
+  --hub-accent-focus: rgba(129, 140, 248, 0.48);
+  --hub-accent-focus-ring: rgba(129, 140, 248, 0.14);
+  --hub-accent-pulse: rgba(165, 180, 252, 0.58);
+  --hub-accent-muted: rgba(99, 102, 241, 0.14);
+  --hub-accent-strong: rgba(129, 140, 248, 0.36);
+  --hub-accent-bright-soft: rgba(45, 212, 191, 0.22);
+  --hub-accent-bright-medium: rgba(45, 212, 191, 0.38);
+  --hub-accent-whisper: rgba(99, 102, 241, 0.045);
+  --hub-accent-whisper-soft: rgba(99, 102, 241, 0.05);
+  --hub-accent-fill-soft: rgba(99, 102, 241, 0.07);
+  --hub-accent-fill-medium: rgba(99, 102, 241, 0.16);
+  --hub-glow-soft: rgba(99, 102, 241, 0.12);
+
+  --hub-surface-1: rgba(20, 27, 46, 0.62);
+  --hub-surface-2: rgba(20, 27, 46, 0.42);
+  --hub-surface-3: rgba(20, 27, 46, 0.52);
+  --hub-surface-input: rgba(20, 27, 46, 0.48);
+  --hub-surface-input-focus: rgba(20, 27, 46, 0.68);
+  --hub-surface-heavy: rgba(20, 27, 46, 0.78);
+  --hub-surface-deep: rgba(20, 27, 46, 0.58);
+  --hub-surface-solid: rgba(20, 27, 46, 0.92);
+  --hub-surface-opaque: rgba(11, 15, 26, 0.88);
+  --hub-surface-panel: rgba(20, 27, 46, 0.54);
+  --hub-ink-faint: rgba(11, 15, 26, 0.06);
+  --hub-ink-whisper: rgba(11, 15, 26, 0.03);
+
+  --hub-border: rgba(226, 232, 240, 0.09);
+  --hub-border-subtle: rgba(226, 232, 240, 0.06);
+  --hub-border-strong: rgba(226, 232, 240, 0.11);
+  --hub-border-hover: rgba(226, 232, 240, 0.18);
+  --hub-border-muted: rgba(226, 232, 240, 0.13);
+  --hub-border-interactive: rgba(129, 140, 248, 0.2);
+  --hub-border-card-hover: rgba(129, 140, 248, 0.28);
+  --hub-border-card-focus: rgba(45, 212, 191, 0.32);
+  --hub-border-faint: rgba(226, 232, 240, 0.05);
+  --hub-border-ghost: rgba(226, 232, 240, 0.03);
+  --hub-border-light: rgba(226, 232, 240, 0.16);
+  --hub-grid-line: rgba(129, 140, 248, 0.12);
+  --hub-grid-faint: rgba(129, 140, 248, 0.025);
+
+  --hub-overlay-light: rgba(226, 232, 240, 0.04);
+  --hub-overlay-medium: rgba(226, 232, 240, 0.07);
+  --hub-inset-highlight: rgba(255, 255, 255, 0.04);
+  --hub-inset-highlight-strong: rgba(255, 255, 255, 0.06);
+  --hub-inset-soft: rgba(255, 255, 255, 0.03);
+
+  --hub-danger-soft: rgba(239, 68, 68, 0.09);
+  --hub-danger-border: rgba(239, 68, 68, 0.32);
+  --hub-danger-border-input: rgba(239, 68, 68, 0.48);
+  --hub-danger-text: #fca5a5;
+  --hub-danger-text-strong: #fecaca;
+  --hub-danger-mark-bg: rgba(239, 68, 68, 0.1);
+  --hub-danger-mark-border: rgba(239, 68, 68, 0.24);
+
+  --hub-warning-soft: rgba(245, 158, 11, 0.1);
+  --hub-warning-border: rgba(245, 158, 11, 0.24);
+  --hub-warning-text: #fcd34d;
+
+  --hub-archived-border: rgba(148, 163, 184, 0.2);
+  --hub-archived-soft: rgba(148, 163, 184, 0.07);
+  --hub-archived-text: rgba(148, 163, 184, 0.82);
+
+  --hub-bg-scrim: rgba(11, 15, 26, 0.54);
+  --hub-bg-scrim-heavy: rgba(11, 15, 26, 0.8);
+  --hub-bg-scrim-medium: rgba(11, 15, 26, 0.46);
+  --hub-bg-scrim-light: rgba(11, 15, 26, 0.28);
+  --hub-bg-scrim-fade: rgba(11, 15, 26, 0.36);
+  --hub-bg-scrim-soft: rgba(11, 15, 26, 0.18);
+  --hub-bg-scrim-faint: rgba(11, 15, 26, 0.1);
+  --hub-bg-overlay: rgba(11, 15, 26, 0.74);
+  --hub-bg-solid: rgba(11, 15, 26, 0.88);
+  --hub-bg-modal: rgba(11, 15, 26, 0.64);
+  --hub-bg-modal-heavy: rgba(11, 15, 26, 0.58);
+
+  /* ── Aurora gradients — restrained atmosphere ── */
+  --hub-gradient-card: linear-gradient(165deg, rgba(129, 140, 248, 0.06) 0%, rgba(20, 27, 46, 0.68) 38%);
+  --hub-gradient-panel: linear-gradient(165deg, rgba(129, 140, 248, 0.05) 0%, rgba(20, 27, 46, 0.64) 38%);
+  --hub-gradient-onboarding: linear-gradient(165deg, rgba(99, 102, 241, 0.08) 0%, rgba(20, 27, 46, 0.72) 42%);
+  --hub-gradient-glow: radial-gradient(circle, rgba(129, 140, 248, 0.16) 0%, transparent 68%);
+  --hub-gradient-shimmer: linear-gradient(90deg, rgba(226, 232, 240, 0.03) 0%, rgba(129, 140, 248, 0.08) 50%, rgba(226, 232, 240, 0.03) 100%);
+
+  --grad-glass-panel: linear-gradient(165deg, rgba(129, 140, 248, 0.04) 0%, rgba(20, 27, 46, 0.72) 38%);
+  --grad-glass-card: linear-gradient(165deg, rgba(129, 140, 248, 0.05) 0%, rgba(20, 27, 46, 0.62) 42%);
+  --grad-featured-card: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(20, 27, 46, 0.72) 55%);
+  --grad-hub-surface: linear-gradient(165deg, rgba(20, 27, 46, 0.76) 0%, rgba(11, 15, 26, 0.52) 100%);
+  --grad-board-dark: linear-gradient(165deg, rgba(20, 27, 46, 0.54) 0%, rgba(11, 15, 26, 0.4) 100%);
+  --grad-mentor-panel: linear-gradient(180deg, rgba(14, 20, 36, 0.58) 0%, rgba(11, 15, 26, 0.4) 100%);
+  --grad-footer-scrim: linear-gradient(180deg, transparent 0%, rgba(11, 15, 26, 0.48) 100%);
+  --grad-accent-solid: linear-gradient(180deg, rgba(129, 140, 248, 0.32) 0%, rgba(67, 56, 202, 0.86) 100%);
+  --grad-accent-soft-panel: linear-gradient(180deg, #eef2ff 0%, var(--color-accent-mid) 120%);
+  --grad-accent-chip: linear-gradient(135deg, rgba(129, 140, 248, 0.14), rgba(45, 212, 191, 0.08));
+  --grad-board-light: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.94) 100%);
+  --grad-board-light-soft: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 245, 249, 0.9) 100%);
+  --grad-slate-wash: linear-gradient(135deg, rgba(241, 245, 249, 0.96), rgba(226, 232, 240, 0.88));
+  --grad-slate-panel: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(241, 245, 249, 0.9) 100%);
+  --grad-surface: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  --grad-celebrate: linear-gradient(135deg, #fffbeb 0%, var(--color-highlight-soft) 100%);
+
+  --gradient-ambient-teal: radial-gradient(circle, rgba(45, 212, 191, 0.14) 0%, transparent 68%);
+  --gradient-ambient-teal-strong: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, transparent 65%);
+  --gradient-ambient-amber: radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 70%);
+  --gradient-board-glow: radial-gradient(ellipse 85% 55% at 50% 0%, rgba(129, 140, 248, 0.12), transparent 68%);
+  --gradient-stage-glow: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45, 212, 191, 0.08), transparent 65%);
+
+  --grad-page: radial-gradient(ellipse 1000px 520px at 8% -12%, rgba(129, 140, 248, 0.1), transparent 55%),
+    radial-gradient(ellipse 720px 400px at 92% 0%, rgba(45, 212, 191, 0.06), transparent 50%),
+    radial-gradient(ellipse 600px 320px at 50% 100%, rgba(11, 15, 26, 0.7), transparent 65%),
+    var(--hub-bg);
+
+  --grad-primary: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+  --grad-accent: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(135deg, #818cf8 0%, #6366f1 48%, #4f46e5 100%);
+  --grad-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, #fbbf24 0%, var(--color-highlight) 55%, var(--color-highlight-hover) 100%);
+  --grad-hub-primary: linear-gradient(180deg, #1e293b 0%, var(--color-primary) 100%);
+
+  /* ── Shadows — deep, soft, no neon halos ── */
+  --shadow-xs: 0 1px 2px rgba(11, 15, 26, 0.04);
+  --shadow-sm: var(--theme-shadow);
+  --shadow-md: 0 1px 2px rgba(11, 15, 26, 0.04), 0 8px 20px rgba(11, 15, 26, 0.06);
+  --shadow-lg: 0 2px 8px rgba(11, 15, 26, 0.05), 0 16px 36px rgba(11, 15, 26, 0.08);
+  --shadow-elevated-sm: 0 4px 16px rgba(0, 0, 0, 0.22);
+  --shadow-elevated-md: 0 16px 44px rgba(0, 0, 0, 0.3);
+  --shadow-black-strong: rgba(0, 0, 0, 0.42);
+  --shadow-black-md: rgba(0, 0, 0, 0.36);
+  --shadow-black-base: rgba(0, 0, 0, 0.32);
+  --shadow-black-soft: rgba(0, 0, 0, 0.28);
+  --shadow-black-xs: rgba(0, 0, 0, 0.24);
+  --shadow-black-xxs: rgba(0, 0, 0, 0.18);
+  --shadow-ink-xxs: rgba(15, 23, 42, 0.03);
+  --shadow-ink-xs: rgba(15, 23, 42, 0.04);
+  --shadow-ink-sm: rgba(11, 15, 26, 0.18);
+  --shadow-board: 0 8px 28px rgba(11, 15, 26, 0.08);
+  --shadow-board-hero: 0 24px 64px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(129, 140, 248, 0.05) inset, 0 0 60px rgba(99, 102, 241, 0.06);
+  --shadow-board-card: 0 12px 40px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-glass-card: 0 10px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-stat-pill: 0 8px 28px rgba(0, 0, 0, 0.2), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-accent-xs: 0 4px 16px rgba(99, 102, 241, 0.07);
+  --shadow-accent-sm: 0 10px 22px rgba(99, 102, 241, 0.16);
+  --shadow-accent-md: 0 8px 20px rgba(99, 102, 241, 0.22);
+  --shadow-accent-lg: 0 12px 36px rgba(0, 0, 0, 0.32), 0 0 28px rgba(99, 102, 241, 0.12);
+  --shadow-accent-lg-strong: 0 12px 36px rgba(0, 0, 0, 0.36), 0 0 32px rgba(99, 102, 241, 0.14);
+  --shadow-highlight-md: 0 8px 20px rgba(245, 158, 11, 0.2);
+  --shadow-highlight-lg: 0 16px 32px rgba(245, 158, 11, 0.26);
+  --shadow-hub-card: 0 12px 40px rgba(0, 0, 0, 0.26), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-hub-card-hover: 0 20px 52px rgba(0, 0, 0, 0.32), 0 0 32px rgba(99, 102, 241, 0.1), inset 0 1px 0 var(--hub-inset-highlight-strong);
+  --shadow-hub-panel: 0 16px 48px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-hub-btn: 0 6px 24px rgba(0, 0, 0, 0.22), 0 0 16px rgba(99, 102, 241, 0.08);
+  --shadow-hub-btn-hover: 0 8px 28px rgba(0, 0, 0, 0.28), 0 0 24px rgba(99, 102, 241, 0.12);
+  --shadow-hub-btn-accent: 0 8px 28px rgba(0, 0, 0, 0.32), 0 0 20px rgba(99, 102, 241, 0.1);
+  --shadow-hub-btn-soft: 0 6px 24px rgba(0, 0, 0, 0.22), 0 0 16px rgba(99, 102, 241, 0.08);
+  --shadow-hub-onboarding: 0 20px 56px rgba(0, 0, 0, 0.32), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-primary: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 -1px 0 rgba(0, 0, 0, 0.18) inset,
+    0 1px 2px rgba(11, 15, 26, 0.08), 0 12px 28px rgba(11, 15, 26, 0.2);
+  --shadow-primary-hover: 0 1px 0 rgba(255, 255, 255, 0.14) inset, 0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 2px 6px rgba(11, 15, 26, 0.1), 0 18px 36px rgba(11, 15, 26, 0.26);
+  --shadow-accent: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 -1px 0 rgba(79, 70, 229, 0.3) inset,
+    0 1px 2px rgba(11, 15, 26, 0.06), 0 12px 28px rgba(99, 102, 241, 0.22);
+  --shadow-accent-hover: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 -1px 0 rgba(79, 70, 229, 0.34) inset,
+    0 2px 6px rgba(11, 15, 26, 0.08), 0 18px 36px rgba(99, 102, 241, 0.28);
+  --shadow-highlight: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -1px 0 rgba(217, 119, 6, 0.26) inset,
+    0 1px 2px rgba(11, 15, 26, 0.06), 0 12px 28px rgba(245, 158, 11, 0.22);
+  --shadow-inset: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  --shadow-inset-dark: rgba(0, 0, 0, 0.14);
+  --shadow-inset-darker: rgba(0, 0, 0, 0.18);
+  --shadow-inset-black: rgba(0, 0, 0, 0.14);
+  --shadow-ghost-light: rgba(11, 15, 26, 0.04);
+  --shadow-ghost-medium: rgba(11, 15, 26, 0.32);
+  --shadow-ghost-heavy: rgba(11, 15, 26, 0.2);
+  --shadow-ghost-deep: rgba(11, 15, 26, 0.24);
+  --shadow-ghost-panel: rgba(11, 15, 26, 0.36);
+  --shadow-ghost-input: rgba(11, 15, 26, 0.48);
+  --shadow-white-ring: 0 0 0 3px rgba(129, 140, 248, 0.22), 0 0 10px rgba(99, 102, 241, 0.12);
+
+  --focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.24);
+  --focus-ring-danger: 0 0 0 3px rgba(239, 68, 68, 0.1);
+
+  --mentor-glow-default: rgba(129, 140, 248, 0.36);
+
+  --color-accent-mint: rgba(236, 254, 252, 0.92);
+  --color-accent-mint-strong: rgba(236, 254, 252, 0.96);
+}

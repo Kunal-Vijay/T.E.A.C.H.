@@ -71,7 +71,7 @@ export default function ReviewClassPage() {
     setErrorMessage(null)
     try {
       const response = await generationApi.trigger(planId)
-      navigate(`/admin/classes/${planId}`, { state: { generationId: response.data.generation_id } })
+      navigate(`/teacher/classes/${planId}`, { state: { generationId: response.data.generation_id } })
     } catch (error) {
       if (axios.isAxiosError(error) && typeof error.response?.data?.detail === 'string') {
         setErrorMessage(error.response.data.detail)
@@ -105,7 +105,7 @@ export default function ReviewClassPage() {
     <div className="page">
       <header className="container page-header">
         <TeachLogo />
-        <Link to={`/admin/classes/${planId}`} className="btn btn-secondary">Back to Class</Link>
+        <Link to={`/teacher/classes/${planId}`} className="btn btn-secondary">Back to Class</Link>
       </header>
       <main className="container page-main">
         {errorMessage !== null ? <div className="error-banner">{errorMessage}</div> : null}
@@ -119,9 +119,9 @@ export default function ReviewClassPage() {
               <p>{classPlan.subject} • {classPlan.chapter_name} • {classPlan.total_duration_minutes} min</p>
             </div>
             <div className="review-actions">
-              <Link to={`/admin/classes/${planId}/edit`} className="btn btn-secondary">Edit Plan</Link>
+              <Link to={`/teacher/classes/${planId}/edit`} className="btn btn-secondary">Edit Plan</Link>
               {canPreview ? (
-                <Link to={`/admin/classes/${planId}/preview`} className="btn btn-secondary">Preview Class</Link>
+                <Link to={`/teacher/classes/${planId}/preview`} className="btn btn-secondary">Preview Class</Link>
               ) : null}
               {classPlan.status === 'draft' ? (
                 <button className="btn btn-primary" onClick={publishPlan} disabled={isPublishing}>

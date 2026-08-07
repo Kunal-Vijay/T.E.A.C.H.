@@ -61,7 +61,7 @@ export default function AdminClassPreviewPage() {
       <div className="page">
         <header className="container page-header">
           <TeachLogo />
-          <Link to={`/admin/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
+          <Link to={`/teacher/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
         </header>
         <main className="container page-main error-banner">{errorMessage}</main>
       </div>
@@ -79,11 +79,12 @@ export default function AdminClassPreviewPage() {
           <TeachLogo />
           <span className="preview-badge">Admin Preview</span>
         </div>
-        <Link to={`/admin/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
+        <Link to={`/teacher/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
       </header>
       <main className="container page-main">
         <ClassroomLayout
           currentState={currentState}
+          sessionStep={1}
           onAdvance={async () => {
             const response = await classroomApi.advance(sessionId)
             setCurrentState(response.data)
@@ -100,14 +101,12 @@ export default function AdminClassPreviewPage() {
             const response = await sageApi.createSession(sessionId)
             return response.data.doubt_session_id
           }}
-          onAskSage={async (message) => {
-            const activeDoubtSessionId = (await sageApi.createSession(sessionId)).data.doubt_session_id
-            const response = await sageApi.ask(activeDoubtSessionId, message)
+          onAskSage={async (doubtSessionId, message) => {
+            const response = await sageApi.ask(doubtSessionId, message)
             return response.data
           }}
-          onCloseSage={async () => {
-            const activeDoubtSessionId = (await sageApi.createSession(sessionId)).data.doubt_session_id
-            const response = await sageApi.close(activeDoubtSessionId)
+          onCloseSage={async (doubtSessionId) => {
+            const response = await sageApi.close(doubtSessionId)
             setCurrentState(response.data)
           }}
           onSkipDoubts={async () => {

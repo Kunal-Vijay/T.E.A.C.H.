@@ -1,0 +1,392 @@
+/* ── Premium lesson board (elements[] presentation) ── */
+
+.lesson-board {
+  position: relative;
+  width: 100%;
+}
+
+.lesson-board-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 70ch;
+  width: 100%;
+}
+
+.lesson-board--static .lesson-board-inner {
+  gap: var(--space-5);
+}
+
+/* Single entrance animation when a slide loads (immersive classroom only). */
+.learning-whiteboard .lesson-board {
+  animation: lesson-board-slide-enter var(--duration-medium) var(--ease-out) both;
+}
+
+/* ── Heading ── */
+.lesson-board-heading {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: clamp(1.75rem, 2.4vw + 0.5rem, 2.35rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--color-primary);
+}
+
+/* ── Body text ── */
+.lesson-board-text {
+  font-size: var(--text-body-lg);
+  line-height: 1.7;
+  color: var(--color-slate-soft);
+  max-width: 70ch;
+}
+
+.lesson-board-text .lesson-content {
+  gap: var(--space-3);
+  max-width: none;
+}
+
+.lesson-board-text .lesson-paragraph {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* ── Bullet cards ── */
+.lesson-board-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lesson-board-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 14px 18px 14px 16px;
+  border-radius: calc(var(--radius-md) + 2px);
+  border: 1px solid var(--hub-ink-faint);
+  background: var(--shadow-white-muted);
+  box-shadow:
+    var(--shadow-ink-xs),
+    inset 0 1px 0 var(--color-white-emphasis);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.lesson-board-bullet:hover {
+  border-color: var(--hub-accent-border);
+  background: var(--color-white-emphasis);
+  box-shadow:
+    var(--shadow-accent-xs),
+    inset 0 1px 0 var(--color-white-strong);
+}
+
+.lesson-board-bullet-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: 0.05em;
+  border-radius: var(--radius-full);
+  color: var(--color-accent-hover);
+  background: linear-gradient(145deg, var(--hub-accent-soft-medium), var(--hub-accent-fill-soft));
+  border: 1px solid var(--hub-border-interactive);
+}
+
+.lesson-board-bullet-body {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-body-lg);
+  line-height: 1.55;
+  color: var(--color-primary-hover);
+}
+
+/* ── Visuals & formulas ── */
+.lesson-board-visual {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid var(--hub-ink-faint);
+  background: var(--color-white);
+  box-shadow: var(--shadow-board);
+  overflow: hidden;
+}
+
+.lesson-board-visual img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background: var(--hub-text-primary);
+}
+
+.lesson-board-visual-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  border-radius: var(--radius-md);
+  background:
+    var(--grad-slate-wash);
+  color: var(--color-slate-muted);
+  font-size: var(--text-caption);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lesson-board-formula {
+  padding: var(--space-5) var(--space-6);
+  text-align: center;
+  font-size: 1.2rem;
+  border-radius: calc(var(--radius-md) + 2px);
+  border: 1px solid var(--hub-ink-faint);
+  background:
+    var(--grad-slate-panel);
+  box-shadow: inset 0 1px 0 var(--color-white-medium);
+  overflow-x: auto;
+}
+
+/* ── Motion ── */
+@keyframes lesson-board-slide-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lesson-board-block-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lesson-whiteboard-idle-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+.slide-renderer.lesson-board,
+.slide-content .lesson-board {
+  padding: 0;
+}
+
+.slide-content .lesson-board-inner {
+  max-width: 68ch;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 6 — Classroom lesson board (live whiteboard + classic static)
+   Scoped to dark classroom shell only.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.teach-shell--classroom-route .lesson-whiteboard-shell {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.teach-shell--classroom-route .lesson-whiteboard-glow {
+  position: absolute;
+  inset: clamp(0.5rem, 1.5vw, 1rem);
+  border-radius: calc(var(--radius-lg) + 8px);
+  background: var(--gradient-board-glow);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.teach-shell--classroom-route .lesson-board-surface {
+  inset: clamp(0.75rem, 2vw, 1.25rem);
+  border-radius: calc(var(--radius-lg) + 4px);
+  background-image:
+    linear-gradient(var(--hub-border-ghost) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hub-border-ghost) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: none;
+  opacity: 1;
+}
+
+.teach-shell--classroom-route .learning-whiteboard .lesson-board {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: min(480px, 58vh);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: calc(var(--radius-lg) + 6px);
+  border: 1px solid var(--hub-border);
+  background:
+    var(--grad-board-light);
+  box-shadow:
+    0 24px 64px var(--shadow-black-strong),
+    0 0 0 1px var(--hub-inset-highlight-strong) inset,
+    0 0 80px var(--hub-accent-fill-soft);
+}
+
+.teach-shell--classroom-route .learning-whiteboard .lesson-board-inner {
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding-block: var(--space-1);
+}
+
+.teach-shell--classroom-route .lesson-board-block {
+  animation: lesson-board-block-enter 0.55s var(--ease-out) both;
+}
+
+.teach-shell--classroom-route .lesson-board-block:nth-child(1) { animation-delay: 0.05s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(2) { animation-delay: 0.11s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(3) { animation-delay: 0.17s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(4) { animation-delay: 0.23s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(5) { animation-delay: 0.29s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(6) { animation-delay: 0.35s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(7) { animation-delay: 0.41s; }
+.teach-shell--classroom-route .lesson-board-block:nth-child(8) { animation-delay: 0.47s; }
+
+.teach-shell--classroom-route .lesson-board-block--heading + .lesson-board-block {
+  margin-top: calc(var(--space-1) * -1);
+}
+
+.teach-shell--classroom-route .lesson-board-heading {
+  font-size: clamp(1.85rem, 2.6vw + 0.4rem, 2.5rem);
+  letter-spacing: -0.03em;
+  color: var(--color-primary);
+}
+
+.teach-shell--classroom-route .lesson-board-bullets {
+  gap: 10px;
+}
+
+.teach-shell--classroom-route .lesson-board-bullet {
+  position: relative;
+  padding-left: 18px;
+  border-left: 3px solid var(--hub-accent-border-hover);
+}
+
+.teach-shell--classroom-route .lesson-board-formula .katex {
+  font-size: 1.15em;
+}
+
+/* ── Idle state (dark canvas, pre-content) ── */
+.teach-shell--classroom-route .lesson-whiteboard-idle {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: min(480px, 58vh);
+  margin: clamp(0.75rem, 2vw, 1.25rem);
+  padding: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  border-radius: calc(var(--radius-lg) + 6px);
+  border: 1px dashed var(--hub-border-muted);
+  background:
+    var(--grad-board-dark);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 var(--hub-border-faint);
+}
+
+.teach-shell--classroom-route .lesson-whiteboard-idle-mark {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-full);
+  color: var(--hub-accent-icon-soft);
+  background: var(--hub-accent-glow);
+  border: 1px solid var(--hub-border-interactive);
+  animation: lesson-whiteboard-idle-pulse 3.2s ease-in-out infinite;
+}
+
+.teach-shell--classroom-route .lesson-whiteboard-idle-title {
+  margin: 0;
+  max-width: 22ch;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+  letter-spacing: var(--tracking-tight);
+  color: var(--hub-text-emphasis);
+}
+
+.teach-shell--classroom-route .lesson-whiteboard-idle-hint {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--text-caption);
+  line-height: 1.55;
+  color: var(--hub-text-faded);
+}
+
+/* ── Classic mode static board (quiz / predict / legacy slide area) ── */
+.teach-shell--classroom-route .classroom-classic .lesson-board--static {
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid var(--hub-border-subtle);
+  background:
+    var(--grad-board-light-soft);
+  box-shadow:
+    0 12px 40px var(--shadow-black-xs),
+    inset 0 1px 0 var(--color-white-border);
+}
+
+@media (max-width: 820px) {
+  .lesson-board-inner {
+    gap: var(--space-5);
+  }
+
+  .lesson-board-heading {
+    font-size: clamp(1.65rem, 5.5vw, 2rem);
+  }
+
+  .lesson-board-bullets {
+    gap: 10px;
+  }
+
+  .lesson-board-bullet {
+    padding: 12px 14px 12px 13px;
+  }
+
+  .teach-shell--classroom-route .learning-whiteboard .lesson-board,
+  .teach-shell--classroom-route .lesson-whiteboard-idle {
+    min-height: min(380px, 52vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-whiteboard .lesson-board,
+  .teach-shell--classroom-route .lesson-board-block {
+    animation: none !important;
+  }
+
+  .lesson-board-bullet {
+    transition: none !important;
+  }
+
+  .teach-shell--classroom-route .lesson-whiteboard-idle-mark {
+    animation: none !important;
+  }
+}

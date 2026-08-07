@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Classroom tutor experience — living AI presence (speaking / listening / thinking)
+   Motion, concepts, narration panel. GPU-friendly: opacity, transform, filter.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Thinking dots ── */
+.tutor-thinking-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tutor-thinking-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 70%, var(--hub-text-primary, var(--color-ink)));
+  animation: tutor-thinking-dot 1.4s ease-in-out infinite;
+}
+
+.tutor-thinking-dot:nth-child(2) { animation-delay: 0.16s; }
+.tutor-thinking-dot:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes tutor-thinking-dot {
+  0%, 80%, 100% { opacity: 0.35; transform: translate3d(0, 0, 0) scale(0.85); }
+  40% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1); }
+}
+
+/* ── Waveform variants ── */
+.tutor-voice-waveform--active .tutor-voice-waveform-bar {
+  animation: tutor-wave-active 0.9s ease-in-out infinite alternate;
+}
+
+.tutor-voice-waveform--listening .tutor-voice-waveform-bar {
+  animation: tutor-wave-listening 2.4s ease-in-out infinite alternate;
+}
+
+.tutor-voice-waveform--dimmed .tutor-voice-waveform-bar {
+  opacity: 0.35;
+  transform: scaleY(0.4);
+}
+
+@keyframes tutor-wave-active {
+  0% { transform: scaleY(0.35); opacity: 0.55; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes tutor-wave-listening {
+  0% { transform: scaleY(0.25); opacity: 0.4; }
+  100% { transform: scaleY(0.55); opacity: 0.72; }
+}
+
+/* ── Theater presence states ── */
+.mentor-theater.is-speaking .mentor-theater-ambient {
+  animation: theater-ambient-speak 3.2s ease-in-out infinite alternate;
+}
+
+.mentor-theater.is-listening .mentor-theater-ambient {
+  animation: theater-ambient-listen 5.6s ease-in-out infinite alternate;
+}
+
+.mentor-theater.is-thinking .mentor-theater-ambient {
+  animation: theater-ambient-think 6s linear infinite;
+}
+
+.mentor-theater.is-listening .mentor-theater-ring-a {
+  animation-duration: 10s;
+}
+
+.mentor-theater.is-listening .mentor-theater-ring-b {
+  animation-duration: 14s;
+}
+
+.mentor-theater.is-thinking .mentor-theater-ring-a {
+  animation: theater-ring-think 7s linear infinite;
+}
+
+.mentor-theater-live--listening {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 78%, var(--color-ink));
+}
+
+.mentor-theater-live--thinking {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 72%, var(--color-ink-soft, var(--color-ink)));
+}
+
+@keyframes theater-ambient-speak {
+  0% { opacity: 0.82; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes theater-ambient-listen {
+  0% { opacity: 0.55; transform: scale(0.96); }
+  100% { opacity: 0.72; transform: scale(1.02); }
+}
+
+@keyframes theater-ambient-think {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+  50% { opacity: 0.68; }
+  100% { transform: rotate(360deg) scale(1.03); opacity: 0.5; }
+}
+
+@keyframes theater-ring-think {
+  from { transform: rotate(0deg); opacity: 0.2; }
+  to { transform: rotate(360deg); opacity: 0.12; }
+}
+
+/* ── Classroom stage ambient reaction ── */
+.classroom-stage.is-tutor-speaking .learning-panel {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, transparent);
+}
+
+.classroom-stage.is-tutor-listening .learning-panel {
+  opacity: 0.98;
+}
+
+/* ── Concept trail ── */
+.concept-trail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) clamp(1rem, 3.5vw, 2.5rem) var(--space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border, var(--hub-border)) 60%, transparent);
+}
+
+.concept-trail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+  color: var(--color-ink-mute, var(--hub-text-dim));
+  background: color-mix(in srgb, var(--color-surface, var(--hub-surface-1)) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border, var(--hub-border)) 80%, transparent);
+  animation: concept-chip-enter 420ms var(--ease-out) both;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-medium) var(--ease-out);
+}
+
+.concept-trail-chip.is-pending {
+  opacity: 0.72;
+}
+
+.concept-trail-chip.is-active {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 88%, var(--color-ink));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 12%, var(--color-surface, var(--hub-surface-1)));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 38%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 14%, transparent);
+}
+
+.concept-trail-chip.is-done {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 65%, var(--color-ink-soft));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 22%, transparent);
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 6%, transparent);
+}
+
+.concept-trail-check {
+  color: var(--mentor-accent, var(--color-accent));
+}
+
+@keyframes concept-chip-enter {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* ── Concept stage ── */
+.concept-stage {
+  flex: 1;
+  position: relative;
+  min-height: min(420px, 50vh);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3rem);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity var(--duration-medium) var(--ease-out),
+    transform var(--duration-medium) var(--ease-out);
+}
+
+.concept-stage.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.concept-stage-idle {
+  display: grid;
+  place-items: center;
+  min-height: inherit;
+  text-align: center;
+  color: var(--color-ink-mute, var(--hub-text-dim));
+}
+
+.concept-stage-idle-pulse {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-3);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 28%, transparent), transparent 70%);
+  animation: concept-idle-pulse 4s ease-in-out infinite;
+}
+
+@keyframes concept-idle-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.92); }
+  50% { opacity: 0.85; transform: scale(1); }
+}
+
+.concept-stage-eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 70%, var(--color-ink-mute));
+}
+
+.concept-stage-headline {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink, var(--hub-text-strong));
+  animation: concept-headline-enter 480ms var(--ease-out) both;
+}
+
+.concept-stage-headline-intro {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.concept-stage-focus {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: calc(var(--radius-lg) + 2px);
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 22%, var(--color-border, var(--hub-border)));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 5%, var(--color-bg, var(--hub-surface-deep)));
+  animation: concept-focus-enter 520ms var(--ease-out) both;
+}
+
+.concept-stage-focus.is-explaining {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 36%, transparent);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 12%, transparent);
+}
+
+.concept-stage-index {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 90%, var(--color-ink));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+}
+
+.concept-kw,
+.teaching-subtitle-kw {
+  padding: 0 0.12em;
+  border-radius: 0.2em;
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 92%, var(--color-ink));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, transparent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.concept-stage-recap-label {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+
+.concept-stage-recap-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.concept-stage-recap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  animation: concept-chip-enter 400ms var(--ease-out) both;
+}
+
+.concept-stage-recap-item.is-learned {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 75%, var(--color-ink));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 6%, transparent);
+}
+
+.concept-stage-recap-item.is-learned::before {
+  content: '✓';
+  flex-shrink: 0;
+  color: var(--mentor-accent, var(--color-accent));
+  font-weight: var(--font-weight-semibold);
+}
+
+@keyframes concept-headline-enter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes concept-focus-enter {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* ── Rhythm bar presence ── */
+.lesson-rhythm-bar.is-listening .lesson-rhythm-progress-fill,
+.lesson-rhythm-bar.is-thinking .lesson-rhythm-progress-fill {
+  transition-duration: 620ms;
+}
+
+.lesson-rhythm-bar.is-speaking .lesson-rhythm-progress-fill.is-active {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 35%, transparent);
+}
+
+.classroom-rhythm-badge--listening {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 78%, var(--color-ink));
+}
+
+.classroom-rhythm-badge--thinking {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 72%, var(--color-ink-soft));
+}
+
+.classroom-rhythm-listening-dot,
+.classroom-rhythm-thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mentor-accent, var(--color-accent));
+}
+
+.classroom-rhythm-listening-dot {
+  animation: mentor-panel-live-pulse 2.2s ease-in-out infinite;
+}
+
+.classroom-rhythm-thinking-dot {
+  animation: tutor-thinking-dot 1.4s ease-in-out infinite;
+}
+
+/* ── Dark classroom: enhanced narration panel ── */
+.teach-shell--classroom-route .teaching-subtitle-live {
+  position: relative;
+  overflow: hidden;
+  padding-left: calc(var(--space-3) + 4px);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-live::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--space-3);
+  bottom: var(--space-3);
+  width: 3px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 35%, transparent);
+  opacity: 0;
+  transition: opacity var(--duration-medium) var(--ease-out);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-live.is-speaking::before {
+  opacity: 1;
+  background: linear-gradient(
+    180deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 60%, transparent)
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 40%, transparent);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-body {
+  max-height: min(28vh, 220px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-right: var(--space-1);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-header {
+  margin-bottom: var(--space-2);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.teach-shell--classroom-route .teaching-subtitle-wave {
+  height: 0.75rem;
+}
+
+.teach-shell--classroom-route .teaching-subtitle.is-thinking {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 20%, var(--hub-border-subtle));
+}
+
+.teach-shell--classroom-route .teaching-subtitle.is-listening .teaching-subtitle-current {
+  font-weight: var(--font-weight-regular);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--classroom-route .teaching-subtitle-track-fill {
+  transition: width 480ms var(--ease-out);
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner.is-thinking {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, transparent),
+    inset 0 1px 0 var(--hub-border-ghost);
+}
+
+.teach-shell--classroom-route .mentor-panel-status--thinking {
+  color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 72%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 8%, var(--hub-surface-1));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 22%, transparent);
+}
+
+.teach-shell--classroom-route .mentor-panel-status-thinking {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.teach-shell--classroom-route .mentor-panel-status-thinking span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: tutor-thinking-dot 1.4s ease-in-out infinite;
+}
+
+.teach-shell--classroom-route .mentor-panel-status-thinking span:nth-child(2) { animation-delay: 0.15s; }
+.teach-shell--classroom-route .mentor-panel-status-thinking span:nth-child(3) { animation-delay: 0.3s; }
+
+.teach-shell--classroom-route .lesson-voice-player.is-listening {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 24%, var(--hub-border-subtle));
+}
+
+.teach-shell--classroom-route .lesson-voice-player.is-thinking {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, var(--hub-border-subtle));
+  opacity: 0.92;
+}
+
+.teach-shell--classroom-route .lesson-voice-player.is-thinking .lesson-voice-player-status-label {
+  color: var(--hub-text-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutor-voice-waveform--active .tutor-voice-waveform-bar,
+  .tutor-voice-waveform--listening .tutor-voice-waveform-bar,
+  .tutor-thinking-dot,
+  .concept-trail-chip,
+  .concept-stage,
+  .concept-stage-headline,
+  .concept-stage-focus,
+  .concept-stage-recap-item,
+  .mentor-theater.is-speaking .mentor-theater-ambient,
+  .mentor-theater.is-listening .mentor-theater-ambient,
+  .mentor-theater.is-thinking .mentor-theater-ambient,
+  .mentor-theater.is-thinking .mentor-theater-ring-a,
+  .concept-stage-idle-pulse,
+  .classroom-rhythm-listening-dot,
+  .classroom-rhythm-thinking-dot,
+  .teach-shell--classroom-route .mentor-panel-status-thinking span {
+    animation: none !important;
+  }
+
+  .concept-stage,
+  .concept-trail-chip,
+  .concept-stage-headline,
+  .concept-stage-focus {
+    transform: none !important;
+    transition: none !important;
+  }
+}

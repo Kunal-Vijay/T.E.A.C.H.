@@ -1,0 +1,362 @@
+/* ── Hub shell — shared student + teacher dark hub ── */
+
+.teach-shell--hub .dashboard-home,
+.teach-shell--hub .teacher-hub-page {
+  --hub-gap: var(--space-8);
+  gap: var(--hub-gap);
+  padding-bottom: var(--space-16);
+}
+
+.teach-shell--hub .dashboard-home {
+  width: 100%;
+  max-width: 100%;
+}
+
+.teach-shell--hub .teacher-hub-page--wide {
+  width: 100%;
+  max-width: 100%;
+}
+
+.teach-shell--hub .teacher-hub-page--form {
+  max-width: min(var(--layout-form), 100%);
+}
+
+.teach-shell--hub .teacher-hub-page--detail {
+  max-width: min(var(--layout-detail), 100%);
+}
+
+/* Hero */
+.teach-shell--hub .dashboard-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teach-shell--hub .page-header--hub {
+  gap: var(--space-2);
+}
+
+.teach-shell--hub .page-header--hub .page-kicker {
+  color: var(--hub-accent);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.teach-shell--hub .page-header--hub .page-title {
+  margin: 0;
+  font-size: var(--text-h1);
+  letter-spacing: -0.035em;
+  line-height: var(--leading-display);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .page-header--hub .page-lede {
+  margin: var(--space-3) 0 0;
+  max-width: 48ch;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action {
+  padding-bottom: var(--space-1);
+}
+
+.teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action .btn-primary,
+.teach-shell--hub .teacher-hub-page .hub-btn-pill.btn-primary {
+  box-shadow: var(--shadow-hub-btn);
+}
+
+.teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action .btn-primary:hover:not(:disabled),
+.teach-shell--hub .teacher-hub-page .hub-btn-pill.btn-primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-hub-btn-hover);
+}
+
+.teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action .btn-highlight {
+  box-shadow: var(--shadow-hub-btn), var(--shadow-highlight);
+}
+
+/* Back link */
+.teach-shell--hub .teacher-hub-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--btn-icon-gap);
+  width: fit-content;
+  min-height: var(--btn-height);
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--hub-text-subtle);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition:
+    color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .teacher-hub-back:hover {
+  color: var(--hub-accent);
+  background: var(--hub-overlay-light);
+  border-color: var(--hub-border-subtle);
+}
+
+.teach-shell--hub .teacher-hub-back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Hub buttons on dark */
+.teach-shell--hub .teacher-hub-page .btn-secondary {
+  color: var(--hub-text-body);
+  background: var(--hub-overlay-light);
+  border-color: var(--hub-border-strong);
+  box-shadow: inset 0 1px 0 var(--hub-inset-highlight);
+}
+
+.teach-shell--hub .teacher-hub-page .btn-secondary:hover:not(:disabled) {
+  background: var(--hub-overlay-medium);
+  border-color: var(--hub-border-light);
+}
+
+/* Catalog section */
+.teach-shell--hub .dashboard-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  animation: teach-rise var(--duration-medium) var(--ease-out) 0.06s both;
+}
+
+.teach-shell--hub .class-catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.teach-shell--hub .class-catalog-count {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+  color: var(--hub-text-subtle);
+}
+
+.teach-shell--hub .class-catalog-count strong {
+  color: var(--hub-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.teach-shell--hub .class-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--catalog-grid-min), 1fr));
+  gap: var(--space-5);
+}
+
+.teach-shell--hub .class-catalog-card-title,
+.teach-shell--hub .teacher-class-card-title {
+  margin: 0;
+  font-size: var(--text-card-title);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.025em;
+  line-height: var(--leading-snug);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .class-catalog-meta,
+.teach-shell--hub .teacher-class-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.teach-shell--hub .class-catalog-meta li,
+.teach-shell--hub .teacher-class-meta li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .class-catalog-meta-icon,
+.teach-shell--hub .teacher-class-meta-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--hub-accent-icon);
+}
+
+.teach-shell--hub .class-catalog-meta li:last-child,
+.teach-shell--hub .teacher-class-meta li:last-child {
+  color: var(--hub-text-muted);
+}
+
+.teach-shell--hub .class-catalog-card-footer,
+.teach-shell--hub .teacher-class-card-footer {
+  margin-top: auto;
+  padding-top: var(--space-1);
+}
+
+.teach-shell--hub .class-catalog-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--btn-icon-gap);
+  width: 100%;
+  padding: 0.72rem var(--btn-padding-x-pill);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-white-border);
+  background: var(--grad-hub-primary);
+  color: var(--color-white);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-hub-btn);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .class-catalog-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hub-btn-hover);
+}
+
+.teach-shell--hub .teacher-class-link-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--btn-icon-gap);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-accent);
+  transition: gap var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .teacher-class-card:hover .teacher-class-link-hint {
+  gap: var(--space-3);
+}
+
+/* Onboarding */
+.teach-shell--hub .dashboard-onboarding-wrap {
+  display: flex;
+  justify-content: center;
+  padding-block: clamp(var(--space-6), 8vh, var(--space-12));
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teach-shell--hub .onboarding-panel {
+  width: min(100%, 36rem);
+  padding: clamp(var(--space-6), 4vw, var(--space-8));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border);
+  background: var(--hub-gradient-onboarding), var(--hub-surface-1);
+  box-shadow: var(--shadow-hub-onboarding);
+  backdrop-filter: var(--hub-blur);
+  -webkit-backdrop-filter: var(--hub-blur);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-kicker {
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-heading {
+  font-size: var(--text-h2);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-subtitle,
+.teach-shell--hub .onboarding-panel .onboarding-step p,
+.teach-shell--hub .onboarding-panel .onboarding-footnote {
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-step {
+  border-bottom-color: var(--hub-border-subtle);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-step h3 {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .onboarding-panel .onboarding-step-index {
+  background: var(--grad-hub-primary);
+  box-shadow: var(--shadow-elevated-sm);
+}
+
+/* Loading */
+.teach-shell--hub .dashboard-loading,
+.teach-shell--hub .teacher-hub-page .dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-gap);
+}
+
+.teach-shell--hub .dashboard-home .skeleton-kicker,
+.teach-shell--hub .dashboard-home .skeleton-page-title,
+.teach-shell--hub .dashboard-home .skeleton-lede,
+.teach-shell--hub .dashboard-home .skeleton-stats-bar,
+.teach-shell--hub .teacher-hub-page .skeleton-kicker,
+.teach-shell--hub .teacher-hub-page .skeleton-page-title,
+.teach-shell--hub .teacher-hub-page .skeleton-lede,
+.teach-shell--hub .teacher-hub-page .skeleton-stats-bar,
+.teach-shell--hub .class-catalog-card--skeleton .skeleton,
+.teach-shell--hub .teacher-class-card--skeleton .skeleton {
+  background: var(--hub-gradient-shimmer);
+  background-size: 200% 100%;
+  animation: teach-shimmer 1.2s var(--ease-in-out) infinite;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .teach-shell--hub .teacher-hub-page .page-header-with-action .page-header-body {
+    align-items: stretch;
+  }
+
+  .teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action {
+    width: 100%;
+    padding-bottom: 0;
+  }
+
+  .teach-shell--hub .teacher-hub-page .page-header--hub .page-header-action .btn,
+  .teach-shell--hub .teacher-hub-page .teacher-class-detail-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .teach-shell--hub .teacher-hub-page .teacher-class-detail-actions {
+    width: 100%;
+  }
+
+  .teach-shell--hub .onboarding-panel .onboarding-cta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .teach-shell--hub .dashboard-home,
+  .teach-shell--hub .teacher-hub-page {
+    --hub-gap: var(--hub-gap-compact);
+  }
+
+  .teach-shell--hub .class-catalog-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .dashboard-hero,
+  .teach-shell--hub .dashboard-onboarding-wrap,
+  .teach-shell--hub .dashboard-catalog {
+    animation: none !important;
+  }
+}

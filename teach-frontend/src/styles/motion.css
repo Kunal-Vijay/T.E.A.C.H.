@@ -1,0 +1,107 @@
+/* TEACH Motion — intentional, minimal, GPU-first */
+
+@keyframes teach-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes teach-rise {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes teach-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes teach-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@keyframes teach-dot {
+  0%, 80%, 100% { opacity: 0.35; transform: translate3d(0, 0, 0); }
+  40% { opacity: 1; transform: translate3d(0, -2px, 0); }
+}
+
+@keyframes sage-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes sage-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sage-msg-in {
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Page: one subtle entrance on main content */
+.page-main {
+  animation: teach-fade var(--duration-normal) var(--ease-out) both;
+}
+
+/* Loading states */
+.btn.is-loading {
+  color: inherit !important;
+}
+
+.btn.is-loading::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 1rem;
+  height: 1rem;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: 2px solid var(--shadow-white-dim);
+  border-top-color: var(--color-white);
+  border-radius: 50%;
+  animation: teach-spin 0.7s linear infinite;
+}
+
+.btn-secondary.is-loading::before {
+  border-color: var(--color-ink-border);
+  border-top-color: var(--color-primary);
+}
+
+.status-spinner {
+  animation: teach-spin 0.7s linear infinite !important;
+}
+
+.skeleton {
+  animation: teach-shimmer 1.15s var(--ease-in-out) infinite;
+}
+
+/* SAGE — the expressive layer */
+.sage-message-block {
+  animation: sage-msg-in var(--duration-normal) var(--ease-out) both;
+}
+
+.sage-thinking {
+  animation: sage-msg-in var(--duration-normal) var(--ease-out) both;
+}
+
+.sage-thinking-dot {
+  animation: teach-dot 1s var(--ease-in-out) infinite;
+}
+
+.sage-thinking-dot:nth-child(2) { animation-delay: 120ms; }
+.sage-thinking-dot:nth-child(3) { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-main,
+  .sage-message-block,
+  .sage-thinking {
+    animation: none !important;
+  }
+
+  .btn.is-loading::before,
+  .status-spinner,
+  .skeleton,
+  .sage-thinking-dot {
+    animation: none !important;
+  }
+}

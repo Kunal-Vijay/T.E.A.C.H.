@@ -1,0 +1,27 @@
+/* ─────────────────────────────────────────────────────────────
+   Environment token defaults — AI Lab
+   Ambience only. Does NOT override theme color tokens.
+   ───────────────────────────────────────────────────────────── */
+
+:is(:root, [data-environment="ai-lab"], [data-environment-preview="ai-lab"]) {
+  --env-ambient-a: radial-gradient(circle, rgba(20, 184, 166, 0.22) 0%, transparent 68%);
+  --env-ambient-b: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+  --env-ambient-a-opacity: 1;
+  --env-ambient-b-opacity: 1;
+  --env-ambient-classroom-a-scale: 1.15;
+  --env-ambient-classroom-b-opacity: 0.9;
+  --env-grid-opacity: 0.045;
+  --env-noise-opacity: 0.035;
+  --env-lighting: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 38%, transparent 72%, rgba(0, 0, 0, 0.12) 100%);
+  --env-overlay: none;
+  --env-texture: none;
+  --env-texture-opacity: 0;
+  --env-texture-blend: soft-light;
+  --env-scene: none;
+  --env-scene-opacity: 0;
+  --env-particle-color: rgba(148, 163, 184, 0.55);
+  --env-particle-glow: rgba(20, 184, 166, 0.2);
+  --env-welcome-a: radial-gradient(circle, rgba(20, 184, 166, 0.28) 0%, transparent 68%);
+  --env-welcome-b: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+  --env-classroom-vignette: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 40%, rgba(0, 0, 0, 0.08) 100%);
+}

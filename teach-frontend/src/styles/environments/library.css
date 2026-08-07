@@ -1,0 +1,25 @@
+:is([data-environment="library"], [data-environment-preview="library"]) {
+  --env-ambient-a: radial-gradient(circle, rgba(180, 140, 80, 0.14) 0%, transparent 68%);
+  --env-ambient-b: radial-gradient(circle, rgba(120, 90, 60, 0.1) 0%, transparent 72%);
+  --env-ambient-a-opacity: 0.9;
+  --env-ambient-b-opacity: 0.75;
+  --env-grid-opacity: 0.02;
+  --env-noise-opacity: 0.04;
+  --env-lighting: linear-gradient(180deg, rgba(255, 220, 160, 0.08) 0%, transparent 42%, rgba(0, 0, 0, 0.08) 100%);
+  --env-texture: repeating-linear-gradient(
+    90deg,
+    rgba(120, 90, 60, 0.03) 0,
+    rgba(120, 90, 60, 0.03) 1px,
+    transparent 1px,
+    transparent 48px
+  );
+  --env-texture-opacity: 0.5;
+  --env-texture-blend: multiply;
+  --env-scene: linear-gradient(180deg, rgba(180, 140, 80, 0.06) 0%, transparent 28%);
+  --env-scene-opacity: 0.7;
+  --env-particle-color: rgba(180, 140, 80, 0.35);
+  --env-particle-glow: rgba(255, 200, 120, 0.08);
+  --env-welcome-a: radial-gradient(circle, rgba(180, 140, 80, 0.16) 0%, transparent 68%);
+  --env-welcome-b: radial-gradient(circle, rgba(120, 90, 60, 0.1) 0%, transparent 70%);
+  --env-classroom-vignette: radial-gradient(ellipse 80% 70% at 50% 35%, rgba(255, 220, 160, 0.06) 0%, transparent 55%);
+}

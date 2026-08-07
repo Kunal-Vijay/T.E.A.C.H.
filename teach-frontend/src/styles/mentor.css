@@ -1,0 +1,125 @@
+/* ── Nova AI Tutor color tokens ── */
+:root {
+  --mentor-nova-accent: var(--color-accent);
+  --mentor-nova-soft: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  --mentor-nova-glow: var(--hub-accent-focus);
+  --mentor-nova-skin: #fef3c7;
+  --mentor-nova-secondary: var(--theme-warning);
+}
+
+/* ── Study tutor avatar (Nova) ── */
+.study-mentor {
+  --mentor-accent: var(--color-accent);
+  --mentor-accent-soft: var(--color-accent-soft);
+  --mentor-glow: var(--mentor-glow-default);
+  --mentor-skin: var(--avatar-skin);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.study-mentor-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.study-mentor.has-glow .study-mentor-stage:not(:has(.nova-tutor)) {
+  filter: drop-shadow(0 12px 28px color-mix(in srgb, var(--mentor-glow) 35%, transparent));
+}
+
+.app-nav-tutor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  color: var(--color-ink-soft);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .app-nav-tutor span:last-child {
+    max-width: 8ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ── Speaking / celebration overlays ── */
+.mentor-speak-ring {
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--mentor-accent) 55%, transparent);
+  opacity: 0;
+  animation: mentor-speak-pulse 1.6s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+.mentor-listen-ring {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--mentor-accent) 40%, transparent);
+  animation: mentor-listen-spin 8s linear infinite;
+  pointer-events: none;
+}
+
+.mentor-think-pulse {
+  position: absolute;
+  top: -8%;
+  right: -4%;
+  width: 18%;
+  height: 18%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mentor-accent) 35%, transparent);
+  animation: mentor-think-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.mentor-confetti {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mentor-secondary, var(--color-accent-bright));
+  animation: mentor-confetti 0.9s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+.mentor-confetti-a { top: 8%; left: 12%; }
+.mentor-confetti-b { top: 4%; right: 10%; animation-delay: 0.15s; }
+.mentor-confetti-c { top: 18%; right: 22%; animation-delay: 0.3s; }
+
+@keyframes mentor-speak-pulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.35; }
+  50% { transform: scale(1.04); opacity: 0.75; }
+}
+
+@keyframes mentor-listen-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mentor-think-pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.45; }
+  50% { transform: scale(1.1); opacity: 0.85; }
+}
+
+@keyframes mentor-confetti {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.8); opacity: 0.45; }
+  50% { transform: translate3d(0, -6px, 0) scale(1.1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mentor-speak-ring,
+  .mentor-listen-ring,
+  .mentor-think-pulse,
+  .mentor-confetti {
+    animation: none !important;
+  }
+}

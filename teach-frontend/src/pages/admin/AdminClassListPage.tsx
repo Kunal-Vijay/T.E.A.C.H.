@@ -1,61 +1,183 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import TeachLogo from '../../components/branding/TeachLogo'
+import OnboardingPanel from '../../components/onboarding/OnboardingPanel'
+import TeacherClassCard from '../../components/admin/TeacherClassCard'
+import StatusPanel from '../../components/status/StatusPanel'
+import {
+  AppPage,
+  ButtonLink,
+  CardGrid,
+  CatalogToolbar,
+  ClassCardSkeleton,
+  DashboardHeroSkeleton,
+  ErrorState,
+  HubHero,
+  PageAlert,
+  PageHeader,
+  PageSection,
+} from '../../components/ui'
+import { captureException } from '../../lib/monitoring'
+import { resolveDisplayedError } from '../../services/api/apiError'
 import { classPlanApi } from '../../services/api/classPlanApi'
 import type { ClassPlanResponse } from '../../types/api.types'
 
+function prefetchClassDetailRoute(): void {
+  void import('./ClassDetailPage')
+}
+
+const TEACHER_STEPS = [
+  {
+    title: 'Create a class plan',
+    detail: 'Add subject, topics, and teaching notes for the lesson.',
+  },
+  {
+    title: 'Publish it',
+    detail: 'Lock the plan so T.E.A.C.H can turn it into a live class.',
+  },
+  {
+    title: 'Generate the lesson',
+    detail: 'Build slides, quizzes, and the AI teacher workflow students will attend.',
+  },
+]
+
 export default function AdminClassListPage() {
+  const navigate = useNavigate()
   const [classPlans, setClassPlans] = useState<ClassPlanResponse[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     const loadClassPlans = async () => {
+      setErrorMessage(null)
       try {
         const response = await classPlanApi.list()
-        setClassPlans(response.data.items)
-      } catch {
-        setErrorMessage('Could not load classes. Make sure the backend is running on port 8000.')
+        if (!cancelled) {
+          setClassPlans(response.data.items)
+        }
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+        captureException(error, { page: 'admin_class_list' })
+        const message = resolveDisplayedError(error, {
+          component: 'AdminClassListPage',
+          action: 'load_class_plans',
+        }, 'Could not load classes.')
+        if (message !== null) {
+          setErrorMessage(message)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
-    loadClassPlans()
+
+    void loadClassPlans()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
+  const showOnboarding = !loading && classPlans.length === 0 && errorMessage === null
+
   return (
-    <div className="page">
-      <header className="page-header container">
-        <TeachLogo />
-        <Link className="btn btn-primary" to="/admin/classes/new">Create Class</Link>
-      </header>
-      <main className="container page-main">
-        {errorMessage !== null ? <div className="error-banner">{errorMessage}</div> : null}
-        {loading ? <p>Loading classes...</p> : classPlans.length === 0 ? (
-          <div className="empty-state card">
-            <p>No classes yet.</p>
-            <p>Click <strong>Create Class</strong> to add your first class plan.</p>
-          </div>
-        ) : (
-          <div className="grid-cards">
-            {classPlans.map((classPlan) => (
-              <Link key={classPlan.plan_id} to={`/admin/classes/${classPlan.plan_id}`} className="card class-card">
-                <span className={`badge badge-${classPlan.status}`}>{classPlan.status}</span>
-                <h3>{classPlan.title}</h3>
-                <p>{classPlan.subject} • Grade {classPlan.grade}</p>
-                <p>{classPlan.chapter_name}</p>
-                <p>{classPlan.total_duration_minutes} minutes</p>
-              </Link>
-            ))}
-          </div>
-        )}
-      </main>
-      <style>{`
-        .page-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; }
-        .page-main { padding-bottom: 2rem; }
-        .class-card { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .empty-state { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--teach-muted, #64748b); }
-      `}</style>
-    </div>
+    <AppPage variant="teacher-wide">
+      {errorMessage !== null ? (
+        <PageAlert>
+          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+        </PageAlert>
+      ) : null}
+
+      {loading ? (
+        <div className="dashboard-loading">
+          <DashboardHeroSkeleton showStats={false} />
+          <ClassCardSkeleton count={4} variant="teacher" />
+        </div>
+      ) : null}
+
+      {showOnboarding ? (
+        <div className="dashboard-onboarding-wrap">
+          <OnboardingPanel
+            heading="Welcome to T.E.A.C.H"
+            subtitle="Three steps from blank page to a student-ready lesson."
+            steps={TEACHER_STEPS}
+            ctaLabel="Create Class"
+            onCta={() => navigate('/teacher/classes/new')}
+          />
+        </div>
+      ) : null}
+
+      {!loading && !showOnboarding ? (
+        <>
+          <HubHero>
+            <PageHeader
+              variant="hub"
+              kicker="Teacher hub"
+              title="Your classes"
+              lede="Plan, publish, and generate lessons students can attend live."
+              action={(
+                <ButtonLink
+                  variant="primary"
+                  pill
+                  icon={Plus}
+                  withIcon
+                  to="/teacher/classes/new"
+                >
+                  Create Class
+                </ButtonLink>
+              )}
+            />
+          </HubHero>
+
+          <PageSection label="Your class plans">
+            {classPlans.length > 0 ? (
+              <>
+                <CatalogToolbar
+                  count={classPlans.length}
+                  singularLabel=" class in your library"
+                  pluralLabel=" classes in your library"
+                />
+                <CardGrid>
+                  {classPlans.map((classPlan) => (
+                    <TeacherClassCard
+                      key={classPlan.plan_id}
+                      planId={classPlan.plan_id}
+                      title={classPlan.title}
+                      subject={classPlan.subject}
+                      grade={classPlan.grade}
+                      chapterName={classPlan.chapter_name}
+                      durationMinutes={classPlan.total_duration_minutes}
+                      status={classPlan.status}
+                      onPrefetch={prefetchClassDetailRoute}
+                    />
+                  ))}
+                </CardGrid>
+              </>
+            ) : (
+              <StatusPanel
+                tone="empty"
+                title="No classes yet."
+                description="Create your first class plan to get started."
+                action={(
+                  <ButtonLink
+                    variant="primary"
+                    pill
+                    icon={Plus}
+                    withIcon
+                    to="/teacher/classes/new"
+                  >
+                    Create Class
+                  </ButtonLink>
+                )}
+              />
+            )}
+          </PageSection>
+        </>
+      ) : null}
+    </AppPage>
   )
 }

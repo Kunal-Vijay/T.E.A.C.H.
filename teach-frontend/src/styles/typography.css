@@ -1,0 +1,121 @@
+/* ── TEACH typography system (Inter) ── */
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-normal);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  line-height: var(--leading-heading);
+  margin-bottom: var(--space-4);
+}
+
+h2 {
+  font-size: var(--text-h2);
+  line-height: var(--leading-heading);
+  margin-bottom: var(--space-3);
+}
+
+h3 {
+  font-size: var(--text-card-title);
+  line-height: var(--leading-heading);
+  margin-bottom: var(--space-3);
+}
+
+h4 {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-heading);
+  margin-bottom: var(--space-2);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  color: var(--color-ink-soft);
+  line-height: var(--leading-body);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.type-display {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+}
+
+.type-page-title {
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+}
+
+.type-section-title {
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+}
+
+.type-card-title {
+  font-size: var(--text-card-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-ink);
+}
+
+.type-body-lg {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
+}
+
+.type-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+.type-caption {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  color: var(--color-ink-soft);
+}
+
+.type-micro {
+  font-size: var(--text-micro);
+  line-height: var(--leading-caption);
+  color: var(--color-ink-mute);
+}
+
+.type-label {
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+
+.type-subtitle {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-normal);
+  color: var(--color-ink);
+}

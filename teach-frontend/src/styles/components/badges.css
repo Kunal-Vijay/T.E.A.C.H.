@@ -1,0 +1,99 @@
+/* ── Badges & status chips ── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+}
+
+.badge-draft {
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.badge-published,
+.badge-ready {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent-border);
+}
+
+.badge-generating {
+  background: var(--color-highlight-soft);
+  color: var(--color-highlight-hover);
+  border-color: var(--hub-warning-border);
+}
+
+.badge-failed {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-ink);
+  border-color: var(--color-danger-border);
+}
+
+/* Hub status badges */
+.teach-shell--hub .hub-status-badge,
+.teach-shell--hub .class-catalog-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.35rem 0.75rem 0.35rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.teach-shell--hub .hub-status-badge--draft {
+  border: 1px solid var(--hub-border-muted);
+  background: var(--hub-overlay-light);
+  color: var(--hub-text-secondary);
+  padding-inline: 0.75rem;
+}
+
+.teach-shell--hub .hub-status-badge--published,
+.teach-shell--hub .hub-status-badge--ready,
+.teach-shell--hub .class-catalog-badge {
+  border: 1px solid var(--hub-accent-border);
+  background: var(--hub-accent-soft);
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .hub-status-badge--archived {
+  border: 1px solid var(--hub-archived-border);
+  background: var(--hub-archived-soft);
+  color: var(--hub-archived-text);
+  padding-inline: 0.75rem;
+}
+
+.teach-shell--hub .hub-status-badge-dot,
+.teach-shell--hub .class-catalog-badge-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--hub-accent);
+  box-shadow: 0 0 8px var(--hub-accent-pulse);
+  animation: class-catalog-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes class-catalog-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .hub-status-badge-dot,
+  .teach-shell--hub .class-catalog-badge-dot {
+    animation: none;
+  }
+}

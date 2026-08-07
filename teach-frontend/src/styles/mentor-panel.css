@@ -1,0 +1,434 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 7 — Classroom mentor panel (live teaching column)
+   Scoped to dark classroom shell only.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.teach-shell--classroom-route .classroom-mentor {
+  background:
+    radial-gradient(ellipse 95% 60% at 50% -8%, color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 22%, transparent), transparent 58%),
+    var(--grad-mentor-panel);
+  border-left: 1px solid var(--hub-border-ghost);
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner {
+  gap: clamp(var(--space-3), 2.5vw, var(--space-5));
+  padding:
+    clamp(var(--space-4), 3vw, var(--space-6))
+    clamp(var(--space-3), 2.5vw, var(--space-5))
+    clamp(var(--space-5), 3vw, var(--space-6));
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner.is-speaking {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent),
+    inset 0 1px 0 var(--hub-border-ghost);
+}
+
+/* ── Header ── */
+.teach-shell--classroom-route .mentor-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--hub-border-faint);
+}
+
+.teach-shell--classroom-route .mentor-panel-kicker {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hub-text-ghost);
+}
+
+.teach-shell--classroom-route .mentor-panel-name {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.25;
+  color: var(--hub-text-strong);
+}
+
+.teach-shell--classroom-route .mentor-panel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--hub-border);
+  background: var(--hub-surface-input);
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--classroom-route .mentor-panel-status--ready {
+  color: var(--hub-text-soft);
+  border-color: var(--hub-border-strong);
+}
+
+.teach-shell--classroom-route .mentor-panel-status--standby {
+  color: var(--hub-text-subtle);
+}
+
+.teach-shell--classroom-route .mentor-panel-status--speaking,
+.teach-shell--classroom-route .mentor-panel-status--live {
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 90%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, var(--hub-surface-1));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 35%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 18%, transparent);
+}
+
+.teach-shell--classroom-route .mentor-panel-status--listening {
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 75%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 10%, var(--hub-surface-1));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+}
+
+.teach-shell--classroom-route .classroom-mentor-inner.is-listening {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, transparent),
+    inset 0 1px 0 var(--hub-border-ghost);
+}
+
+.teach-shell--classroom-route .mentor-panel-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mentor-accent, var(--color-accent));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 60%, transparent);
+  animation: mentor-panel-live-pulse 1.1s ease-in-out infinite;
+}
+
+/* ── Theater stage ── */
+.teach-shell--classroom-route .mentor-panel-stage {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-1);
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater {
+  padding: var(--space-2) 0 var(--space-4);
+  width: 100%;
+  max-width: 300px;
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ambient {
+  width: min(100%, 260px);
+  height: min(100%, 260px);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 32%, transparent) 0%,
+    transparent 68%
+  );
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ring-a {
+  width: min(100%, 220px);
+  height: min(100%, 220px);
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 28%, transparent);
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ring-b {
+  width: min(100%, 184px);
+  height: min(100%, 184px);
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 18%, transparent);
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-live {
+  bottom: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 88%, var(--hub-text-primary));
+  background: var(--hub-surface-heavy);
+  border: 1px solid color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 32%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-live-wave {
+  height: 0.85rem;
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater.is-speaking .mentor-theater-ambient {
+  opacity: 1;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 42%, transparent) 0%,
+    transparent 68%
+  );
+}
+
+.teach-shell--classroom-route .mentor-panel-stage .mentor-theater-live-dot {
+  background: var(--mentor-accent, var(--color-accent));
+  box-shadow: 0 0 6px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 55%, transparent);
+}
+
+/* ── Subtitles ── */
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle {
+  width: 100%;
+  padding: clamp(var(--space-3), 2.5vw, var(--space-5));
+  border-radius: calc(var(--radius-lg) + 2px);
+  text-align: left;
+  background:
+    var(--grad-hub-surface);
+  border: 1px solid var(--hub-border-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 var(--hub-border-ghost);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-medium) var(--ease-out);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle.is-speaking {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 42%, var(--hub-border-subtle));
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 16%, transparent),
+    inset 0 1px 0 var(--hub-border-faint);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle.is-listening {
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 24%, var(--hub-border-subtle));
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-kicker--live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 88%, var(--hub-text-primary));
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mentor-accent, var(--color-accent));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 55%, transparent);
+  animation: mentor-panel-live-pulse 1.1s ease-in-out infinite;
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-track-fill.is-active {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 35%, transparent);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-idle {
+  text-align: center;
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-kicker {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 70%, var(--hub-grid-line));
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-waiting {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-prev {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--hub-text-faint);
+  animation: subtitle-fade-out 520ms var(--ease-out) both;
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-current {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.65;
+  color: var(--hub-text-strong);
+  animation: subtitle-rise 480ms var(--ease-out) both;
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--hub-border-faint);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-cue {
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hub-text-quiet);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-track {
+  margin-top: 0;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--hub-border-subtle);
+}
+
+.teach-shell--classroom-route .classroom-mentor .teaching-subtitle-track-fill {
+  background: linear-gradient(
+    90deg,
+    var(--mentor-accent, var(--color-accent)),
+    color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 75%, var(--mentor-accent, var(--color-accent)))
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 35%, transparent);
+}
+
+/* ── Controls ── */
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0.65rem var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-border-strong);
+  background: var(--hub-surface-1);
+  font-family: var(--font-family);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-text-soft);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn:hover {
+  color: var(--hub-text-primary);
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 42%, var(--hub-border-strong));
+  background: var(--hub-surface-heavy);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn.is-on {
+  color: color-mix(in srgb, var(--mentor-accent, var(--hub-accent)) 92%, var(--hub-text-primary));
+  background: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 14%, var(--hub-surface-1));
+  border-color: color-mix(in srgb, var(--mentor-accent, var(--color-accent)) 38%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--mentor-glow, var(--color-accent)) 12%, transparent);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn-ghost {
+  background: transparent;
+  border-color: var(--hub-border-subtle);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn-ghost:hover {
+  background: var(--hub-border-ghost);
+}
+
+.teach-shell--classroom-route .classroom-mentor .mentor-panel-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Motion ── */
+@keyframes mentor-panel-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.82);
+  }
+}
+
+/* ── Responsive (compact sticky header on mobile) ── */
+@media (max-width: 900px) {
+  .teach-shell--classroom-route .mentor-panel-header {
+    flex: 1 1 100%;
+    order: -2;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .teach-shell--classroom-route .mentor-panel-kicker {
+    display: none;
+  }
+
+  .teach-shell--classroom-route .mentor-panel-name {
+    font-size: var(--text-body);
+  }
+
+  .teach-shell--classroom-route .mentor-panel-stage {
+    flex: 0 0 auto;
+    order: -1;
+    padding-block: 0;
+  }
+
+  .teach-shell--classroom-route .mentor-panel-stage .mentor-theater {
+    padding: 0;
+    max-width: none;
+  }
+
+  .teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ambient,
+  .teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ring-a,
+  .teach-shell--classroom-route .mentor-panel-stage .mentor-theater-ring-b {
+    display: none;
+  }
+
+  .teach-shell--classroom-route .mentor-panel-stage .mentor-theater-live {
+    display: none;
+  }
+
+  .teach-shell--classroom-route .classroom-mentor .teaching-subtitle {
+    flex: 1;
+    min-width: 10rem;
+    padding: var(--space-3);
+  }
+
+  .teach-shell--classroom-route .classroom-mentor .teaching-subtitle-footer {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+  }
+
+  .teach-shell--classroom-route .classroom-mentor .mentor-panel-controls {
+    flex-direction: row;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .teach-shell--classroom-route .classroom-mentor .mentor-panel-btn {
+    flex: 1;
+    padding-block: 0.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--classroom-route .mentor-panel-status-dot,
+  .teach-shell--classroom-route .classroom-mentor .teaching-subtitle-current,
+  .teach-shell--classroom-route .classroom-mentor .teaching-subtitle-prev {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,88 @@
+/* ── Layout ── */
+
+/**
+ * Global horizontal shell — shared by pages, nav, and landing.
+ * Width: min(1680px, 92vw) desktop · 94vw tablet · unchanged mobile.
+ * Padding: clamp(24px, 5vw, 80px) on tablet+.
+ */
+.container,
+.app-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--layout-shell-width);
+  margin-inline: auto;
+  padding-inline: var(--layout-shell-padding-inline);
+}
+
+@media (min-width: 641px) and (max-width: 1439px) {
+  :root {
+    --layout-shell-width: min(var(--layout-shell-max), var(--layout-shell-vw-tablet));
+  }
+}
+
+.page-main {
+  padding-bottom: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+}
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+#main-content {
+  scroll-margin-top: var(--space-16);
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.page-header-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.page-header-with-action .page-header-body {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.page-header-action {
+  flex-shrink: 0;
+}
+
+.page-header-action .btn {
+  margin-top: 0;
+}
+
+.page-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .container,
+  .app-container {
+    max-width: none;
+    width: calc(100% - var(--space-6));
+    padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-header {
+    animation: none !important;
+  }
+}

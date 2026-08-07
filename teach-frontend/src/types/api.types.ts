@@ -113,9 +113,9 @@ export interface CurrentStateResponse {
     label: string
     requires_student_input: boolean
   }
-  content: {
-    slides: CurrentSlide[]
-    quiz_questions: QuizQuestion[]
+  content?: {
+    slides: import('./api.types').CurrentSlide[]
+    quiz_questions: import('./api.types').QuizQuestion[]
   }
   next_advance_trigger?: string
   session_status: string

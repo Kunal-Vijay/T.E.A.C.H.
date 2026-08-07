@@ -1,0 +1,354 @@
+/* ─────────────────────────────────────────────────────────────
+   Midnight AI — Official TEACH Theme
+   Premium · AI-native · Immersive · Linear × OpenAI × Arc
+
+   Deep void shell, luminous teal accent, amber highlight.
+   Light paper surfaces for classroom content contrast.
+
+   Selector also applies to :root for bootstrap before JS hydrates.
+   ───────────────────────────────────────────────────────────── */
+
+[data-theme="midnight"],
+:root {
+  /* ── Semantic theme tokens ── */
+  --theme-bg: #f8fafc;
+  --theme-bg-secondary: #f1f5f9;
+  --theme-surface: #ffffff;
+  --theme-card: #ffffff;
+  --theme-border: #e2e8f0;
+  --theme-border-strong: #cbd5e1;
+  --theme-primary: #0f172a;
+  --theme-primary-hover: #1e293b;
+  --theme-secondary: #475569;
+  --theme-accent: #14b8a6;
+  --theme-accent-hover: #0d9488;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-success: #22c55e;
+  --theme-warning: #f59e0b;
+  --theme-danger: #ef4444;
+  --theme-shadow: 0 1px 2px rgba(28, 25, 23, 0.03), 0 4px 12px rgba(28, 25, 23, 0.04);
+  --theme-glass: rgba(15, 23, 42, 0.55);
+  --theme-overlay: rgba(248, 250, 252, 0.06);
+
+  /* ── Light palette (maps to semantic tokens) ── */
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  --color-accent-bright: #2dd4bf;
+  --color-accent-soft: #ecfdf8;
+  --color-accent-mid: #ccfbf1;
+  --color-accent-ink: #0f766e;
+  --color-accent-border: #99f6e4;
+
+  --color-highlight: var(--theme-warning);
+  --color-highlight-hover: #d97706;
+  --color-highlight-soft: rgba(245, 158, 11, 0.14);
+
+  --color-bg: var(--theme-bg);
+  --color-bg-primary: var(--theme-bg);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-surface: var(--theme-surface);
+  --color-surface-1: var(--theme-surface);
+  --color-surface-2: var(--theme-bg-secondary);
+  --color-surface-3: #e2e8f0;
+  --color-border: var(--theme-border);
+  --color-border-strong: var(--theme-border-strong);
+
+  --color-ink: var(--theme-text-primary);
+  --color-ink-soft: var(--theme-text-secondary);
+  --color-ink-mute: var(--theme-text-muted);
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-danger-ink: #b91c1c;
+
+  /* ── Hub / dark shell — Midnight AI chrome ── */
+  --hub-bg: #06080f;
+  --hub-bg-elevated: #0a1020;
+  --hub-text-primary: #f8fafc;
+  --hub-text-secondary: rgba(248, 250, 252, 0.62);
+  --hub-text-muted: rgba(248, 250, 252, 0.45);
+  --hub-text-subtle: rgba(248, 250, 252, 0.55);
+  --hub-text-faint: rgba(248, 250, 252, 0.32);
+  --hub-accent: #5eead4;
+  --hub-accent-base: var(--color-accent);
+  --hub-accent-icon: rgba(94, 234, 212, 0.72);
+  --hub-accent-soft: rgba(20, 184, 166, 0.12);
+  --hub-accent-soft-strong: rgba(20, 184, 166, 0.14);
+  --hub-accent-border: rgba(20, 184, 166, 0.28);
+  --hub-accent-border-strong: rgba(20, 184, 166, 0.32);
+  --hub-accent-border-hover: rgba(20, 184, 166, 0.35);
+  --hub-accent-glow: rgba(20, 184, 166, 0.1);
+  --hub-accent-glow-strong: rgba(20, 184, 166, 0.18);
+  --hub-accent-focus: rgba(20, 184, 166, 0.55);
+  --hub-accent-focus-ring: rgba(20, 184, 166, 0.14);
+  --hub-accent-pulse: rgba(20, 184, 166, 0.65);
+  --hub-surface-1: var(--theme-glass);
+  --hub-surface-2: rgba(15, 23, 42, 0.35);
+  --hub-surface-3: rgba(15, 23, 42, 0.45);
+  --hub-surface-input: rgba(15, 23, 42, 0.45);
+  --hub-surface-input-focus: rgba(15, 23, 42, 0.65);
+  --hub-border: rgba(248, 250, 252, 0.1);
+  --hub-border-subtle: rgba(248, 250, 252, 0.08);
+  --hub-border-strong: rgba(248, 250, 252, 0.12);
+  --hub-border-hover: rgba(248, 250, 252, 0.2);
+  --hub-border-muted: rgba(248, 250, 252, 0.14);
+  --hub-border-interactive: rgba(20, 184, 166, 0.22);
+  --hub-border-card-hover: rgba(20, 184, 166, 0.32);
+  --hub-border-card-focus: rgba(20, 184, 166, 0.45);
+  --hub-overlay-light: var(--theme-overlay);
+  --hub-overlay-medium: rgba(248, 250, 252, 0.1);
+  --hub-inset-highlight: rgba(255, 255, 255, 0.05);
+  --hub-inset-highlight-strong: rgba(255, 255, 255, 0.06);
+  --hub-danger-soft: rgba(239, 68, 68, 0.1);
+  --hub-danger-border: rgba(239, 68, 68, 0.35);
+  --hub-danger-border-input: rgba(239, 68, 68, 0.55);
+  --hub-danger-text: #fca5a5;
+  --hub-danger-text-strong: #fecaca;
+  --hub-danger-mark-bg: rgba(239, 68, 68, 0.12);
+  --hub-danger-mark-border: rgba(239, 68, 68, 0.28);
+  --hub-warning-soft: rgba(245, 158, 11, 0.12);
+  --hub-warning-border: rgba(245, 158, 11, 0.28);
+  --hub-warning-text: #fcd34d;
+  --hub-archived-border: rgba(148, 163, 184, 0.22);
+  --hub-archived-soft: rgba(148, 163, 184, 0.08);
+  --hub-archived-text: rgba(148, 163, 184, 0.88);
+  --hub-gradient-card: linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.55) 38%);
+  --hub-gradient-panel: linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.55) 38%);
+  --hub-gradient-onboarding: linear-gradient(165deg, rgba(20, 184, 166, 0.08) 0%, rgba(15, 23, 42, 0.65) 42%);
+  --hub-gradient-glow: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, transparent 68%);
+  --hub-gradient-shimmer: linear-gradient(90deg, rgba(248, 250, 252, 0.04) 0%, rgba(248, 250, 252, 0.1) 50%, rgba(248, 250, 252, 0.04) 100%);
+
+  /* ── Extended theme tokens (used across feature CSS) ── */
+  --color-white: #ffffff;
+  --color-on-primary: #ffffff;
+  --color-white-strong: rgba(255, 255, 255, 0.95);
+  --color-white-emphasis: rgba(255, 255, 255, 0.9);
+  --color-white-medium: rgba(255, 255, 255, 0.85);
+  --color-white-soft-strong: rgba(255, 255, 255, 0.75);
+  --color-white-muted: rgba(255, 255, 255, 0.5);
+  --color-white-soft: rgba(255, 255, 255, 0.1);
+  --color-white-shine: rgba(255, 255, 255, 0.16);
+  --color-white-shine-soft: rgba(255, 255, 255, 0.14);
+  --color-white-border: rgba(255, 255, 255, 0.08);
+  --color-white-border-emphasis: rgba(255, 255, 255, 0.18);
+  --color-white-border-hover: rgba(255, 255, 255, 0.22);
+  --color-white-border-strong: rgba(255, 255, 255, 0.28);
+  --color-slate-muted: #64748b;
+  --color-slate-soft: #334155;
+  --color-streak-gold: #fbbf24;
+  --color-streak-orange: #fb923c;
+  --color-streak-peach: #fdba74;
+  --color-streak-soft: rgba(249, 115, 22, 0.12);
+  --color-highlight-warm: #fffbeb;
+  --color-highlight-border: rgba(245, 158, 11, 0.45);
+  --color-highlight-glow: rgba(245, 158, 11, 0.35);
+  --color-accent-border-strong: rgba(153, 246, 228, 0.45);
+  --color-ink-border: rgba(28, 25, 23, 0.15);
+
+  --hub-text-strong: rgba(248, 250, 252, 0.94);
+  --hub-text-emphasis: rgba(248, 250, 252, 0.88);
+  --hub-text-body: rgba(248, 250, 252, 0.82);
+  --hub-text-medium: rgba(248, 250, 252, 0.78);
+  --hub-text-soft: rgba(248, 250, 252, 0.72);
+  --hub-text-dim: rgba(248, 250, 252, 0.48);
+  --hub-text-ghost: rgba(248, 250, 252, 0.42);
+  --hub-text-whisper: rgba(248, 250, 252, 0.25);
+  --hub-border-faint: rgba(248, 250, 252, 0.06);
+  --hub-border-ghost: rgba(248, 250, 252, 0.04);
+  --hub-grid-line: rgba(248, 250, 252, 0.5);
+  --hub-grid-faint: rgba(248, 250, 252, 0.025);
+  --hub-inset-soft: rgba(255, 255, 255, 0.04);
+
+  --hub-accent-icon-soft: rgba(94, 234, 212, 0.75);
+  --hub-accent-soft-medium: rgba(20, 184, 166, 0.18);
+  --hub-accent-border-active: rgba(20, 184, 166, 0.42);
+  --hub-accent-border-focus: rgba(20, 184, 166, 0.45);
+  --hub-accent-fill-soft: rgba(20, 184, 166, 0.08);
+  --hub-accent-fill-medium: rgba(20, 184, 166, 0.2);
+  --hub-accent-whisper: rgba(20, 184, 166, 0.055);
+
+  --hub-surface-heavy: rgba(15, 23, 42, 0.72);
+  --hub-surface-deep: rgba(15, 23, 42, 0.62);
+  --hub-surface-solid: rgba(15, 23, 42, 0.92);
+  --hub-surface-opaque: rgba(15, 23, 42, 0.85);
+  --hub-surface-panel: rgba(15, 23, 42, 0.52);
+  --hub-ink-faint: rgba(15, 23, 42, 0.06);
+  --hub-ink-whisper: rgba(15, 23, 42, 0.03);
+
+  --hub-bg-scrim: rgba(6, 8, 15, 0.52);
+  --hub-bg-scrim-heavy: rgba(6, 8, 15, 0.78);
+  --hub-bg-scrim-medium: rgba(6, 8, 15, 0.45);
+  --hub-bg-scrim-light: rgba(6, 8, 15, 0.28);
+  --hub-bg-scrim-fade: rgba(6, 8, 15, 0.35);
+  --hub-bg-overlay: rgba(6, 8, 15, 0.72);
+
+  --gradient-ambient-teal: radial-gradient(circle, rgba(20, 184, 166, 0.26) 0%, transparent 68%);
+  --gradient-ambient-teal-strong: radial-gradient(circle, rgba(20, 184, 166, 0.32) 0%, transparent 65%);
+  --gradient-ambient-amber: radial-gradient(circle, rgba(245, 158, 11, 0.11) 0%, transparent 70%);
+  --gradient-board-glow: radial-gradient(ellipse 85% 55% at 50% 0%, rgba(20, 184, 166, 0.14), transparent 68%);
+  --gradient-stage-glow: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(20, 184, 166, 0.1), transparent 65%);
+
+  --grad-glass-panel: linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.62) 38%);
+  --grad-glass-card: linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.55) 42%);
+  --grad-featured-card: linear-gradient(135deg, var(--hub-accent-soft-strong) 0%, rgba(15, 23, 42, 0.65) 55%);
+  --grad-hub-surface: linear-gradient(165deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.48) 100%);
+  --grad-board-dark: linear-gradient(165deg, rgba(15, 23, 42, 0.52) 0%, rgba(15, 23, 42, 0.38) 100%);
+  --grad-mentor-panel: linear-gradient(180deg, rgba(8, 12, 22, 0.55) 0%, rgba(6, 8, 15, 0.38) 100%);
+  --grad-footer-scrim: linear-gradient(180deg, transparent 0%, rgba(6, 8, 15, 0.45) 100%);
+  --grad-accent-solid: linear-gradient(180deg, rgba(20, 184, 166, 0.35) 0%, rgba(15, 118, 110, 0.85) 100%);
+  --grad-accent-soft-panel: linear-gradient(180deg, #f0fdfa 0%, var(--color-accent-mid) 120%);
+  --grad-celebrate: linear-gradient(135deg, #fffbeb 0%, var(--color-highlight-soft) 100%);
+  --grad-accent-chip: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(20, 184, 166, 0.08));
+  --grad-board-light: linear-gradient(165deg, rgba(255, 255, 255, 0.97) 0%, rgba(250, 250, 249, 0.94) 100%);
+  --grad-board-light-soft: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 250, 249, 0.92) 100%);
+  --grad-slate-wash: linear-gradient(135deg, rgba(241, 245, 249, 0.95), rgba(248, 250, 252, 0.85));
+  --grad-slate-panel: linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.88) 100%);
+
+  --shadow-elevated-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-elevated-md: 0 16px 44px rgba(0, 0, 0, 0.32);
+  --shadow-black-strong: rgba(0, 0, 0, 0.45);
+  --shadow-black-md: rgba(0, 0, 0, 0.4);
+  --shadow-black-base: rgba(0, 0, 0, 0.35);
+  --shadow-black-soft: rgba(0, 0, 0, 0.32);
+  --shadow-black-xs: rgba(0, 0, 0, 0.28);
+  --shadow-black-xxs: rgba(0, 0, 0, 0.22);
+  --shadow-ink-xxs: rgba(28, 25, 23, 0.03);
+  --shadow-ink-xs: rgba(28, 25, 23, 0.04);
+  --shadow-ink-sm: rgba(15, 23, 42, 0.22);
+  --shadow-board: 0 8px 28px rgba(15, 23, 42, 0.07);
+  --shadow-board-hero: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 0 80px rgba(20, 184, 166, 0.08);
+  --shadow-board-card: 0 12px 40px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glass-card: 0 10px 32px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-stat-pill: 0 8px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-accent-xs: 0 4px 16px rgba(20, 184, 166, 0.08);
+  --shadow-accent-sm: 0 10px 22px rgba(20, 184, 166, 0.22);
+  --shadow-accent-md: 0 8px 20px rgba(20, 184, 166, 0.32);
+  --shadow-accent-lg: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 32px rgba(20, 184, 166, 0.18);
+  --shadow-accent-lg-strong: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 32px rgba(20, 184, 166, 0.2);
+  --shadow-highlight-md: 0 8px 20px rgba(251, 191, 36, 0.25);
+  --shadow-hub-btn-accent: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 24px rgba(20, 184, 166, 0.12);
+  --shadow-hub-btn-soft: 0 6px 24px rgba(0, 0, 0, 0.25), 0 0 20px rgba(20, 184, 166, 0.12);
+  --shadow-white-ring: 0 0 0 3px rgba(255, 255, 255, 0.32), 0 0 10px rgba(255, 255, 255, 0.45);
+  --shadow-inset-dark: rgba(0, 0, 0, 0.15);
+  --shadow-inset-darker: rgba(0, 0, 0, 0.2);
+  --shadow-inset-black: rgba(0, 0, 0, 0.15);
+  --shadow-highlight-lg: 0 16px 32px rgba(245, 158, 11, 0.34);
+  --shadow-white-fade: rgba(255, 255, 255, 0);
+  --shadow-white-dim: rgba(255, 255, 255, 0.35);
+  --shadow-white-muted: rgba(255, 255, 255, 0.72);
+  --shadow-ghost-light: rgba(15, 23, 42, 0.05);
+  --shadow-ghost-medium: rgba(15, 23, 42, 0.4);
+  --shadow-ghost-heavy: rgba(15, 23, 42, 0.25);
+  --shadow-ghost-deep: rgba(15, 23, 42, 0.3);
+  --shadow-ghost-panel: rgba(15, 23, 42, 0.42);
+  --shadow-ghost-input: rgba(15, 23, 42, 0.58);
+
+  --hub-text-faded: rgba(248, 250, 252, 0.46);
+  --hub-text-light: rgba(248, 250, 252, 0.65);
+  --hub-text-bright: rgba(248, 250, 252, 0.75);
+  --hub-text-luminous: rgba(248, 250, 252, 0.76);
+  --hub-text-quiet: rgba(248, 250, 252, 0.4);
+  --hub-text-dimmer: rgba(248, 250, 252, 0.35);
+  --hub-border-light: rgba(248, 250, 252, 0.18);
+  --hub-accent-muted: rgba(20, 184, 166, 0.16);
+  --hub-accent-strong: rgba(20, 184, 166, 0.4);
+  --hub-accent-bright-soft: rgba(45, 212, 191, 0.35);
+  --hub-accent-bright-medium: rgba(45, 212, 191, 0.6);
+  --hub-accent-whisper-soft: rgba(20, 184, 166, 0.06);
+  --hub-bg-solid: rgba(6, 8, 15, 0.85);
+  --hub-bg-modal: rgba(6, 8, 15, 0.62);
+  --hub-bg-modal-heavy: rgba(6, 8, 15, 0.58);
+  --hub-bg-scrim-soft: rgba(6, 8, 15, 0.2);
+  --hub-bg-scrim-faint: rgba(6, 8, 15, 0.12);
+  --hub-glow-soft: rgba(20, 184, 166, 0.16);
+
+  --color-black: #000000;
+  --color-black-soft: #0a0f1a;
+  --color-danger-text-dark: #991b1b;
+  --color-slate-light: #cbd5e1;
+  --color-accent-mint: rgba(236, 253, 248, 0.92);
+  --color-accent-mint-strong: rgba(236, 253, 248, 0.96);
+  --color-white-bright: rgba(255, 255, 255, 0.98);
+  --color-white-high: rgba(255, 255, 255, 0.88);
+  --color-white-dim: rgba(255, 255, 255, 0.8);
+  --color-white-faint: rgba(255, 255, 255, 0.7);
+  --color-white-subtle: rgba(255, 255, 255, 0.55);
+  --color-white-ghost: rgba(255, 255, 255, 0.3);
+  --color-highlight-soft-medium: rgba(245, 158, 11, 0.22);
+  --color-highlight-soft-strong: rgba(245, 158, 11, 0.28);
+  --color-highlight-intense: rgba(245, 158, 11, 0.5);
+  --color-highlight-faint: rgba(245, 158, 11, 0.15);
+  --color-danger-soft-medium: rgba(239, 68, 68, 0.14);
+  --color-danger-soft-strong: rgba(254, 202, 202, 0.82);
+  --mentor-glow-default: rgba(20, 184, 166, 0.4);
+
+  /* Semantic aliases */
+  --color-brand: var(--color-accent);
+  --color-brand-hover: var(--color-accent-hover);
+  --color-brand-bright: var(--color-accent-bright);
+  --color-brand-soft: var(--color-accent-soft);
+  --color-brand-mid: var(--color-accent-mid);
+  --color-brand-ink: var(--color-accent-ink);
+  --color-brand-border: var(--color-accent-border);
+
+  /* Legacy aliases */
+  --teach-primary: var(--color-primary);
+  --teach-teal: var(--color-accent);
+  --teach-bg: var(--color-bg);
+  --teach-surface: var(--color-surface);
+  --teach-text: var(--color-ink);
+  --sage-primary: var(--color-accent);
+
+  /* ── Color-dependent elevation ── */
+  --shadow-xs: 0 1px 2px rgba(28, 25, 23, 0.03);
+  --shadow-sm: var(--theme-shadow);
+  --shadow-md: 0 1px 2px rgba(28, 25, 23, 0.03), 0 8px 20px rgba(28, 25, 23, 0.05);
+  --shadow-lg: 0 2px 8px rgba(28, 25, 23, 0.04), 0 16px 36px rgba(28, 25, 23, 0.07);
+  --shadow-none: none;
+
+  --shadow-primary: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -1px 0 rgba(0, 0, 0, 0.2) inset,
+    0 1px 2px rgba(15, 23, 42, 0.08), 0 12px 28px rgba(15, 23, 42, 0.22);
+  --shadow-primary-hover: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 -1px 0 rgba(0, 0, 0, 0.22) inset,
+    0 2px 6px rgba(15, 23, 42, 0.1), 0 18px 36px rgba(15, 23, 42, 0.28);
+  --shadow-accent: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 -1px 0 rgba(13, 148, 136, 0.35) inset,
+    0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 28px rgba(20, 184, 166, 0.28);
+  --shadow-accent-hover: 0 1px 0 rgba(255, 255, 255, 0.28) inset, 0 -1px 0 rgba(13, 148, 136, 0.4) inset,
+    0 2px 6px rgba(15, 23, 42, 0.08), 0 18px 36px rgba(20, 184, 166, 0.34);
+  --shadow-highlight: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 -1px 0 rgba(217, 119, 6, 0.3) inset,
+    0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 28px rgba(245, 158, 11, 0.28);
+  --shadow-inset: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
+  --shadow-hub-card: 0 12px 40px rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-hub-card-hover: 0 20px 52px rgba(0, 0, 0, 0.35), 0 0 40px var(--hub-accent-glow), inset 0 1px 0 var(--hub-inset-highlight-strong);
+  --shadow-hub-panel: 0 16px 48px rgba(0, 0, 0, 0.32), inset 0 1px 0 var(--hub-inset-highlight);
+  --shadow-hub-btn: 0 6px 24px rgba(0, 0, 0, 0.25), 0 0 20px var(--hub-accent-glow);
+  --shadow-hub-btn-hover: 0 8px 28px rgba(0, 0, 0, 0.3), 0 0 28px var(--hub-accent-glow-strong);
+  --shadow-hub-onboarding: 0 20px 56px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--hub-inset-highlight);
+
+  --focus-ring: 0 0 0 3px rgba(20, 184, 166, 0.28);
+  --focus-ring-danger: 0 0 0 3px rgba(239, 68, 68, 0.12);
+
+  /* ── Color-dependent gradients ── */
+  --grad-primary: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+  --grad-accent: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(135deg, var(--color-accent-bright) 0%, var(--color-accent) 48%, var(--color-accent-hover) 100%);
+  --grad-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, #fbbf24 0%, var(--color-highlight) 55%, var(--color-highlight-hover) 100%);
+  --grad-surface: linear-gradient(180deg, #ffffff 0%, #fafaf9 100%);
+  --grad-page: radial-gradient(ellipse 1000px 520px at 10% -12%, rgba(20, 184, 166, 0.08), transparent 55%),
+    radial-gradient(ellipse 720px 400px at 92% 0%, rgba(99, 102, 241, 0.05), transparent 50%),
+    radial-gradient(ellipse 600px 320px at 50% 100%, rgba(6, 8, 15, 0.6), transparent 65%),
+    var(--hub-bg);
+  --grad-hub-primary: linear-gradient(180deg, #1e293b 0%, var(--color-primary) 100%);
+}

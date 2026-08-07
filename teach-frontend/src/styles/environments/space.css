@@ -1,0 +1,27 @@
+:is([data-environment="space"], [data-environment-preview="space"]) {
+  --env-ambient-a: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 68%);
+  --env-ambient-b: radial-gradient(circle, rgba(45, 212, 191, 0.08) 0%, transparent 72%);
+  --env-ambient-a-opacity: 0.85;
+  --env-ambient-b-opacity: 0.7;
+  --env-grid-opacity: 0.015;
+  --env-noise-opacity: 0.025;
+  --env-lighting: radial-gradient(ellipse 60% 45% at 50% 0%, rgba(129, 140, 248, 0.06) 0%, transparent 55%),
+    linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.18) 100%);
+  --env-texture: none;
+  --env-texture-opacity: 0;
+  --env-scene:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 28% 62%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 52% 24%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 68% 74%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 82% 38%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 38% 42%, rgba(255, 255, 255, 0.25), transparent),
+    radial-gradient(1.5px 1.5px at 90% 12%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(ellipse 55% 40% at 50% 55%, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+  --env-scene-opacity: 0.85;
+  --env-particle-color: rgba(199, 210, 254, 0.45);
+  --env-particle-glow: rgba(129, 140, 248, 0.15);
+  --env-welcome-a: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 68%);
+  --env-welcome-b: radial-gradient(circle, rgba(45, 212, 191, 0.08) 0%, transparent 70%);
+  --env-classroom-vignette: radial-gradient(ellipse 90% 85% at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.15) 100%);
+}

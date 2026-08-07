@@ -1,16 +1,2 @@
-:root {
-  --teach-primary: #2563eb;
-  --teach-primary-dark: #1d4ed8;
-  --teach-bg: #f8fafc;
-  --teach-surface: #ffffff;
-  --teach-text: #0f172a;
-  --teach-muted: #64748b;
-  --teach-border: #e2e8f0;
-  --sage-primary: #059669;
-  --sage-bg: #ecfdf5;
-  --sage-text: #065f46;
-  --avatar-skin: #fbbf24;
-  --avatar-shirt: #2563eb;
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  --radius: 16px;
-}
+@import './tokens.css';
+@import './themes/index.css';

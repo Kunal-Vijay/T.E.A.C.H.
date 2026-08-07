@@ -1,0 +1,303 @@
+/* ─────────────────────────────────────────────────────────────
+   TEACH Product Shell — unified ambient environment
+   Landing · Student hub · Live classroom share this DNA
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Ambient layers ── */
+.teach-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.teach-ambient-mesh {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.teach-ambient-mesh-a {
+  width: min(72vw, 760px);
+  height: min(72vw, 760px);
+  top: -22%;
+  left: -12%;
+  background: var(--env-ambient-a);
+  opacity: var(--env-ambient-a-opacity);
+  animation: teach-mesh-drift 18s ease-in-out infinite alternate;
+}
+
+.teach-ambient-mesh-b {
+  width: min(58vw, 580px);
+  height: min(58vw, 580px);
+  bottom: -18%;
+  right: -8%;
+  background: var(--env-ambient-b);
+  opacity: var(--env-ambient-b-opacity);
+  animation: teach-mesh-drift 22s ease-in-out infinite alternate-reverse;
+}
+
+.teach-ambient--classroom .teach-ambient-mesh-a {
+  transform: scale(var(--env-ambient-classroom-a-scale));
+}
+
+.teach-ambient--classroom .teach-ambient-mesh-b {
+  opacity: var(--env-ambient-classroom-b-opacity);
+}
+
+.teach-ambient-lighting {
+  position: absolute;
+  inset: 0;
+  background: var(--env-lighting);
+  pointer-events: none;
+}
+
+.teach-ambient-texture {
+  position: absolute;
+  inset: 0;
+  background: var(--env-texture);
+  opacity: var(--env-texture-opacity);
+  mix-blend-mode: var(--env-texture-blend);
+  pointer-events: none;
+}
+
+.teach-ambient-scene {
+  position: absolute;
+  inset: 0;
+  background: var(--env-scene);
+  opacity: var(--env-scene-opacity);
+  pointer-events: none;
+}
+
+.teach-ambient-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--env-overlay);
+  pointer-events: none;
+}
+
+.teach-ambient-grid {
+  position: absolute;
+  inset: 0;
+  opacity: var(--env-grid-opacity);
+  background-image:
+    linear-gradient(var(--hub-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hub-grid-line) 1px, transparent 1px);
+  background-size: var(--space-12) var(--space-12);
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 20%, black 10%, transparent 75%);
+}
+
+.teach-ambient-noise {
+  position: absolute;
+  inset: 0;
+  opacity: var(--env-noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes teach-mesh-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.04); }
+}
+
+/* Subtle floating particles — classroom only */
+.teach-ambient-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.teach-ambient-particles span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--env-particle-color);
+  box-shadow: 0 0 8px var(--env-particle-glow);
+  animation: teach-particle-float 14s ease-in-out infinite;
+}
+
+.teach-ambient-particles span:nth-child(1) { top: 18%; left: 12%; animation-delay: 0s; }
+.teach-ambient-particles span:nth-child(2) { top: 62%; left: 8%; animation-delay: -3s; opacity: 0.6; }
+.teach-ambient-particles span:nth-child(3) { top: 38%; left: 78%; animation-delay: -6s; }
+.teach-ambient-particles span:nth-child(4) { top: 72%; left: 68%; animation-delay: -2s; opacity: 0.5; }
+.teach-ambient-particles span:nth-child(5) { top: 24%; left: 52%; animation-delay: -8s; width: 2px; height: 2px; }
+.teach-ambient-particles span:nth-child(6) { top: 84%; left: 42%; animation-delay: -5s; opacity: 0.4; }
+
+@keyframes teach-particle-float {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.35; }
+  50% { transform: translate3d(12px, -24px, 0); opacity: 0.85; }
+}
+
+/* ── Shell containers ── */
+.teach-shell {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--hub-text-primary);
+  background: var(--hub-bg);
+  font-family: var(--font-family);
+}
+
+.teach-shell-content {
+  position: relative;
+  z-index: 1;
+}
+
+.teach-shell--hub .teach-shell-content {
+  animation: teach-page-enter 0.65s var(--ease-out) both;
+}
+
+.teach-shell--hub .app-nav {
+  margin-bottom: var(--space-6);
+}
+
+.teach-shell--classroom-route {
+  overflow: hidden;
+}
+
+.teach-shell--classroom-route .teach-shell-content {
+  animation: teach-classroom-enter 0.75s var(--ease-out) both;
+}
+
+@keyframes teach-page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes teach-classroom-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Hub content — glass cards on dark ── */
+.teach-shell--hub .dashboard-home,
+.teach-shell--hub .teach-page-main {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .teach-kicker {
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .teach-title,
+.teach-shell--hub .dashboard-greeting,
+.teach-shell--hub .page-title {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .teach-lede,
+.teach-shell--hub .page-lede,
+.teach-shell--hub .dashboard .class-card p {
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .teach-card,
+.teach-shell--hub .card,
+.teach-shell--hub .teach-stat {
+  background: var(--hub-surface-1);
+  border-color: var(--hub-border-subtle);
+  box-shadow: var(--shadow-hub-card);
+  backdrop-filter: var(--hub-blur);
+  -webkit-backdrop-filter: var(--hub-blur);
+}
+
+.teach-shell--hub .teach-card--featured {
+  border-color: var(--hub-accent-border);
+  background:
+    var(--grad-featured-card),
+    var(--hub-surface-1);
+}
+
+.teach-shell--hub .teach-card--interactive:hover,
+.teach-shell--hub .card-interactive:hover {
+  border-color: var(--hub-accent-border-hover);
+  box-shadow: var(--shadow-hub-card-hover);
+}
+
+.teach-shell--hub .teach-stat-value {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .teach-stat-label,
+.teach-shell--hub .teach-stat-meta {
+  color: var(--hub-text-muted);
+}
+
+.teach-shell--hub .class-card h3 {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .badge-ready {
+  color: var(--hub-accent);
+  background: var(--hub-accent-soft);
+  border-color: var(--hub-accent-border);
+}
+
+.teach-shell--hub .class-meta p {
+  color: var(--hub-text-muted);
+}
+
+.teach-shell--hub .btn-primary {
+  background: var(--grad-hub-primary);
+  border-color: var(--hub-border);
+  box-shadow: var(--shadow-hub-btn);
+}
+
+.teach-shell--hub .btn-primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-hub-btn-hover);
+}
+
+.teach-shell--classroom-route .container.page-main {
+  padding-block: clamp(var(--space-8), 12vh, var(--space-12));
+}
+
+.teach-shell--classroom-route .empty-state,
+.teach-shell--classroom-route .status-panel {
+  background: var(--hub-surface-1);
+  border-color: var(--hub-border-subtle);
+  backdrop-filter: var(--hub-blur);
+}
+
+.teach-shell--classroom-route .empty-state-title {
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--classroom-route .empty-state-description {
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--classroom-route .whiteboard-idle-text {
+  color: var(--hub-text-muted);
+}
+
+/* ── Live classroom canvas ── */
+.classroom-canvas {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-ambient-mesh-a,
+  .teach-ambient-mesh-b,
+  .teach-ambient-particles span,
+  .teach-shell--hub .teach-shell-content,
+  .teach-shell--classroom-route .teach-shell-content {
+    animation: none !important;
+  }
+}

@@ -1,18 +1,39 @@
-import { Link, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCallback, useEffect, useState } from 'react'
-import axios from 'axios'
-import TeachLogo from '../../components/branding/TeachLogo'
+import TeacherHubBackLink from '../../components/nav/TeacherHubBackLink'
+import StatusPanel from '../../components/status/StatusPanel'
+import {
+  ActionGroup,
+  AppPage,
+  Button,
+  ButtonLink,
+  ErrorState,
+  GlassPanel,
+  HubHero,
+  LoadingSpinner,
+  PageAlert,
+  PageHeader,
+  SectionTitle,
+  StatusBadge,
+} from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
+import { captureException } from '../../lib/monitoring'
+import { logDisplayedError, resolveDisplayedError } from '../../services/api/apiError'
 import { classPlanApi } from '../../services/api/classPlanApi'
 import { generationApi } from '../../services/api/generationApi'
 import type { ClassPlanDetailResponse, GenerationStatusResponse } from '../../types/api.types'
 
 export default function ClassDetailPage() {
   const { planId = '' } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { pushToast } = useToast()
   const [classPlan, setClassPlan] = useState<ClassPlanDetailResponse | null>(null)
   const [generationStatus, setGenerationStatus] = useState<GenerationStatusResponse | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   const loadPlan = useCallback(async () => {
     const response = await classPlanApi.get(planId)
@@ -26,17 +47,45 @@ export default function ClassDetailPage() {
   }, [planId])
 
   useEffect(() => {
+    let cancelled = false
+
     const initialize = async () => {
+      setErrorMessage(null)
       try {
         await loadPlan()
-      } catch {
-        setErrorMessage('Failed to load class plan')
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+        captureException(error, { action: 'load_class_plan', planId })
+        const message = resolveDisplayedError(error, {
+          component: 'ClassDetailPage',
+          action: 'load_class_plan',
+          planId,
+        }, 'Failed to load class plan')
+        if (message !== null) {
+          setErrorMessage(message)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
-    initialize()
-  }, [loadPlan])
+
+    void initialize()
+    return () => {
+      cancelled = true
+    }
+  }, [loadPlan, planId])
+
+  useEffect(() => {
+    const state = location.state as { created?: boolean } | null
+    if (state?.created === true) {
+      pushToast('Draft saved. Publish when you are ready.', 'success')
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [location.pathname, location.state, navigate, pushToast])
 
   useEffect(() => {
     if (generationStatus === null) {
@@ -49,21 +98,58 @@ export default function ClassDetailPage() {
     ) {
       return undefined
     }
+
     const generationId = generationStatus.generation_id
-    const intervalId = window.setInterval(async () => {
-      const statusResponse = await generationApi.getStatus(generationId)
-      setGenerationStatus(statusResponse.data)
+    let cancelled = false
+
+    const pollStatus = async () => {
+      try {
+        const statusResponse = await generationApi.getStatus(generationId)
+        if (!cancelled) {
+          setGenerationStatus(statusResponse.data)
+        }
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+        logDisplayedError(error, {
+          component: 'ClassDetailPage',
+          action: 'poll_generation_status',
+          generationId,
+        })
+      }
+    }
+
+    const intervalId = window.setInterval(() => {
+      void pollStatus()
     }, 3000)
-    return () => window.clearInterval(intervalId)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
   }, [generationStatus?.generation_id, generationStatus?.status])
 
   const publishPlan = async () => {
     setErrorMessage(null)
+    setIsPublishing(true)
     try {
       await classPlanApi.publish(planId)
       await loadPlan()
-    } catch {
-      setErrorMessage('Failed to publish class plan')
+      pushToast('Class published. Generate the lesson next.', 'success')
+    } catch (error) {
+      captureException(error, { action: 'publish_class_plan', planId })
+      const message = resolveDisplayedError(error, {
+        component: 'ClassDetailPage',
+        action: 'publish_class_plan',
+        planId,
+      }, 'Failed to publish class plan')
+      if (message !== null) {
+        setErrorMessage(message)
+        pushToast(message, 'error')
+      }
+    } finally {
+      setIsPublishing(false)
     }
   }
 
@@ -74,28 +160,63 @@ export default function ClassDetailPage() {
       const response = await generationApi.trigger(planId)
       const statusResponse = await generationApi.getStatus(response.data.generation_id)
       setGenerationStatus(statusResponse.data)
+      pushToast('Generation started. This may take a few minutes.', 'info')
       try {
         await loadPlan()
       } catch {
         return
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && typeof error.response?.data?.detail === 'string') {
-        setErrorMessage(error.response.data.detail)
-        return
+      captureException(error, { action: 'trigger_generation', planId })
+      const message = resolveDisplayedError(error, {
+        component: 'ClassDetailPage',
+        action: 'trigger_generation',
+        planId,
+      }, 'Failed to trigger generation')
+      if (message !== null) {
+        setErrorMessage(message)
+        pushToast(message, 'error')
       }
-      setErrorMessage('Failed to trigger generation')
     } finally {
       setIsGenerating(false)
     }
   }
 
   if (loading) {
-    return <div className="page container page-main">Loading...</div>
+    return (
+      <AppPage variant="teacher-detail">
+        <TeacherHubBackLink />
+        <StatusPanel
+          tone="loading"
+          title="Preparing your classroom..."
+          description="Loading this class plan and generation status."
+        />
+      </AppPage>
+    )
   }
 
   if (classPlan === null) {
-    return <div className="page container page-main">Class plan not found</div>
+    return (
+      <AppPage variant="teacher-detail">
+        <TeacherHubBackLink />
+        {errorMessage !== null ? (
+          <PageAlert>
+            <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+          </PageAlert>
+        ) : (
+          <StatusPanel
+            tone="missing"
+            title="We couldn't find that class."
+            description="It may have been removed, or the link is out of date."
+            action={(
+              <ButtonLink variant="secondary" pill to="/teacher/classes">
+                Back to Classes
+              </ButtonLink>
+            )}
+          />
+        )}
+      </AppPage>
+    )
   }
 
   const resolvedGenerationStatus = generationStatus?.status ?? classPlan.latest_generation?.status ?? null
@@ -111,87 +232,128 @@ export default function ClassDetailPage() {
     && !isGenerationInProgress
     && !isGenerating
 
+  const isGeneratingActive = isGenerating || isGenerationInProgress
+  const showGenerateAction =
+    classPlan.status === 'published'
+    && !isGenerationComplete
+    && (showGenerateButton || isGeneratingActive)
+
+  const detailActions = (
+    <ActionGroup>
+      {isGenerationComplete ? (
+        <ButtonLink variant="secondary" pill to={`/teacher/classes/${planId}/review`}>
+          Review &amp; Regenerate
+        </ButtonLink>
+      ) : null}
+      {classPlan.status === 'draft' ? (
+        <Button
+          variant="primary"
+          pill
+          loading={isPublishing}
+          disabled={isPublishing}
+          onClick={() => { void publishPlan() }}
+        >
+          {isPublishing ? 'Publishing…' : 'Publish'}
+        </Button>
+      ) : null}
+      {showGenerateAction ? (
+        <Button
+          variant="primary"
+          pill
+          withIcon={isGeneratingActive}
+          className="teacher-class-detail-generate-btn"
+          disabled={isGeneratingActive}
+          aria-busy={isGeneratingActive || undefined}
+          onClick={() => { void generateClass() }}
+        >
+          {isGeneratingActive ? (
+            <>
+              <LoadingSpinner size={16} label="Generating class" />
+              Generating...
+            </>
+          ) : (
+            resolvedGenerationStatus === 'failed' ? 'Retry Generate' : 'Generate Class'
+          )}
+        </Button>
+      ) : null}
+    </ActionGroup>
+  )
+
   return (
-    <div className="page">
-      <header className="container page-header">
-        <TeachLogo />
-        <Link to="/admin/classes" className="btn btn-secondary">Back to Classes</Link>
-      </header>
-      <main className="container page-main">
-        {errorMessage !== null ? <div className="error-banner">{errorMessage}</div> : null}
-        <section className="card detail-card">
-          <div className="detail-header">
-            <div>
-              <span className={`badge badge-${classPlan.status}`}>{classPlan.status}</span>
-              {isGenerationComplete ? <span className="badge badge-ready">ready</span> : null}
-              <h2>{classPlan.title}</h2>
-              <p>{classPlan.subject} • {classPlan.chapter_name} • {classPlan.total_duration_minutes} min</p>
-            </div>
-            <div className="detail-actions">
-              {isGenerationComplete ? (
-                <Link to={`/admin/classes/${planId}/review`} className="btn btn-secondary">
-                  Review &amp; Regenerate
-                </Link>
-              ) : null}
-              {classPlan.status === 'draft' ? (
-                <button className="btn btn-primary" onClick={publishPlan}>Publish</button>
-              ) : null}
-              {showGenerateButton ? (
-                <button className="btn btn-primary" onClick={generateClass} disabled={isGenerating}>
-                  {resolvedGenerationStatus === 'failed' ? 'Retry Generate' : 'Generate Class'}
-                </button>
-              ) : null}
-              {isGenerating || isGenerationInProgress ? (
-                <button className="btn btn-primary" disabled>
-                  Generating...
-                </button>
-              ) : null}
-            </div>
-          </div>
-          {generationStatus !== null ? (
-            <div className={`generation-status generation-status-${generationStatus.status}`}>
-              <strong>Generation:</strong> {String(generationStatus.status).replace(/_/g, ' ')}
+    <AppPage variant="teacher-detail">
+      {errorMessage !== null ? (
+        <PageAlert>
+          <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+        </PageAlert>
+      ) : null}
+
+      <TeacherHubBackLink />
+
+      <HubHero className="teacher-class-detail-hero">
+        <div className="teacher-class-detail-badges">
+          <StatusBadge variant="hub" status={classPlan.status} />
+          {isGenerationComplete ? <StatusBadge variant="hub" status="ready" /> : null}
+        </div>
+        <PageHeader
+          variant="hub"
+          kicker="Class plan"
+          title={classPlan.title}
+          lede={`${classPlan.subject} · ${classPlan.chapter_name} · ${classPlan.total_duration_minutes} min`}
+          action={detailActions}
+        />
+      </HubHero>
+
+      <GlassPanel className="teacher-class-detail-body" aria-label="Class plan details">
+        {generationStatus !== null ? (
+          isGenerationComplete ? (
+            <StatusPanel
+              tone="success"
+              compact
+              title="Class is ready."
+              description={`Slides: ${generationStatus.progress.slides_generated} · Images: ${generationStatus.progress.images_completed}/${generationStatus.progress.images_total}. Use Review & Regenerate to preview or create a new version.`}
+            />
+          ) : isGenerationInProgress || isGenerating ? (
+            <StatusPanel
+              tone="loading"
+              compact
+              title="Building your lesson..."
+              description={`${generationStatus.status.replace(/_/g, ' ')} · Slides: ${generationStatus.progress.slides_generated} · Images: ${generationStatus.progress.images_completed}/${generationStatus.progress.images_total}`}
+            />
+          ) : generationStatus.status === 'failed' ? (
+            <StatusPanel
+              tone="missing"
+              compact
+              title="Generation hit a snag."
+              description={generationStatus.error_message ?? 'Try Retry Generate to build the lesson again.'}
+            />
+          ) : (
+            <div className="teacher-class-detail-generation-status">
+              <strong>Generation:</strong> {generationStatus.status.replace(/_/g, ' ')}
               <span>Slides: {generationStatus.progress.slides_generated}</span>
               <span>Images: {generationStatus.progress.images_completed}/{generationStatus.progress.images_total}</span>
-              {generationStatus.status === 'completed' || generationStatus.status === 'completed_with_warnings' ? (
-                <span className="generation-ready">
-                  Class is ready — use Review &amp; Regenerate to preview or create a new version.
-                </span>
-              ) : null}
-              {generationStatus.status === 'failed' && generationStatus.error_message != null ? (
-                <span className="generation-error">{generationStatus.error_message}</span>
-              ) : null}
             </div>
-          ) : classPlan.status === 'published' ? (
-            <div className="generation-status generation-status-pending">
-              <span>No class content generated yet. Click Generate Class to create slides and quizzes.</span>
-            </div>
-          ) : null}
-          <div className="topics-list">
+          )
+        ) : classPlan.status === 'published' ? (
+          <StatusPanel
+            tone="empty"
+            compact
+            title="Your classroom is waiting."
+            description="Click Generate Class to create slides, quizzes, and the AI teacher workflow."
+          />
+        ) : null}
+
+        <div className="teacher-class-detail-topics">
+          <SectionTitle>Lesson topics</SectionTitle>
+          <ul className="teacher-class-detail-topics-list">
             {classPlan.topics.map((topic) => (
-              <div className="topic-item" key={topic.topic_id}>
+              <li className="teacher-class-detail-topic" key={topic.topic_id}>
                 <h3>{topic.order}. {topic.title}</h3>
-                <p>{topic.duration_minutes} minutes</p>
-              </div>
+                <p>{topic.duration_minutes} min</p>
+              </li>
             ))}
-          </div>
-        </section>
-      </main>
-      <style>{`
-        .page-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; }
-        .page-main { padding-bottom: 2rem; }
-        .detail-card { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .detail-header { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-        .detail-header .badge { margin-right: 0.5rem; }
-        .detail-actions { display: flex; gap: 0.75rem; }
-        .generation-status { display: flex; gap: 1rem; flex-wrap: wrap; padding: 0.75rem 1rem; background: #f8fafc; border-radius: 12px; align-items: center; }
-        .generation-status-completed, .generation-status-completed_with_warnings { background: #ecfdf5; border: 1px solid #6ee7b7; }
-        .generation-status-failed { background: #fef2f2; border: 1px solid #fca5a5; }
-        .generation-ready { color: #047857; font-weight: 600; }
-        .generation-error { color: #b91c1c; }
-        .topics-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .topic-item { padding: 0.75rem 1rem; border: 1px solid var(--teach-border); border-radius: 12px; }
-      `}</style>
-    </div>
+          </ul>
+        </div>
+      </GlassPanel>
+    </AppPage>
   )
 }

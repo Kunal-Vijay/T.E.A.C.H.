@@ -1,0 +1,263 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NovaTutor — design system component (single source of truth)
+   All sizing, glow, motion, shadow, and transitions live here only.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --nova-teal: var(--color-accent, #14b8a6);
+  --nova-ink: var(--color-ink, #0f172a);
+
+  /* Motion */
+  --nova-float-duration: 5.6s;
+  --nova-breathe-duration: 4.4s;
+  --nova-transition-opacity: 220ms;
+  --nova-transition-glow: 420ms;
+  --nova-ease: ease-in-out;
+
+  /* Glow */
+  --nova-glow-core: 0.38;
+  --nova-glow-halo: 0.14;
+  --nova-glow-core-speaking: 0.56;
+  --nova-glow-halo-speaking: 0.22;
+  --nova-ambient-size: 120%;
+  --nova-ambient-blur: 14px;
+  --nova-ambient-blur-speaking: 16px;
+
+  /* Shadow */
+  --nova-shadow-width: 56%;
+  --nova-shadow-height: 9%;
+  --nova-shadow-blur: 6px;
+  --nova-shadow-opacity: 0.5;
+  --nova-canvas-shadow: 0 10px 22px color-mix(in srgb, var(--nova-ink) 14%, transparent);
+  --nova-canvas-shadow-speaking: 0 12px 26px color-mix(in srgb, var(--nova-teal) 18%, transparent);
+
+  /* Idle motion */
+  --nova-float-distance: 5px;
+  --nova-breathe-scale: 1.016;
+}
+
+.nova-tutor {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  contain: layout style;
+  isolation: isolate;
+  pointer-events: none;
+  user-select: none;
+  background: transparent;
+  aspect-ratio: 1;
+}
+
+.nova-tutor[data-nova-speaking='true'] {
+  --nova-glow-core: var(--nova-glow-core-speaking);
+  --nova-glow-halo: var(--nova-glow-halo-speaking);
+  --nova-float-distance: 4px;
+  --nova-canvas-shadow: var(--nova-canvas-shadow-speaking);
+}
+
+/* ── Size tokens (identical everywhere per token) ── */
+.nova-tutor--xs {
+  width: 40px;
+  height: 40px;
+  --nova-float-distance: 2px;
+  --nova-breathe-scale: 1.012;
+}
+
+.nova-tutor--sm {
+  width: 88px;
+  height: 88px;
+  --nova-float-distance: 3px;
+  --nova-breathe-scale: 1.014;
+}
+
+.nova-tutor--md {
+  width: 112px;
+  height: 112px;
+  --nova-float-distance: 4px;
+  --nova-breathe-scale: 1.015;
+}
+
+.nova-tutor--lg {
+  width: 140px;
+  height: 140px;
+  --nova-float-distance: 4px;
+  --nova-breathe-scale: 1.016;
+}
+
+.nova-tutor--xl {
+  width: min(100%, clamp(228px, 36vw, 360px));
+  height: min(100%, clamp(228px, 36vw, 360px));
+}
+
+.nova-tutor--hero {
+  width: min(100%, clamp(260px, 50vw, 340px));
+  height: min(100%, clamp(260px, 50vw, 360px));
+}
+
+/* ── Ambient teal radial glow ── */
+.nova-tutor__ambient {
+  grid-area: 1 / 1;
+  z-index: 0;
+  width: var(--nova-ambient-size);
+  height: var(--nova-ambient-size);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      color-mix(in srgb, var(--nova-teal) calc(var(--nova-glow-core) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--nova-teal) calc(var(--nova-glow-halo) * 100%), transparent) 42%,
+      transparent 72%
+    );
+  filter: blur(var(--nova-ambient-blur));
+  opacity: 0.92;
+  transform: translate3d(0, 0, 0);
+  transition: opacity var(--nova-transition-glow) var(--nova-ease), filter var(--nova-transition-glow) var(--nova-ease);
+  pointer-events: none;
+}
+
+.nova-tutor[data-nova-speaking='true'] .nova-tutor__ambient {
+  opacity: 1;
+  filter: blur(var(--nova-ambient-blur-speaking));
+}
+
+/* ── Ground shadow ── */
+.nova-tutor__shadow {
+  grid-area: 1 / 1;
+  z-index: 0;
+  align-self: end;
+  justify-self: center;
+  width: var(--nova-shadow-width);
+  height: var(--nova-shadow-height);
+  margin-bottom: 3%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--nova-ink) 20%, transparent) 0%,
+    transparent 72%
+  );
+  filter: blur(var(--nova-shadow-blur));
+  opacity: var(--nova-shadow-opacity);
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.nova-tutor[data-nova-speaking='true'] .nova-tutor__shadow {
+  width: 60%;
+  opacity: 0.58;
+}
+
+/* ── Float track ── */
+.nova-tutor__figure {
+  grid-area: 1 / 1;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(0, 0, 0);
+  animation: nova-tutor-float var(--nova-float-duration) var(--nova-ease) infinite;
+}
+
+.nova-tutor[data-nova-speaking='false'] .nova-tutor__shadow {
+  animation: nova-tutor-shadow-idle var(--nova-breathe-duration) var(--nova-ease) infinite;
+}
+
+.nova-tutor[data-nova-speaking='true'] .nova-tutor__shadow {
+  animation: nova-tutor-shadow-float var(--nova-float-duration) var(--nova-ease) infinite;
+}
+
+/* ── Artwork canvas ── */
+.nova-tutor__canvas {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
+  max-height: 480px;
+  background: transparent;
+  transform: translate3d(0, 0, 0);
+  filter: drop-shadow(var(--nova-canvas-shadow));
+  transition: filter var(--nova-transition-glow) var(--nova-ease);
+}
+
+.nova-tutor[data-nova-speaking='false'] .nova-tutor__canvas {
+  animation: nova-tutor-breathe var(--nova-breathe-duration) var(--nova-ease) infinite;
+}
+
+.nova-tutor__layer {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
+  max-height: 480px;
+  object-fit: contain;
+  object-position: center center;
+  background: transparent;
+  border-radius: 0;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  image-rendering: auto;
+  transition: opacity var(--nova-transition-opacity) ease-out;
+}
+
+.nova-tutor__layer--visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.nova-tutor__layer--hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@keyframes nova-tutor-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, calc(var(--nova-float-distance) * -1), 0); }
+}
+
+@keyframes nova-tutor-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, 0, 0) scale(var(--nova-breathe-scale)); }
+}
+
+@keyframes nova-tutor-shadow-idle {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.48;
+  }
+  50% {
+    transform: translate3d(0, 2px, 0) scale(1.06);
+    opacity: 0.58;
+  }
+}
+
+@keyframes nova-tutor-shadow-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.52;
+  }
+  50% {
+    transform: translate3d(0, 3px, 0) scale(1.04);
+    opacity: 0.62;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-tutor__layer {
+    transition: none;
+  }
+
+  .nova-tutor__figure,
+  .nova-tutor__canvas,
+  .nova-tutor__shadow {
+    animation: none !important;
+  }
+
+  .nova-tutor__ambient {
+    transition: none;
+  }
+}

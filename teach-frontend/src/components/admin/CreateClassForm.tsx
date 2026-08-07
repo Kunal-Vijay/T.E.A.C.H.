@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Plus, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Button, GlassPanel, IconButton } from '../ui'
 import type { CreateClassPlanRequest, TopicInput } from '../../types/api.types'
 
 const emptyTopic = (): TopicInput => ({
@@ -39,10 +41,8 @@ function NoteListField({ label, notes, onChange, placeholder }: NoteListFieldPro
   return (
     <div className="note-list-field">
       <div className="note-list-header">
-        <label className="note-list-label">{label}</label>
-        <button type="button" className="btn btn-icon" onClick={addNote} aria-label={`Add ${label}`}>
-          +
-        </button>
+        <span className="note-list-label">{label}</span>
+        <IconButton icon={Plus} label={`Add ${label}`} onClick={addNote} />
       </div>
       {displayNotes.map((note, noteIndex) => (
         <div className="note-row" key={`${label}-${noteIndex}`}>
@@ -53,14 +53,12 @@ function NoteListField({ label, notes, onChange, placeholder }: NoteListFieldPro
             onChange={(event) => updateNote(noteIndex, event.target.value)}
           />
           {displayNotes.length > 1 ? (
-            <button
-              type="button"
-              className="btn btn-icon btn-icon-remove"
+            <IconButton
+              icon={X}
+              label={`Remove ${label}`}
+              remove
               onClick={() => removeNote(noteIndex)}
-              aria-label={`Remove ${label}`}
-            >
-              ×
-            </button>
+            />
           ) : null}
         </div>
       ))}
@@ -76,13 +74,19 @@ interface CreateClassFormProps {
   loading?: boolean
 }
 
+type FormErrors = Record<string, string>
+
+const WIZARD_STEPS = ['Basics', 'Topics', 'Review'] as const
+
 export default function CreateClassForm({
   formTitle = 'Create Class Plan',
-  submitLabel = 'Save Draft',
+  submitLabel = 'Save draft',
   initialValues,
   onSubmit,
   loading = false,
 }: CreateClassFormProps) {
+  const [step, setStep] = useState(0)
+  const [errors, setErrors] = useState<FormErrors>({})
   const [title, setTitle] = useState(initialValues?.title ?? '')
   const [subject, setSubject] = useState(initialValues?.subject ?? 'Physics')
   const [grade, setGrade] = useState(initialValues?.grade ?? '11')
@@ -135,19 +139,94 @@ export default function CreateClassForm({
 
   const sanitizeNotes = (notes: string[]) => notes.filter((note) => note.trim() !== '')
 
+  const validateBasics = (): FormErrors => {
+    const nextErrors: FormErrors = {}
+    if (title.trim() === '') {
+      nextErrors.title = 'Title is required'
+    }
+    if (subject.trim() === '') {
+      nextErrors.subject = 'Subject is required'
+    }
+    if (grade.trim() === '') {
+      nextErrors.grade = 'Grade is required'
+    }
+    if (classLabel.trim() === '') {
+      nextErrors.classLabel = 'Class label is required'
+    }
+    if (chapterName.trim() === '') {
+      nextErrors.chapterName = 'Chapter name is required'
+    }
+    if (targetExam.trim() === '') {
+      nextErrors.targetExam = 'Target exam is required'
+    }
+    if (languageCode.trim() === '') {
+      nextErrors.languageCode = 'Language code is required'
+    }
+    return nextErrors
+  }
+
+  const validateTopics = (): FormErrors => {
+    const nextErrors: FormErrors = {}
+    topics.forEach((topic, index) => {
+      if (topic.title.trim() === '') {
+        nextErrors[`topic-${index}-title`] = 'Topic title is required'
+      }
+      if (topic.duration_minutes <= 0) {
+        nextErrors[`topic-${index}-duration`] = 'Duration must be greater than 0'
+      }
+      if (topic.base_material.trim() === '') {
+        nextErrors[`topic-${index}-material`] = 'Base material is required'
+      }
+    })
+    return nextErrors
+  }
+
+  const totalDuration = useMemo(
+    () => topics.reduce((sum, topic) => sum + topic.duration_minutes, 0),
+    [topics],
+  )
+
+  const goNext = () => {
+    const nextErrors = step === 0 ? validateBasics() : validateTopics()
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) {
+      return
+    }
+    setStep((previous) => Math.min(previous + 1, WIZARD_STEPS.length - 1))
+  }
+
+  const goBack = () => {
+    setErrors({})
+    setStep((previous) => Math.max(previous - 1, 0))
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    const basicsErrors = validateBasics()
+    const topicErrors = validateTopics()
+    const merged = { ...basicsErrors, ...topicErrors }
+    setErrors(merged)
+    if (Object.keys(merged).length > 0) {
+      if (Object.keys(basicsErrors).length > 0) {
+        setStep(0)
+      } else {
+        setStep(1)
+      }
+      return
+    }
     await onSubmit({
-      title,
-      subject,
-      grade,
-      class_label: classLabel,
-      chapter_name: chapterName,
+      title: title.trim(),
+      subject: subject.trim(),
+      grade: grade.trim(),
+      class_label: classLabel.trim(),
+      chapter_name: chapterName.trim(),
       chapter_number: chapterNumber,
-      target_exam: targetExam,
-      language_code: languageCode,
+      target_exam: targetExam.trim(),
+      language_code: languageCode.trim(),
       topics: topics.map((topic) => ({
         ...topic,
+        title: topic.title.trim(),
+        base_material: topic.base_material.trim(),
         teaching_guidelines: sanitizeNotes(topic.teaching_guidelines),
         miscellaneous_notes: sanitizeNotes(topic.miscellaneous_notes),
       })),
@@ -155,83 +234,213 @@ export default function CreateClassForm({
   }
 
   return (
-    <form className={`create-class-form card ${loading ? 'loading' : ''}`} onSubmit={handleSubmit}>
-      <h2>{formTitle}</h2>
-      <div className="form-grid">
-        <input className="input" placeholder="Title" value={title} onChange={(event) => setTitle(event.target.value)} required />
-        <input className="input" placeholder="Subject" value={subject} onChange={(event) => setSubject(event.target.value)} required />
-        <input className="input" placeholder="Grade" value={grade} onChange={(event) => setGrade(event.target.value)} required />
-        <input className="input" placeholder="Class Label" value={classLabel} onChange={(event) => setClassLabel(event.target.value)} required />
-        <input className="input" placeholder="Chapter Name" value={chapterName} onChange={(event) => setChapterName(event.target.value)} required />
-        <input className="input" type="number" placeholder="Chapter Number" value={chapterNumber ?? ''} onChange={(event) => setChapterNumber(event.target.value ? Number(event.target.value) : undefined)} />
-        <input className="input" placeholder="Target Exam" value={targetExam} onChange={(event) => setTargetExam(event.target.value)} required />
-        <input className="input" placeholder="Language Code" value={languageCode} onChange={(event) => setLanguageCode(event.target.value)} required />
-      </div>
+    <GlassPanel
+      as="form"
+      className={`create-class-form teacher-create-class-form${loading ? ' is-loading' : ''}`}
+      onSubmit={handleSubmit}
+    >
+      <h2 className="teacher-create-class-form-title">{formTitle}</h2>
 
-      {topics.map((topic, index) => (
-        <div className="topic-editor card" key={`topic-${index}`}>
-          <div className="topic-header">
-            <h3>Topic {topic.order}</h3>
-            {topics.length > 1 ? (
-              <button type="button" className="btn btn-secondary" onClick={() => removeTopic(index)}>
-                Remove
-              </button>
-            ) : null}
+      <nav className="wizard-steps" aria-label="Create class steps">
+        {WIZARD_STEPS.map((label, index) => (
+          <span
+            key={label}
+            className={`wizard-step-indicator${index === step ? ' is-active' : ''}${index < step ? ' is-done' : ''}`}
+            aria-current={index === step ? 'step' : undefined}
+          >
+            {index + 1}. {label}
+          </span>
+        ))}
+      </nav>
+
+      {step === 0 ? (
+        <div className="wizard-panel">
+          <div className="form-grid">
+            <label className="form-field">
+              <span className="field-label">Class title</span>
+              <input
+                className={`input${errors.title != null ? ' input-invalid' : ''}`}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+              <p className="field-hint">What students will see on their dashboard.</p>
+              {errors.title != null ? <p className="field-error">{errors.title}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Subject</span>
+              <input
+                className={`input${errors.subject != null ? ' input-invalid' : ''}`}
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+              />
+              {errors.subject != null ? <p className="field-error">{errors.subject}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Grade</span>
+              <input
+                className={`input${errors.grade != null ? ' input-invalid' : ''}`}
+                value={grade}
+                onChange={(event) => setGrade(event.target.value)}
+              />
+              {errors.grade != null ? <p className="field-error">{errors.grade}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Class label</span>
+              <input
+                className={`input${errors.classLabel != null ? ' input-invalid' : ''}`}
+                value={classLabel}
+                onChange={(event) => setClassLabel(event.target.value)}
+              />
+              <p className="field-hint">e.g. Class 11-A, Batch 2026</p>
+              {errors.classLabel != null ? <p className="field-error">{errors.classLabel}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Chapter name</span>
+              <input
+                className={`input${errors.chapterName != null ? ' input-invalid' : ''}`}
+                value={chapterName}
+                onChange={(event) => setChapterName(event.target.value)}
+              />
+              {errors.chapterName != null ? <p className="field-error">{errors.chapterName}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Chapter number</span>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                value={chapterNumber ?? ''}
+                onChange={(event) => setChapterNumber(event.target.value ? Number(event.target.value) : undefined)}
+              />
+              <p className="field-hint">Optional — helps order chapters in a syllabus.</p>
+            </label>
+            <label className="form-field">
+              <span className="field-label">Target exam</span>
+              <input
+                className={`input${errors.targetExam != null ? ' input-invalid' : ''}`}
+                value={targetExam}
+                onChange={(event) => setTargetExam(event.target.value)}
+              />
+              {errors.targetExam != null ? <p className="field-error">{errors.targetExam}</p> : null}
+            </label>
+            <label className="form-field">
+              <span className="field-label">Language</span>
+              <input
+                className={`input${errors.languageCode != null ? ' input-invalid' : ''}`}
+                value={languageCode}
+                onChange={(event) => setLanguageCode(event.target.value)}
+              />
+              <p className="field-hint">BCP-47 code, e.g. en-IN for Indian English.</p>
+              {errors.languageCode != null ? <p className="field-error">{errors.languageCode}</p> : null}
+            </label>
           </div>
-          <input className="input" placeholder="Topic Title" value={topic.title} onChange={(event) => updateTopic(index, 'title', event.target.value)} required />
-          <input className="input" type="number" placeholder="Duration (minutes)" value={topic.duration_minutes} onChange={(event) => updateTopic(index, 'duration_minutes', Number(event.target.value))} required />
-          <textarea className="textarea" placeholder="Base Material" value={topic.base_material} onChange={(event) => updateTopic(index, 'base_material', event.target.value)} required />
-          <NoteListField
-            label="Teaching Guidelines"
-            notes={topic.teaching_guidelines}
-            placeholder="Enter one teaching guideline"
-            onChange={(notes) => updateTopic(index, 'teaching_guidelines', notes)}
-          />
-          <NoteListField
-            label="Miscellaneous Notes"
-            notes={topic.miscellaneous_notes}
-            placeholder="Enter one miscellaneous note"
-            onChange={(notes) => updateTopic(index, 'miscellaneous_notes', notes)}
-          />
         </div>
-      ))}
+      ) : null}
 
-      <div className="form-actions">
-        <button type="button" className="btn btn-secondary" onClick={addTopic}>Add Topic</button>
-        <button type="submit" className="btn btn-primary">{submitLabel}</button>
+      {step === 1 ? (
+        <div className="wizard-panel">
+          {topics.map((topic, index) => (
+            <div className="topic-editor" key={`topic-${index}`}>
+              <div className="topic-header">
+                <h3>Topic {topic.order}</h3>
+                {topics.length > 1 ? (
+                  <Button type="button" variant="secondary" onClick={() => removeTopic(index)}>
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
+              <label className="form-field">
+                <span className="field-label">Topic title</span>
+                <input
+                  className={`input${errors[`topic-${index}-title`] != null ? ' input-invalid' : ''}`}
+                  value={topic.title}
+                  onChange={(event) => updateTopic(index, 'title', event.target.value)}
+                />
+                {errors[`topic-${index}-title`] != null ? (
+                  <p className="field-error">{errors[`topic-${index}-title`]}</p>
+                ) : null}
+              </label>
+              <label className="form-field">
+                <span className="field-label">Duration (minutes)</span>
+                <input
+                  className={`input${errors[`topic-${index}-duration`] != null ? ' input-invalid' : ''}`}
+                  type="number"
+                  min={1}
+                  value={topic.duration_minutes}
+                  onChange={(event) => updateTopic(index, 'duration_minutes', Number(event.target.value))}
+                />
+                {errors[`topic-${index}-duration`] != null ? (
+                  <p className="field-error">{errors[`topic-${index}-duration`]}</p>
+                ) : null}
+              </label>
+              <label className="form-field">
+                <span className="field-label">Base material</span>
+                <textarea
+                  className={`textarea${errors[`topic-${index}-material`] != null ? ' input-invalid' : ''}`}
+                  value={topic.base_material}
+                  onChange={(event) => updateTopic(index, 'base_material', event.target.value)}
+                />
+                <p className="field-hint">Core content SAGE and the AI teacher will build from.</p>
+                {errors[`topic-${index}-material`] != null ? (
+                  <p className="field-error">{errors[`topic-${index}-material`]}</p>
+                ) : null}
+              </label>
+              <NoteListField
+                label="Teaching guidelines"
+                notes={topic.teaching_guidelines}
+                placeholder="One teaching guideline"
+                onChange={(notes) => updateTopic(index, 'teaching_guidelines', notes)}
+              />
+              <NoteListField
+                label="Miscellaneous notes"
+                notes={topic.miscellaneous_notes}
+                placeholder="One miscellaneous note"
+                onChange={(notes) => updateTopic(index, 'miscellaneous_notes', notes)}
+              />
+            </div>
+          ))}
+          <Button type="button" variant="secondary" onClick={addTopic}>
+            Add topic
+          </Button>
+        </div>
+      ) : null}
+
+      {step === 2 ? (
+        <div className="wizard-panel">
+          <ul className="review-list">
+            <li><strong>{title || 'Untitled class'}</strong> · {subject} · Grade {grade}</li>
+            <li>{chapterName} · {targetExam} · {languageCode}</li>
+            <li>{topics.length} topic{topics.length === 1 ? '' : 's'} · {totalDuration} min total</li>
+          </ul>
+          <ul className="review-list">
+            {topics.map((topic) => (
+              <li key={topic.order}>
+                <strong>{topic.order}. {topic.title || 'Untitled topic'}</strong> — {topic.duration_minutes} min
+              </li>
+            ))}
+          </ul>
+          <p className="field-hint">Saving creates a draft. Publish and generate from the class detail page.</p>
+        </div>
+      ) : null}
+
+      <div className="wizard-actions">
+        {step > 0 ? (
+          <Button type="button" variant="secondary" onClick={goBack} disabled={loading}>
+            Back
+          </Button>
+        ) : (
+          <span />
+        )}
+        {step < WIZARD_STEPS.length - 1 ? (
+          <Button type="button" variant="primary" pill onClick={goNext}>
+            Continue
+          </Button>
+        ) : (
+          <Button type="submit" variant="primary" pill loading={loading} disabled={loading}>
+            {submitLabel}
+          </Button>
+        )}
       </div>
-
-      <style>{`
-        .create-class-form { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; }
-        .topic-editor { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; background: #fbfdff; }
-        .topic-header { display: flex; justify-content: space-between; align-items: center; }
-        .form-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
-        .note-list-field { display: flex; flex-direction: column; gap: 0.5rem; }
-        .note-list-header { display: flex; justify-content: space-between; align-items: center; }
-        .note-list-label { font-weight: 600; color: var(--teach-text, #0f172a); }
-        .note-row { display: flex; gap: 0.5rem; align-items: center; }
-        .note-row .input { flex: 1; }
-        .btn-icon {
-          width: 2rem;
-          height: 2rem;
-          padding: 0;
-          border-radius: 999px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-          line-height: 1;
-          background: #dbeafe;
-          color: #1d4ed8;
-          border: 1px solid #93c5fd;
-        }
-        .btn-icon-remove {
-          background: #fee2e2;
-          color: #b91c1c;
-          border-color: #fca5a5;
-        }
-      `}</style>
-    </form>
+    </GlassPanel>
   )
 }

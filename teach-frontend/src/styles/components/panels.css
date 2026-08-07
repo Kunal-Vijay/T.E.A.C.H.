@@ -1,0 +1,278 @@
+/* ── Panels: empty states, errors, alerts ── */
+
+.empty-state {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  align-items: flex-start;
+  padding: var(--card-padding-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state-compact {
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.empty-state-success {
+  border-color: var(--color-accent-border);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-accent-soft) 100%);
+}
+
+.empty-state-error {
+  border-color: var(--color-danger-border);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-danger-soft) 100%);
+}
+
+.empty-state-mark {
+  width: var(--btn-height);
+  height: var(--btn-height);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.empty-state-compact .empty-state-mark {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+.empty-state-empty .empty-state-mark,
+.empty-state-success .empty-state-mark {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-border);
+  color: var(--color-accent-ink);
+}
+
+.empty-state-error .empty-state-mark {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.empty-state-spinner {
+  animation: teach-spin 0.8s linear infinite;
+}
+
+.empty-state-loading .empty-state-mark {
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-loading .empty-state-mark,
+.teach-shell--hub .dashboard-catalog .empty-state-loading .empty-state-mark {
+  background: var(--hub-surface-2);
+  border-color: var(--hub-border-subtle);
+  color: var(--hub-accent);
+}
+
+.empty-state-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-top: var(--space-1);
+}
+
+.empty-state-copy h3 {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-snug);
+  color: var(--color-text-primary);
+}
+
+.empty-state-compact .empty-state-copy h3 {
+  font-size: var(--text-body-lg);
+}
+
+.empty-state-copy p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  max-width: 46ch;
+  font-size: var(--text-caption);
+}
+
+.empty-state-action {
+  margin-top: var(--space-2);
+}
+
+.error-state {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text-dark);
+}
+
+.error-state-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: var(--color-danger);
+}
+
+.error-state-message {
+  margin: 0;
+  flex: 1;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-normal);
+}
+
+.error-state-dismiss {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.error-state-dismiss:hover {
+  opacity: 1;
+}
+
+.error-banner {
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-danger-soft) 100%);
+  color: var(--color-danger-ink);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-md);
+}
+
+/* Hub panel overrides */
+.teach-shell--hub .dashboard-alert {
+  animation: teach-rise var(--duration-fast) var(--ease-out) both;
+}
+
+.teach-shell--hub .teacher-hub-page .error-state,
+.teach-shell--hub .dashboard-home .error-state {
+  border-color: var(--hub-danger-border);
+  background: var(--hub-danger-soft);
+  backdrop-filter: var(--hub-blur-light);
+  -webkit-backdrop-filter: var(--hub-blur-light);
+}
+
+.teach-shell--hub .teacher-hub-page .error-state-icon,
+.teach-shell--hub .dashboard-home .error-state-icon {
+  color: var(--hub-danger-text);
+}
+
+.teach-shell--hub .teacher-hub-page .error-state-message,
+.teach-shell--hub .dashboard-home .error-state-message {
+  color: var(--hub-text-emphasis);
+}
+
+.teach-shell--hub .teacher-hub-page .error-state-dismiss,
+.teach-shell--hub .dashboard-home .error-state-dismiss {
+  color: var(--hub-text-subtle);
+}
+
+.teach-shell--hub .teacher-hub-page .error-state-dismiss:hover,
+.teach-shell--hub .dashboard-home .error-state-dismiss:hover {
+  color: var(--hub-text-primary);
+  background: var(--hub-overlay-light);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state,
+.teach-shell--hub .dashboard-catalog .empty-state {
+  border-color: var(--hub-border-subtle);
+  background: var(--hub-surface-3);
+  backdrop-filter: var(--hub-blur);
+  -webkit-backdrop-filter: var(--hub-blur);
+  box-shadow: inset 0 1px 0 var(--hub-inset-highlight);
+}
+
+.teach-shell--hub .teacher-hub-page > .empty-state,
+.teach-shell--hub .teacher-hub-page .hub-glass-panel .empty-state,
+.teach-shell--hub .teacher-hub-page .dashboard-catalog .empty-state,
+.teach-shell--hub .dashboard-catalog .empty-state {
+  padding: clamp(var(--space-8), 6vw, var(--space-12)) var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-compact {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--hub-surface-2);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-mark,
+.teach-shell--hub .dashboard-catalog .empty-state-mark {
+  background: var(--hub-accent-soft);
+  border-color: var(--hub-accent-border);
+  color: var(--hub-accent);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-success .empty-state-mark {
+  background: var(--hub-accent-soft-strong);
+  border-color: var(--hub-accent-border-strong);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-error .empty-state-mark {
+  background: var(--hub-danger-mark-bg);
+  border-color: var(--hub-danger-mark-border);
+  color: var(--hub-danger-text);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-empty .empty-state-mark {
+  background: var(--hub-warning-soft);
+  border-color: var(--hub-warning-border);
+  color: var(--hub-warning-text);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-copy h3,
+.teach-shell--hub .dashboard-catalog .empty-state-copy h3 {
+  color: var(--hub-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.teach-shell--hub .teacher-hub-page > .empty-state .empty-state-copy h3,
+.teach-shell--hub .teacher-hub-page .dashboard-catalog .empty-state-copy h3,
+.teach-shell--hub .dashboard-catalog .empty-state-copy h3 {
+  font-size: var(--text-h2);
+  letter-spacing: var(--tracking-tight);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-compact .empty-state-copy h3 {
+  font-size: var(--text-body);
+}
+
+.teach-shell--hub .teacher-hub-page .empty-state-copy p,
+.teach-shell--hub .dashboard-catalog .empty-state-copy p {
+  color: var(--hub-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.teach-shell--hub .teacher-hub-page > .empty-state .empty-state-copy p,
+.teach-shell--hub .teacher-hub-page .dashboard-catalog .empty-state-copy p,
+.teach-shell--hub .dashboard-catalog .empty-state-copy p {
+  font-size: var(--text-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .dashboard-alert {
+    animation: none !important;
+  }
+}

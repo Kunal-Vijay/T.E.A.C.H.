@@ -55,7 +55,7 @@ export default function EditClassPage() {
     setErrorMessage(null)
     try {
       await classPlanApi.update(planId, payload)
-      navigate(`/admin/classes/${planId}/review`)
+      navigate(`/teacher/classes/${planId}/review`)
     } catch (error) {
       if (axios.isAxiosError(error) && typeof error.response?.data?.detail === 'string') {
         setErrorMessage(error.response.data.detail)
@@ -96,7 +96,7 @@ export default function EditClassPage() {
     <div className="page">
       <header className="container page-header">
         <TeachLogo />
-        <Link to={`/admin/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
+        <Link to={`/teacher/classes/${planId}/review`} className="btn btn-secondary">Back to Review</Link>
       </header>
       <main className="container page-main">
         {errorMessage !== null ? <div className="error-banner">{errorMessage}</div> : null}

@@ -30,8 +30,9 @@ class UnitOfWork(IUnitOfWork):
     ) -> None:
         if exc_type is not None:
             self.session.rollback()
-        else:
-            self.session.commit()
+            return None
+        self.session.commit()
+        return None
 
     def commit(self) -> None:
         self.session.commit()

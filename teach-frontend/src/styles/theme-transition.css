@@ -1,0 +1,64 @@
+/* ─────────────────────────────────────────────────────────────
+   Theme switch transitions — macOS-quality crossfade
+   View Transitions API (primary) + scoped color fallback
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --theme-switch-duration: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --theme-switch-duration: 0ms;
+  }
+}
+
+/* ── View Transitions API — full-document crossfade ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--theme-switch-duration);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* ── Fallback — color-only crossfade (no layout properties) ── */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition-property:
+    background-color,
+    color,
+    border-color,
+    outline-color,
+    text-decoration-color,
+    fill,
+    stroke,
+    box-shadow;
+  transition-duration: var(--theme-switch-duration) !important;
+  transition-timing-function: var(--ease-out) !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,209 @@
+/* ── Settings — Appearance / Theme picker ──
+   Scoped to .teach-shell--hub .settings-page
+   ───────────────────────────────────────────────────────────── */
+
+.teach-shell--hub .settings-page {
+  animation: teach-rise var(--duration-medium) var(--ease-out) both;
+}
+
+.teach-shell--hub .settings-page .settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.teach-shell--hub .settings-page .settings-section-lede {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+/* ── Theme picker grid ── */
+.teach-shell--hub .theme-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .teach-shell--hub .theme-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Theme card styles → styles/components/theme-picker.css */
+
+/* ── Environment picker ── */
+.teach-shell--hub .environment-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.teach-shell--hub .environment-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hub-border-subtle);
+  background:
+    var(--grad-glass-card),
+    var(--hub-surface-1);
+  box-shadow:
+    0 10px 32px var(--shadow-black-xs),
+    inset 0 1px 0 var(--hub-inset-soft);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .environment-card:hover {
+  border-color: var(--hub-border-interactive);
+  box-shadow:
+    var(--shadow-elevated-sm),
+    inset 0 1px 0 var(--hub-inset-highlight);
+  transform: translateY(-2px);
+}
+
+.teach-shell--hub .environment-card:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--focus-ring),
+    0 10px 32px var(--shadow-black-xs),
+    inset 0 1px 0 var(--hub-inset-soft);
+}
+
+.teach-shell--hub .environment-card.is-selected {
+  border-color: var(--hub-accent-border-active);
+  box-shadow:
+    var(--shadow-elevated-md),
+    inset 0 1px 0 var(--hub-inset-highlight-strong);
+  transform: translateY(-2px);
+}
+
+.teach-shell--hub .environment-card-check {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: var(--radius-full);
+  background: var(--hub-accent);
+  color: var(--color-primary);
+  box-shadow: 0 0 12px var(--hub-accent-glow-strong);
+}
+
+/* Mini ambience preview — reuses --env-* tokens via data-environment-preview */
+.teach-shell--hub .environment-card-preview {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hub-border);
+  background: var(--hub-bg);
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 var(--hub-inset-soft);
+}
+
+.teach-shell--hub .environment-card-preview-mesh {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(18px);
+}
+
+.teach-shell--hub .environment-card-preview-mesh-a {
+  width: 70%;
+  height: 70%;
+  top: -25%;
+  left: -15%;
+  background: var(--env-ambient-a);
+  opacity: var(--env-ambient-a-opacity);
+}
+
+.teach-shell--hub .environment-card-preview-mesh-b {
+  width: 55%;
+  height: 55%;
+  bottom: -20%;
+  right: -10%;
+  background: var(--env-ambient-b);
+  opacity: var(--env-ambient-b-opacity);
+}
+
+.teach-shell--hub .environment-card-preview-scene,
+.teach-shell--hub .environment-card-preview-texture,
+.teach-shell--hub .environment-card-preview-lighting {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.teach-shell--hub .environment-card-preview-scene {
+  background: var(--env-scene);
+  opacity: var(--env-scene-opacity);
+}
+
+.teach-shell--hub .environment-card-preview-texture {
+  background: var(--env-texture);
+  opacity: var(--env-texture-opacity);
+  mix-blend-mode: var(--env-texture-blend);
+}
+
+.teach-shell--hub .environment-card-preview-lighting {
+  background: var(--env-lighting);
+}
+
+.teach-shell--hub .environment-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-right: var(--space-6);
+}
+
+.teach-shell--hub .environment-card-emoji {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.teach-shell--hub .environment-card-name {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.teach-shell--hub .environment-card-description {
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--hub-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .teach-shell--hub .environment-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .environment-card {
+    transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .teach-shell--hub .environment-card:hover,
+  .teach-shell--hub .environment-card.is-selected {
+    transform: none;
+  }
+}

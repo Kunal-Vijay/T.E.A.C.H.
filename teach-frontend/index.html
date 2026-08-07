@@ -1,10 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="midnight" data-environment="ai-lab">
   <head>
     <meta charset="UTF-8" />
+    <meta name="theme-color" content="#06080f" />
+    <script>
+      (function () {
+        var THEME_KEY = 'teach_theme';
+        var THEME_VALID = { midnight: 1, 'light-paper': 1, aurora: 1, focus: 1 };
+        var ENV_KEY = 'teach_environment';
+        var ENV_VALID = { 'ai-lab': 1, classroom: 1, library: 1, 'study-cafe': 1, nature: 1, space: 1 };
+        var THEME_META = { midnight: '#06080f', 'light-paper': '#fafaf8', aurora: '#0b0f1a', focus: '#0c0c0c' };
+        try {
+          var storedTheme = localStorage.getItem(THEME_KEY);
+          if (storedTheme && THEME_VALID[storedTheme]) {
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta && THEME_META[storedTheme]) {
+              meta.setAttribute('content', THEME_META[storedTheme]);
+            }
+          }
+          var storedEnv = localStorage.getItem(ENV_KEY);
+          if (storedEnv && ENV_VALID[storedEnv]) {
+            document.documentElement.setAttribute('data-environment', storedEnv);
+          }
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      as="image"
+      href="/image-from-rawpixel-id-12165579-png.png"
+      type="image/png"
+      fetchpriority="high"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TEACH — Teacherless Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>T.E.A.C.H — Teacherless Education</title>
   </head>
   <body>
     <div id="root"></div>
