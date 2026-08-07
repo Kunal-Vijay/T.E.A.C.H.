@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.domain.entities import (
     ClassPlanEntity,
+    ClassPlanTopicEntity,
     ClassroomSessionEntity,
     DoubtMessageEntity,
     DoubtSessionEntity,
@@ -229,13 +230,13 @@ class IStorageClient(ABC):
         pass
 
 
-class IGeminiWorkflowClient(ABC):
+class ILLMWorkflowClient(ABC):
     @abstractmethod
     def generate_topic_workflow(self, class_plan: ClassPlanEntity, topic: ClassPlanTopicEntity) -> dict:
         pass
 
 
-class IGeminiDoubtClient(ABC):
+class ILLMDoubtClient(ABC):
     @abstractmethod
     def resolve_doubt(
         self,
@@ -246,7 +247,7 @@ class IGeminiDoubtClient(ABC):
         pass
 
 
-class IGeminiImageClient(ABC):
+class ILLMImageClient(ABC):
     @abstractmethod
     def generate_image(self, generation_prompt: str) -> bytes | None:
         pass

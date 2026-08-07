@@ -37,7 +37,7 @@ class ClassPlanService:
                 title=topic.title,
                 duration_minutes=topic.duration_minutes,
                 base_material=topic.base_material,
-                teaching_notes=topic.teaching_notes,
+                teaching_guidelines=topic.teaching_guidelines,
                 miscellaneous_notes=topic.miscellaneous_notes,
             )
             for topic in request_dto.topics
@@ -91,7 +91,7 @@ class ClassPlanService:
                         title=topic.title,
                         duration_minutes=topic.duration_minutes,
                         base_material=topic.base_material,
-                        teaching_notes=topic.teaching_notes,
+                        teaching_guidelines=topic.teaching_guidelines,
                         miscellaneous_notes=topic.miscellaneous_notes,
                     )
                     for topic in request_dto.topics
@@ -164,4 +164,22 @@ class ClassPlanService:
             if class_plan.status != PlanStatus.DRAFT:
                 raise ValidationException("Only draft class plans can be published")
             saved_plan = self.unit_of_work.class_plan_repository.update_status(plan_id, PlanStatus.PUBLISHED)
+        return ClassPlanResponseDTO.from_entity(saved_plan)
+
+    @validate_call(validate_return=True)
+    def unpublish_class_plan(self, plan_id: uuid.UUID) -> ClassPlanResponseDTO:
+        with self.unit_of_work:
+            class_plan = self.unit_of_work.class_plan_repository.find_by_id(plan_id)
+            if class_plan is None:
+                raise ClassPlanNotFoundException(f"Class plan {plan_id} not found")
+            if class_plan.status != PlanStatus.PUBLISHED:
+                raise ValidationException("Only published class plans can be unpublished")
+            latest_generation = self.unit_of_work.live_class_repository.find_latest_generation_by_plan_id(plan_id)
+            if latest_generation is not None and latest_generation.status in {
+                GenerationStatus.PENDING,
+                GenerationStatus.GENERATING_CONTENT,
+                GenerationStatus.GENERATING_IMAGES,
+            }:
+                raise ValidationException("Cannot unpublish plan while generation is in progress")
+            saved_plan = self.unit_of_work.class_plan_repository.update_status(plan_id, PlanStatus.DRAFT)
         return ClassPlanResponseDTO.from_entity(saved_plan)

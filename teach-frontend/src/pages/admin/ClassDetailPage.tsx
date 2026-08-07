@@ -128,6 +128,11 @@ export default function ClassDetailPage() {
               <p>{classPlan.subject} • {classPlan.chapter_name} • {classPlan.total_duration_minutes} min</p>
             </div>
             <div className="detail-actions">
+              {isGenerationComplete ? (
+                <Link to={`/admin/classes/${planId}/review`} className="btn btn-secondary">
+                  Review &amp; Regenerate
+                </Link>
+              ) : null}
               {classPlan.status === 'draft' ? (
                 <button className="btn btn-primary" onClick={publishPlan}>Publish</button>
               ) : null}
@@ -145,11 +150,13 @@ export default function ClassDetailPage() {
           </div>
           {generationStatus !== null ? (
             <div className={`generation-status generation-status-${generationStatus.status}`}>
-              <strong>Generation:</strong> {generationStatus.status.replaceAll('_', ' ')}
+              <strong>Generation:</strong> {String(generationStatus.status).replace(/_/g, ' ')}
               <span>Slides: {generationStatus.progress.slides_generated}</span>
               <span>Images: {generationStatus.progress.images_completed}/{generationStatus.progress.images_total}</span>
               {generationStatus.status === 'completed' || generationStatus.status === 'completed_with_warnings' ? (
-                <span className="generation-ready">Class is ready — students can attend from the Student tab.</span>
+                <span className="generation-ready">
+                  Class is ready — use Review &amp; Regenerate to preview or create a new version.
+                </span>
               ) : null}
               {generationStatus.status === 'failed' && generationStatus.error_message != null ? (
                 <span className="generation-error">{generationStatus.error_message}</span>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Self
 
 from pydantic import model_validator
@@ -10,8 +11,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     DATABASE_URL: str = "sqlite:///./teach.db"
-    GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    BEDROCK_MODEL_ID: str = "us.anthropic.claude-sonnet-4-6"
+    BEDROCK_REGION: str = ""
+    BEDROCK_READ_TIMEOUT_SECONDS: int = 600
     S3_BUCKET: str = "ai-tutor-assets-dev"
     STAGE: str = "dev"
     REGION: str = "ap-south-1"
@@ -23,6 +25,12 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_settings(self) -> Self:
+        if self.BEDROCK_REGION.strip() == "":
+            default_region = os.environ.get("AWS_DEFAULT_REGION", "")
+            if default_region.strip() != "":
+                object.__setattr__(self, "BEDROCK_REGION", default_region)
+            else:
+                object.__setattr__(self, "BEDROCK_REGION", self.REGION)
         return self
 
 

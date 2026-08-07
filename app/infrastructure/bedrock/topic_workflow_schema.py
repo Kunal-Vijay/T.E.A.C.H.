@@ -8,7 +8,7 @@ from uuid import UUID
 from pydantic import validate_call
 
 from app.domain.entities import WorkflowStateEntity
-from app.domain.enums import TeachingApproach
+from app.domain.enums import TeachingApproach, WorkflowStateType
 from app.domain.exceptions import ValidationException
 from app.domain.workflow_state_normalizer import normalize_workflow_state
 
@@ -40,7 +40,15 @@ SLIDE_EXPLANATION_SCHEMA: dict[str, Any] = {
     "required": ["duration_seconds", "explanation_text"],
     "properties": {
         "duration_seconds": {"type": "integer"},
-        "explanation_text": {"type": "string"},
+        "explanation_text": {
+            "type": "string",
+            "description": (
+                "Exact spoken script the AI teacher reads aloud to students. "
+                "Use direct address (e.g. 'Let's push this chair...'). "
+                "Do not write stage directions, facilitator notes, or phrases like "
+                "'Begin with this slide' or 'Allow 2-3 students to share'."
+            ),
+        },
     },
 }
 
@@ -211,11 +219,11 @@ def normalize_topic_workflow_response(generated_topic: dict[str, Any]) -> dict[s
 def validate_topic_workflow_structure(generated_topic: dict[str, Any]) -> None:
     workflow = generated_topic.get("workflow")
     if not isinstance(workflow, dict):
-        raise ValidationException("Gemini response missing workflow object")
+        raise ValidationException("LLM response missing workflow object")
 
     states = workflow.get("states")
     if not isinstance(states, list) or len(states) == 0:
-        raise ValidationException("Gemini response must include at least one workflow state")
+        raise ValidationException("LLM response must include at least one workflow state")
 
     for state_index, state in enumerate(states, start=1):
         if not isinstance(state, dict):
@@ -224,7 +232,7 @@ def validate_topic_workflow_structure(generated_topic: dict[str, Any]) -> None:
 
     slides = generated_topic.get("slides")
     if not isinstance(slides, list) or len(slides) == 0:
-        raise ValidationException("Gemini response must include at least one slide")
+        raise ValidationException("LLM response must include at least one slide")
 
     for slide_index, slide in enumerate(slides, start=1):
         if not isinstance(slide, dict):
@@ -240,7 +248,7 @@ def validate_topic_workflow_structure(generated_topic: dict[str, Any]) -> None:
 
     quiz_questions = generated_topic.get("pop_quiz_questions")
     if not isinstance(quiz_questions, list) or len(quiz_questions) == 0:
-        raise ValidationException("Gemini response must include at least one pop quiz question")
+        raise ValidationException("LLM response must include at least one pop quiz question")
 
     for question_index, question in enumerate(quiz_questions, start=1):
         if not isinstance(question, dict):
@@ -401,7 +409,7 @@ def _normalize_workflow_states(generated_topic: dict[str, Any]) -> dict[str, Any
 def _validate_workflow_entities(generated_topic: dict[str, Any]) -> None:
     workflow = generated_topic.get("workflow")
     if not isinstance(workflow, dict):
-        raise ValidationException("Gemini response missing workflow object")
+        raise ValidationException("LLM response missing workflow object")
 
     for state_index, state in enumerate(workflow.get("states", []), start=1):
         if not isinstance(state, dict):
@@ -483,7 +491,7 @@ def _resolve_teaching_approach_fields(
         return TeachingApproach.DIRECT_INSTRUCTION.value, approach_text if rationale_text == "" else rationale_text
 
     raise ValidationException(
-        "Gemini returned an invalid teaching_approach. Expected direct_instruction or inquiry_based."
+        "LLM returned an invalid teaching_approach. Expected direct_instruction or inquiry_based."
     )
 
 

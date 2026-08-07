@@ -8,7 +8,7 @@ class TopicInputDTO(BaseModel):
     title: str
     duration_minutes: int
     base_material: str
-    teaching_notes: list[str] = Field(default_factory=list)
+    teaching_guidelines: list[str] = Field(default_factory=list)
     miscellaneous_notes: list[str] = Field(default_factory=list)
 
     @field_validator("base_material")

@@ -3,13 +3,14 @@ import { useState } from 'react'
 import CreateClassForm from '../../components/admin/CreateClassForm'
 import TeachLogo from '../../components/branding/TeachLogo'
 import { classPlanApi } from '../../services/api/classPlanApi'
+import type { CreateClassPlanRequest } from '../../types/api.types'
 
 export default function CreateClassPage() {
   const navigate = useNavigate()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (payload: Parameters<typeof CreateClassForm>[0]['onSubmit'] extends (value: infer T) => unknown ? T : never) => {
+  const handleSubmit = async (payload: CreateClassPlanRequest) => {
     setLoading(true)
     setErrorMessage(null)
     try {

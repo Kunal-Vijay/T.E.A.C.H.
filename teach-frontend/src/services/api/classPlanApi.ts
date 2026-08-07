@@ -9,12 +9,16 @@ import type {
 export const classPlanApi = {
   create: (payload: CreateClassPlanRequest) =>
     apiClient.post<ClassPlanResponse>('/api/v1/class-plans', payload),
+  update: (planId: string, payload: CreateClassPlanRequest) =>
+    apiClient.put<ClassPlanResponse>(`/api/v1/class-plans/${planId}`, payload),
   list: (params?: Record<string, string | number>) =>
     apiClient.get<PaginatedClassPlanList>('/api/v1/class-plans', { params }),
   get: (planId: string) =>
     apiClient.get<ClassPlanDetailResponse>(`/api/v1/class-plans/${planId}`),
   publish: (planId: string) =>
     apiClient.post<ClassPlanResponse>(`/api/v1/class-plans/${planId}/publish`),
+  unpublish: (planId: string) =>
+    apiClient.post<ClassPlanResponse>(`/api/v1/class-plans/${planId}/unpublish`),
   generate: (planId: string) =>
     apiClient.post(`/api/v1/class-plans/${planId}/generate`),
 }

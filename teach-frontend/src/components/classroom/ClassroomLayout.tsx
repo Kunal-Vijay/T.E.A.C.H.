@@ -115,7 +115,9 @@ export default function ClassroomLayout({
   }
 
   const resolvedAvatarState: AvatarState =
-    stateType === 'pop_quiz'
+    currentState.session_status === 'completed'
+      ? 'idle'
+      : stateType === 'pop_quiz'
       ? 'questioning'
       : stateType === 'student_predict' || showSagePanel
         ? 'listening'
@@ -144,6 +146,13 @@ export default function ClassroomLayout({
         <div className="error-banner speech-error-banner">{speechError}</div>
       ) : null}
       <section className="slide-area card">
+        {currentState.session_status === 'completed' ? (
+          <div className="session-complete-panel">
+            <h2>Class complete</h2>
+            <p>You have finished all topics in this class.</p>
+          </div>
+        ) : (
+          <>
         <div className="state-label">{currentState.current_state?.label}</div>
         {stateType === 'pop_quiz' ? (
           <PopQuizPanel
@@ -173,10 +182,22 @@ export default function ClassroomLayout({
           {stateType === 'doubts_resolution' ? (
             <>
               <button type="button" className="btn btn-sage" onClick={openSage}>Ask SAGE</button>
-              <button type="button" className="btn btn-secondary" onClick={onSkipDoubts}>Skip to next topic</button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={async () => {
+                  setShowSagePanel(false)
+                  setDoubtSessionId(null)
+                  await onSkipDoubts()
+                }}
+              >
+                Skip to next topic
+              </button>
             </>
           ) : null}
         </div>
+          </>
+        )}
       </section>
       <aside className="avatar-area card">
         <TeacherAvatar state={resolvedAvatarState} caption={avatarCaption} />
@@ -213,6 +234,8 @@ export default function ClassroomLayout({
         .state-label { color: var(--teach-muted); margin-bottom: 1rem; font-weight: 600; }
         .classroom-controls { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
         .predict-panel { display: flex; flex-direction: column; gap: 0.75rem; }
+        .session-complete-panel { padding: 2rem 1rem; text-align: center; }
+        .session-complete-panel h2 { margin-bottom: 0.5rem; }
         @media (max-width: 900px) {
           .classroom-layout { grid-template-columns: 1fr; }
         }

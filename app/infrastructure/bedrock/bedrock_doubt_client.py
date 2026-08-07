@@ -8,12 +8,17 @@ from pydantic import validate_call
 from app.config import settings
 from app.core.log_utils import log_external_api_error, log_external_api_request, log_external_api_response
 from app.domain.exceptions import ValidationException
-from app.domain.interfaces import IGeminiDoubtClient
+from app.domain.interfaces import ILLMDoubtClient
+from app.infrastructure.bedrock.bedrock_runtime_client import (
+    extract_converse_text,
+    get_bedrock_runtime_client,
+    has_aws_credentials,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class GeminiDoubtClient(IGeminiDoubtClient):
+class BedrockDoubtClient(ILLMDoubtClient):
     @validate_call(validate_return=True)
     def resolve_doubt(
         self,
@@ -21,17 +26,17 @@ class GeminiDoubtClient(IGeminiDoubtClient):
         conversation_history: list[dict],
         student_message: str,
     ) -> str:
-        if settings.GEMINI_API_KEY.strip() == "":
-            logger.warning("SAGE mock response used because GEMINI_API_KEY is not configured")
+        if not has_aws_credentials():
+            logger.warning("SAGE mock response used because AWS credentials are not configured")
             return (
                 f"Great question! Based on what we covered in {topic_context.get('topic_title', 'this topic')}, "
                 f"let me clarify: {student_message} relates to the core concepts we discussed. "
                 "Remember the key points from the slides and examples we just went through."
             )
-        if settings.GEMINI_MODEL.strip() == "":
-            raise ValidationException("GEMINI_MODEL is required for doubt resolution")
-
-        from google import genai
+        if settings.BEDROCK_MODEL_ID.strip() == "":
+            raise ValidationException("BEDROCK_MODEL_ID is required for doubt resolution")
+        if settings.BEDROCK_REGION.strip() == "":
+            raise ValidationException("BEDROCK_REGION is required for doubt resolution")
 
         operation = f"resolve_doubt topic={topic_context.get('topic_title', 'unknown')}"
         history_text = "\n".join(
@@ -49,31 +54,35 @@ class GeminiDoubtClient(IGeminiDoubtClient):
         )
         request_payload = json.dumps(
             {
-                "model": settings.GEMINI_MODEL,
+                "model": settings.BEDROCK_MODEL_ID,
                 "operation": operation,
                 "prompt": prompt,
             },
             ensure_ascii=False,
         )
-        log_external_api_request(logger, "Gemini", operation, request_payload)
+        log_external_api_request(logger, "Bedrock", operation, request_payload)
 
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        bedrock_client = get_bedrock_runtime_client()
         try:
-            response = client.models.generate_content(model=settings.GEMINI_MODEL, contents=prompt)
+            response = bedrock_client.converse(
+                modelId=settings.BEDROCK_MODEL_ID,
+                messages=[{"role": "user", "content": [{"text": prompt}]}],
+            )
         except Exception as error:
-            log_external_api_error(logger, "Gemini", operation, error, request_payload=request_payload)
+            log_external_api_error(logger, "Bedrock", operation, error, request_payload=request_payload)
             raise ValidationException(f"SAGE doubt resolution failed: {error}") from error
 
-        if response.text is None or response.text.strip() == "":
-            empty_response_error = ValidationException("Gemini returned an empty SAGE response")
+        response_text = extract_converse_text(response)
+        if response_text.strip() == "":
+            empty_response_error = ValidationException("Bedrock returned an empty SAGE response")
             log_external_api_error(
                 logger,
-                "Gemini",
+                "Bedrock",
                 operation,
                 empty_response_error,
                 request_payload=request_payload,
             )
             raise empty_response_error
 
-        log_external_api_response(logger, "Gemini", operation, response.text)
-        return response.text
+        log_external_api_response(logger, "Bedrock", operation, response_text)
+        return response_text

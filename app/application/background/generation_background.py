@@ -4,8 +4,8 @@ import logging
 from uuid import UUID
 
 from app.application.services.live_class_generation_service import LiveClassGenerationService
-from app.core.database import Session
-from app.infrastructure.gemini.gemini_workflow_client import GeminiWorkflowClient
+from app.core.database import SessionFactory
+from app.infrastructure.bedrock.bedrock_workflow_client import BedrockWorkflowClient
 from app.infrastructure.queue.sqs_queue_client import SQSQueueClient
 from app.infrastructure.unit_of_work import UnitOfWork
 
@@ -18,13 +18,13 @@ def run_sync_content_generation(generation_id: UUID, class_plan_id: UUID) -> Non
         generation_id,
         class_plan_id,
     )
-    database_session = Session()
+    database_session = SessionFactory()
     try:
         unit_of_work = UnitOfWork(database_session)
         generation_service = LiveClassGenerationService(
             unit_of_work,
             SQSQueueClient(),
-            GeminiWorkflowClient(),
+            BedrockWorkflowClient(),
         )
         generation_service.process_content_generation(generation_id, class_plan_id)
         logger.info(
@@ -42,4 +42,3 @@ def run_sync_content_generation(generation_id: UUID, class_plan_id: UUID) -> Non
         raise
     finally:
         database_session.close()
-        Session.remove()

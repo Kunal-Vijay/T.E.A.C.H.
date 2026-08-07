@@ -29,4 +29,4 @@ def get_db() -> Generator[Session, None, None]:
     try:
         yield database_session
     finally:
-        database_session.close()
+        Session.remove()

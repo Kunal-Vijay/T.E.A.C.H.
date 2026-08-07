@@ -7,7 +7,7 @@ from kink import di, inject
 
 from app.application.services.live_class_generation_service import LiveClassGenerationService
 from app.core.database import get_db
-from app.core.dependencies import get_gemini_workflow_client, get_queue_client
+from app.core.dependencies import get_llm_workflow_client, get_queue_client
 from app.domain.interfaces import IUnitOfWork
 from app.infrastructure.unit_of_work import UnitOfWork
 
@@ -18,7 +18,7 @@ def setup_di() -> None:
     di[LiveClassGenerationService] = LiveClassGenerationService(
         di[IUnitOfWork],
         get_queue_client(),
-        get_gemini_workflow_client(),
+        get_llm_workflow_client(),
     )
 
 

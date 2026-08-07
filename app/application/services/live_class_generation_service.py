@@ -26,7 +26,7 @@ from app.domain.entities import (
 )
 from app.domain.enums import AssetStatus, GenerationStatus, PlanStatus, TeachingApproach
 from app.domain.exceptions import ClassPlanNotFoundException, GenerationNotFoundException, ValidationException
-from app.domain.interfaces import IGeminiWorkflowClient, IQueueClient, IUnitOfWork
+from app.domain.interfaces import ILLMWorkflowClient, IQueueClient, IUnitOfWork
 
 logger = logging.getLogger(__name__)
 
@@ -36,15 +36,15 @@ class LiveClassGenerationService:
         self,
         unit_of_work: IUnitOfWork,
         queue_client: IQueueClient,
-        gemini_workflow_client: IGeminiWorkflowClient,
+        llm_workflow_client: ILLMWorkflowClient,
     ) -> None:
         self.unit_of_work = unit_of_work
         self.queue_client = queue_client
-        self.gemini_workflow_client = gemini_workflow_client
+        self.llm_workflow_client = llm_workflow_client
 
     @validate_call(validate_return=True)
     def trigger_generation(self, plan_id: UUID) -> GenerationStartedResponseDTO:
-        self._require_gemini_configuration()
+        self._require_llm_configuration()
         logger.info("Generation trigger requested for plan_id=%s", plan_id)
         with self.unit_of_work:
             class_plan = self.unit_of_work.class_plan_repository.find_by_id(plan_id)
@@ -69,7 +69,7 @@ class LiveClassGenerationService:
                 id=uuid.uuid4(),
                 class_plan_id=plan_id,
                 status=GenerationStatus.PENDING,
-                gemini_model=settings.GEMINI_MODEL,
+                llm_model=settings.BEDROCK_MODEL_ID,
             )
             created_generation = self.unit_of_work.live_class_repository.create_generation(generation_entity)
         self.queue_client.send_content_generation_message(created_generation.id, plan_id)
@@ -77,7 +77,7 @@ class LiveClassGenerationService:
             "Generation queued for plan_id=%s generation_id=%s model=%s",
             plan_id,
             created_generation.id,
-            settings.GEMINI_MODEL,
+            settings.BEDROCK_MODEL_ID,
         )
         return GenerationStartedResponseDTO(
             generation_id=created_generation.id,
@@ -121,7 +121,7 @@ class LiveClassGenerationService:
 
     @validate_call(validate_return=False)
     def process_content_generation(self, generation_id: UUID, class_plan_id: UUID) -> None:
-        self._require_gemini_configuration()
+        self._require_llm_configuration()
         logger.info(
             "Starting content generation generation_id=%s plan_id=%s",
             generation_id,
@@ -150,7 +150,7 @@ class LiveClassGenerationService:
                     topic.order,
                     topic.title,
                 )
-                generated_topic = self.gemini_workflow_client.generate_topic_workflow(class_plan, topic)
+                generated_topic = self.llm_workflow_client.generate_topic_workflow(class_plan, topic)
                 workflow_entity = TopicWorkflowEntity(
                     id=uuid.uuid4(),
                     generation_id=generation_id,
@@ -274,8 +274,8 @@ class LiveClassGenerationService:
         return slide_count >= minimum_slides
 
     @validate_call(validate_return=False)
-    def _require_gemini_configuration(self) -> None:
-        if settings.GEMINI_API_KEY.strip() == "":
-            raise ValidationException("GEMINI_API_KEY is required for class generation")
-        if settings.GEMINI_MODEL.strip() == "":
-            raise ValidationException("GEMINI_MODEL is required for class generation")
+    def _require_llm_configuration(self) -> None:
+        if settings.BEDROCK_MODEL_ID.strip() == "":
+            raise ValidationException("BEDROCK_MODEL_ID is required for class generation")
+        if settings.BEDROCK_REGION.strip() == "":
+            raise ValidationException("BEDROCK_REGION is required for class generation")

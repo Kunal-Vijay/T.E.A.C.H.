@@ -15,7 +15,7 @@ from app.application.dtos.doubt.doubt_session_dto import (
 from app.application.dtos.workflow.current_state_response_dto import CurrentStateResponseDTO
 from app.application.services.classroom_session_service import ClassroomSessionService
 from app.application.services.workflow_navigation_service import WorkflowNavigationService
-from app.domain.entities import DoubtMessageEntity, DoubtSessionEntity
+from app.domain.entities import ClassroomSessionEntity, DoubtMessageEntity, DoubtSessionEntity
 from app.domain.enums import DoubtSessionStatus, WorkflowStateType
 from app.domain.exceptions import (
     ClassroomSessionNotFoundException,
@@ -23,19 +23,19 @@ from app.domain.exceptions import (
     InvalidWorkflowStateException,
     ValidationException,
 )
-from app.domain.interfaces import IGeminiDoubtClient, IUnitOfWork
+from app.domain.interfaces import ILLMDoubtClient, IUnitOfWork
 
 
 class DoubtSessionService:
     def __init__(
         self,
         unit_of_work: IUnitOfWork,
-        gemini_doubt_client: IGeminiDoubtClient,
+        llm_doubt_client: ILLMDoubtClient,
         classroom_session_service: ClassroomSessionService,
         workflow_navigation_service: WorkflowNavigationService,
     ) -> None:
         self.unit_of_work = unit_of_work
-        self.gemini_doubt_client = gemini_doubt_client
+        self.llm_doubt_client = llm_doubt_client
         self.classroom_session_service = classroom_session_service
         self.workflow_navigation_service = workflow_navigation_service
 
@@ -98,7 +98,7 @@ class DoubtSessionService:
                 {"student_message": message.student_message, "ai_response": message.ai_response}
                 for message in prior_messages
             ]
-            ai_response = self.gemini_doubt_client.resolve_doubt(
+            ai_response = self.llm_doubt_client.resolve_doubt(
                 doubt_session.topic_context,
                 conversation_history,
                 request_dto.student_message,
@@ -123,7 +123,35 @@ class DoubtSessionService:
             doubt_session.closed_at = datetime.now(UTC)
             self.unit_of_work.doubt_session_repository.update(doubt_session)
             classroom_session_id = doubt_session.classroom_session_id
-        return self.classroom_session_service.advance_session(classroom_session_id)
+            classroom_session = self.unit_of_work.classroom_session_repository.find_by_id(classroom_session_id)
+            should_advance_from_doubts = self._is_on_doubts_resolution_state(classroom_session)
+        if should_advance_from_doubts:
+            return self.classroom_session_service.advance_session(classroom_session_id)
+        return self.classroom_session_service.get_current_state(classroom_session_id)
+
+    @validate_call(validate_return=True)
+    def _is_on_doubts_resolution_state(self, classroom_session: ClassroomSessionEntity | None) -> bool:
+        if classroom_session is None:
+            return False
+        if classroom_session.current_topic_id is None or classroom_session.current_state_id is None:
+            return False
+        workflow = self.unit_of_work.live_class_repository.find_workflow_by_topic(
+            classroom_session.generation_id,
+            classroom_session.current_topic_id,
+        )
+        if workflow is None:
+            return False
+        current_state = next(
+            (
+                state
+                for state in workflow.states
+                if state.state_id == classroom_session.current_state_id
+            ),
+            None,
+        )
+        if current_state is None:
+            return False
+        return current_state.state_type == WorkflowStateType.DOUBTS_RESOLUTION
 
     @validate_call(validate_return=True)
     def _build_topic_context(self, session_id: UUID, generation_id: UUID, topic_id: UUID) -> dict:

@@ -15,7 +15,7 @@ class TopicResponseDTO(BaseModel):
     title: str
     duration_minutes: int
     base_material: str
-    teaching_notes: list[str] = Field(default_factory=list)
+    teaching_guidelines: list[str] = Field(default_factory=list)
     miscellaneous_notes: list[str] = Field(default_factory=list)
 
     @classmethod
@@ -26,7 +26,7 @@ class TopicResponseDTO(BaseModel):
             title=entity.title,
             duration_minutes=entity.duration_minutes,
             base_material=entity.base_material,
-            teaching_notes=entity.teaching_notes,
+            teaching_guidelines=entity.teaching_guidelines,
             miscellaneous_notes=entity.miscellaneous_notes,
         )
 

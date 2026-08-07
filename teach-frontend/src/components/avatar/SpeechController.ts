@@ -1,8 +1,9 @@
 import { ttsApi } from '../../services/api/ttsApi'
+import axios from 'axios'
 
 export type SpeechStatus = 'idle' | 'speaking' | 'unsupported' | 'error'
 
-export type SpeechErrorCode = 'not-allowed' | 'synthesis-failed' | 'network' | 'unknown'
+export type SpeechErrorCode = 'not-allowed' | 'synthesis-failed' | 'network' | 'timeout' | 'unknown'
 
 type SpeakCallbacks = {
   onEnd?: () => void
@@ -42,6 +43,9 @@ export class SpeechController {
       let audioUrl = this.audioUrlCache.get(trimmedText)
       if (audioUrl === undefined) {
         const audioBlob = await ttsApi.synthesize(trimmedText)
+        if (audioBlob.size === 0) {
+          throw new Error('empty-audio')
+        }
         audioUrl = URL.createObjectURL(audioBlob)
         this.audioUrlCache.set(trimmedText, audioUrl)
       }
@@ -68,11 +72,22 @@ export class SpeechController {
         }
       }
 
-      await audioElement.play()
+      try {
+        await audioElement.play()
+      } catch (playError) {
+        if (requestId !== this.activeRequestId) {
+          return false
+        }
+        const errorName = playError instanceof Error ? playError.name : ''
+        callbacks?.onError?.(errorName === 'NotAllowedError' ? 'not-allowed' : 'synthesis-failed')
+        callbacks?.onEnd?.()
+        return false
+      }
       return true
-    } catch {
+    } catch (fetchError) {
       if (requestId === this.activeRequestId) {
-        callbacks?.onError?.('network')
+        const isTimeout = axios.isAxiosError(fetchError) && fetchError.code === 'ECONNABORTED'
+        callbacks?.onError?.(isTimeout ? 'timeout' : 'network')
         callbacks?.onEnd?.()
       }
       return false

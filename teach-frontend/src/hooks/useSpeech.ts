@@ -50,8 +50,14 @@ export function useSpeech() {
 }
 
 function buildSpeechErrorMessage(errorCode: SpeechErrorCode): string {
+  if (errorCode === 'timeout') {
+    return 'Teacher audio is taking longer than expected. Please wait a moment and click Replay explanation.'
+  }
   if (errorCode === 'network') {
     return 'Could not load teacher audio. Make sure the backend is running on port 8000.'
+  }
+  if (errorCode === 'not-allowed') {
+    return 'Your browser blocked audio playback. Click Enable Teacher Voice and try again.'
   }
   if (errorCode === 'synthesis-failed') {
     return 'Audio playback failed. Check your browser tab is not muted and try Replay again.'

@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import type { TopicInput } from '../../types/api.types'
+import { useEffect, useState } from 'react'
+import type { CreateClassPlanRequest, TopicInput } from '../../types/api.types'
 
 const emptyTopic = (): TopicInput => ({
   order: 1,
   title: '',
   duration_minutes: 15,
   base_material: '',
-  teaching_notes: [''],
+  teaching_guidelines: [''],
   miscellaneous_notes: [''],
 })
 
@@ -69,30 +69,46 @@ function NoteListField({ label, notes, onChange, placeholder }: NoteListFieldPro
 }
 
 interface CreateClassFormProps {
-  onSubmit: (payload: {
-    title: string
-    subject: string
-    grade: string
-    class_label: string
-    chapter_name: string
-    chapter_number?: number
-    target_exam: string
-    language_code: string
-    topics: TopicInput[]
-  }) => Promise<void>
+  formTitle?: string
+  submitLabel?: string
+  initialValues?: CreateClassPlanRequest
+  onSubmit: (payload: CreateClassPlanRequest) => Promise<void>
   loading?: boolean
 }
 
-export default function CreateClassForm({ onSubmit, loading = false }: CreateClassFormProps) {
-  const [title, setTitle] = useState('')
-  const [subject, setSubject] = useState('Physics')
-  const [grade, setGrade] = useState('11')
-  const [classLabel, setClassLabel] = useState('Class 11')
-  const [chapterName, setChapterName] = useState('')
-  const [chapterNumber, setChapterNumber] = useState<number | undefined>(undefined)
-  const [targetExam, setTargetExam] = useState('JEE Main')
-  const [languageCode, setLanguageCode] = useState('en-IN')
-  const [topics, setTopics] = useState<TopicInput[]>([emptyTopic()])
+export default function CreateClassForm({
+  formTitle = 'Create Class Plan',
+  submitLabel = 'Save Draft',
+  initialValues,
+  onSubmit,
+  loading = false,
+}: CreateClassFormProps) {
+  const [title, setTitle] = useState(initialValues?.title ?? '')
+  const [subject, setSubject] = useState(initialValues?.subject ?? 'Physics')
+  const [grade, setGrade] = useState(initialValues?.grade ?? '11')
+  const [classLabel, setClassLabel] = useState(initialValues?.class_label ?? 'Class 11')
+  const [chapterName, setChapterName] = useState(initialValues?.chapter_name ?? '')
+  const [chapterNumber, setChapterNumber] = useState<number | undefined>(initialValues?.chapter_number)
+  const [targetExam, setTargetExam] = useState(initialValues?.target_exam ?? 'JEE Main')
+  const [languageCode, setLanguageCode] = useState(initialValues?.language_code ?? 'en-IN')
+  const [topics, setTopics] = useState<TopicInput[]>(
+    initialValues?.topics.length ? initialValues.topics : [emptyTopic()],
+  )
+
+  useEffect(() => {
+    if (initialValues === undefined) {
+      return
+    }
+    setTitle(initialValues.title)
+    setSubject(initialValues.subject)
+    setGrade(initialValues.grade)
+    setClassLabel(initialValues.class_label)
+    setChapterName(initialValues.chapter_name)
+    setChapterNumber(initialValues.chapter_number)
+    setTargetExam(initialValues.target_exam)
+    setLanguageCode(initialValues.language_code)
+    setTopics(initialValues.topics.length > 0 ? initialValues.topics : [emptyTopic()])
+  }, [initialValues])
 
   const updateTopic = (index: number, field: keyof TopicInput, value: string | number | string[]) => {
     setTopics((previousTopics) =>
@@ -132,7 +148,7 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
       language_code: languageCode,
       topics: topics.map((topic) => ({
         ...topic,
-        teaching_notes: sanitizeNotes(topic.teaching_notes),
+        teaching_guidelines: sanitizeNotes(topic.teaching_guidelines),
         miscellaneous_notes: sanitizeNotes(topic.miscellaneous_notes),
       })),
     })
@@ -140,7 +156,7 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
 
   return (
     <form className={`create-class-form card ${loading ? 'loading' : ''}`} onSubmit={handleSubmit}>
-      <h2>Create Class Plan</h2>
+      <h2>{formTitle}</h2>
       <div className="form-grid">
         <input className="input" placeholder="Title" value={title} onChange={(event) => setTitle(event.target.value)} required />
         <input className="input" placeholder="Subject" value={subject} onChange={(event) => setSubject(event.target.value)} required />
@@ -166,10 +182,10 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
           <input className="input" type="number" placeholder="Duration (minutes)" value={topic.duration_minutes} onChange={(event) => updateTopic(index, 'duration_minutes', Number(event.target.value))} required />
           <textarea className="textarea" placeholder="Base Material" value={topic.base_material} onChange={(event) => updateTopic(index, 'base_material', event.target.value)} required />
           <NoteListField
-            label="Teaching Notes"
-            notes={topic.teaching_notes}
-            placeholder="Enter one teaching note"
-            onChange={(notes) => updateTopic(index, 'teaching_notes', notes)}
+            label="Teaching Guidelines"
+            notes={topic.teaching_guidelines}
+            placeholder="Enter one teaching guideline"
+            onChange={(notes) => updateTopic(index, 'teaching_guidelines', notes)}
           />
           <NoteListField
             label="Miscellaneous Notes"
@@ -182,7 +198,7 @@ export default function CreateClassForm({ onSubmit, loading = false }: CreateCla
 
       <div className="form-actions">
         <button type="button" className="btn btn-secondary" onClick={addTopic}>Add Topic</button>
-        <button type="submit" className="btn btn-primary">Save Draft</button>
+        <button type="submit" className="btn btn-primary">{submitLabel}</button>
       </div>
 
       <style>{`

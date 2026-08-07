@@ -12,7 +12,7 @@ export interface TopicInput {
   title: string
   duration_minutes: number
   base_material: string
-  teaching_notes: string[]
+  teaching_guidelines: string[]
   miscellaneous_notes: string[]
 }
 
@@ -72,6 +72,13 @@ export interface GenerationStatusResponse {
     images_completed: number
   }
   error_message?: string | null
+}
+
+export interface PaginatedGenerationList {
+  items: GenerationStatusResponse[]
+  total: number
+  page: number
+  limit: number
 }
 
 export interface SlideExplanation {

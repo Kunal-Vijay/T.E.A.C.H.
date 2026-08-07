@@ -99,3 +99,16 @@ def publish_class_plan(
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValidationException as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@router.post("/{plan_id}/unpublish", response_model=ClassPlanResponseDTO)
+def unpublish_class_plan(
+    plan_id: UUID,
+    service: ClassPlanService = Depends(get_class_plan_service),
+) -> ClassPlanResponseDTO:
+    try:
+        return service.unpublish_class_plan(plan_id)
+    except ClassPlanNotFoundException as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValidationException as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error

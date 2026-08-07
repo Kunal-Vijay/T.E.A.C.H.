@@ -9,8 +9,8 @@ provider:
   region: ${param:REGION, 'ap-south-1'}
   environment:
     DATABASE_URL: ${param:DATABASE_URL}
-    GEMINI_API_KEY: ${param:GEMINI_API_KEY}
-    GEMINI_MODEL: ${param:GEMINI_MODEL, 'gemini-2.5-flash'}
+    BEDROCK_MODEL_ID: ${param:BEDROCK_MODEL_ID, 'us.anthropic.claude-sonnet-4-6'}
+    BEDROCK_REGION: ${param:BEDROCK_REGION, 'us-west-2'}
     S3_BUCKET: ${param:S3_BUCKET}
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
@@ -21,7 +21,8 @@ provider:
 params:
   dev:
     DATABASE_URL: postgresql://postgres:postgres@localhost:5432/teach
-    GEMINI_API_KEY: ""
+    BEDROCK_MODEL_ID: us.anthropic.claude-sonnet-4-6
+    BEDROCK_REGION: us-west-2
     S3_BUCKET: ai-tutor-assets-dev
     LIVE_CLASS_CONTENT_GENERATION_QUEUE_URL: ""
     LIVE_CLASS_IMAGE_GENERATION_QUEUE_URL: ""

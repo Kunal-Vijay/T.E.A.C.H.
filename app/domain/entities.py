@@ -28,7 +28,7 @@ class ClassPlanTopicEntity(BaseModel):
     title: str
     duration_minutes: int
     base_material: str
-    teaching_notes: list[str] = Field(default_factory=list)
+    teaching_guidelines: list[str] = Field(default_factory=list)
     miscellaneous_notes: list[str] = Field(default_factory=list)
     is_active: bool = True
     created_at: datetime | None = None
@@ -63,7 +63,7 @@ class LiveClassGenerationEntity(BaseModel):
     class_plan_id: UUID
     status: GenerationStatus
     error_message: str | None = None
-    gemini_model: str
+    llm_model: str
     started_at: datetime | None = None
     completed_at: datetime | None = None
     is_active: bool = True

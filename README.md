@@ -2,7 +2,7 @@
 
 **Teacherless Education through Autonomous Cognitive Heuristics**
 
-TEACH is an AI-powered classroom platform. Admins create and publish class plans, trigger Gemini-based content generation (slides, workflow, pop quiz), and students attend live sessions with an AI teacher avatar, SAGE doubt resolution, and interactive workflow states.
+TEACH is an AI-powered classroom platform. Admins create and publish class plans, trigger Bedrock-based content generation (slides, workflow, pop quiz), and students attend live sessions with an AI teacher avatar, SAGE doubt resolution, and interactive workflow states.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ TEACH is an AI-powered classroom platform. Admins create and publish class plans
 
 Optional: [pyenv](https://github.com/pyenv/pyenv) for Python version management (used by the bundled start script).
 
-You also need a [Google Gemini API key](https://aistudio.google.com/apikey) for class generation and SAGE doubt responses.
+You also need AWS credentials with Bedrock access for class generation and SAGE doubt responses. Enable model access for Claude Sonnet 4.6 in the [Amazon Bedrock console](https://console.aws.amazon.com/bedrock/).
 
 ## Project structure
 
@@ -59,13 +59,13 @@ source venv/bin/activate
 ```bash
 pip install \
   fastapi uvicorn sqlalchemy pydantic pydantic-settings \
-  google-genai gTTS mangum alembic python-multipart \
+  gTTS mangum alembic python-multipart \
   boto3 httpx python-dotenv
 ```
 
 #### Configure environment
 
-Copy the example env file and add your Gemini key:
+Copy the example env file and add your AWS credentials:
 
 ```bash
 cp .env.example .env
@@ -74,8 +74,12 @@ cp .env.example .env
 Edit `.env`:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-2.5-flash
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_SESSION_TOKEN=your_session_token
+AWS_DEFAULT_REGION=us-west-2
+BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-4-6
+BEDROCK_REGION=us-west-2
 SYNC_GENERATION=true
 LOG_LEVEL=INFO
 ```
@@ -83,8 +87,12 @@ LOG_LEVEL=INFO
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DATABASE_URL` | SQLite / Postgres connection string | `sqlite:///./teach.db` |
-| `GEMINI_API_KEY` | Required for class generation and SAGE | — |
-| `GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
+| `AWS_ACCESS_KEY_ID` | AWS access key for Bedrock | — |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key for Bedrock | — |
+| `AWS_SESSION_TOKEN` | AWS session token (if using temporary credentials) | — |
+| `AWS_DEFAULT_REGION` | AWS region for credential resolution | — |
+| `BEDROCK_MODEL_ID` | Bedrock model for generation and SAGE | `us.anthropic.claude-sonnet-4-6` |
+| `BEDROCK_REGION` | Region for Bedrock API calls | Falls back to `AWS_DEFAULT_REGION`, then `REGION` |
 | `SYNC_GENERATION` | Run generation in-process when `true` | `true` |
 | `FRONTEND_ORIGIN` | CORS allowed origin | `http://localhost:5173` |
 | `LOG_LEVEL` | Logging verbosity | `INFO` |
@@ -148,7 +156,7 @@ Open [http://localhost:5173](http://localhost:5173)
 1. Open the app → **Continue as Teacher**
 2. **Create Class** — fill subject, topics, base material, and notes
 3. **Publish** the class plan
-4. **Generate Class** — triggers Gemini workflow generation (requires `GEMINI_API_KEY`)
+4. **Generate Class** — triggers Bedrock workflow generation (requires AWS credentials and Bedrock model access)
 5. Wait until generation status is **completed**
 
 ### Student
@@ -163,10 +171,10 @@ Open [http://localhost:5173](http://localhost:5173)
 | Issue | Fix |
 |-------|-----|
 | `teach-venv not found` | Create the pyenv virtualenv (see Backend setup) or edit `scripts/start-backend.sh` to point to your venv |
-| Generation fails immediately | Ensure `GEMINI_API_KEY` is set in root `.env`, not `teach-frontend/.env` |
+| Generation fails immediately | Ensure AWS credentials and `BEDROCK_MODEL_ID` are set in root `.env`, not `teach-frontend/.env` |
 | Attend Class returns 500 | Restart the backend after pulling latest changes; regenerate the class if workflow data is stale |
 | Frontend cannot reach API | Confirm backend is running on port 8000; Vite proxy handles `/api` in dev |
-| SAGE gives generic replies | Same as generation — `GEMINI_API_KEY` must be set in root `.env` |
+| SAGE gives generic replies | Same as generation — AWS credentials must be set in root `.env` |
 
 ## Development
 

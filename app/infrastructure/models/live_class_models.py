@@ -102,7 +102,7 @@ class ClassPlanTopicModel(Base, TimestampMixin, SoftDeleteMixin):
     title = Column(String(500), nullable=False)
     duration_minutes = Column(Integer, nullable=False)
     base_material = Column(Text, nullable=False)
-    teaching_notes = Column(JSON, nullable=False, default=list)
+    teaching_guidelines = Column(JSON, nullable=False, default=list)
     miscellaneous_notes = Column(JSON, nullable=True)
 
     class_plan = relationship("ClassPlanModel", back_populates="topics")
@@ -115,7 +115,7 @@ class ClassPlanTopicModel(Base, TimestampMixin, SoftDeleteMixin):
             title=self.title,
             duration_minutes=self.duration_minutes,
             base_material=self.base_material,
-            teaching_notes=self.teaching_notes or [],
+            teaching_guidelines=self.teaching_guidelines or [],
             miscellaneous_notes=self.miscellaneous_notes or [],
             is_active=self.is_active,
             created_at=self.created_at,
@@ -131,7 +131,7 @@ class ClassPlanTopicModel(Base, TimestampMixin, SoftDeleteMixin):
             title=entity.title,
             duration_minutes=entity.duration_minutes,
             base_material=entity.base_material,
-            teaching_notes=entity.teaching_notes,
+            teaching_guidelines=entity.teaching_guidelines,
             miscellaneous_notes=entity.miscellaneous_notes,
             is_active=entity.is_active,
         )
@@ -144,7 +144,7 @@ class LiveClassGenerationModel(Base, TimestampMixin, SoftDeleteMixin):
     class_plan_id = Column(UUID(as_uuid=True), ForeignKey("class_plans.id"), nullable=False)
     status = Column(Enum(GenerationStatus, name="generation_status"), nullable=False, default=GenerationStatus.PENDING)
     error_message = Column(Text, nullable=True)
-    gemini_model = Column(String(100), nullable=False)
+    llm_model = Column(String(100), nullable=False)
     started_at = Column(DateTime(timezone=True), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
@@ -154,7 +154,7 @@ class LiveClassGenerationModel(Base, TimestampMixin, SoftDeleteMixin):
             class_plan_id=self.class_plan_id,
             status=self.status,
             error_message=self.error_message,
-            gemini_model=self.gemini_model,
+            llm_model=self.llm_model,
             started_at=self.started_at,
             completed_at=self.completed_at,
             is_active=self.is_active,
@@ -169,7 +169,7 @@ class LiveClassGenerationModel(Base, TimestampMixin, SoftDeleteMixin):
             class_plan_id=entity.class_plan_id,
             status=entity.status,
             error_message=entity.error_message,
-            gemini_model=entity.gemini_model,
+            llm_model=entity.llm_model,
             started_at=entity.started_at,
             completed_at=entity.completed_at,
             is_active=entity.is_active,

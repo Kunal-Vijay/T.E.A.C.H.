@@ -76,6 +76,8 @@ class ClassroomSessionService:
             if classroom_session is None:
                 raise ClassroomSessionNotFoundException(f"Classroom session {session_id} not found")
             if classroom_session.current_topic_id is None or classroom_session.current_state_id is None:
+                if classroom_session.session_status == ClassroomSessionStatus.COMPLETED:
+                    return self.workflow_navigation_service.build_current_state_response(session_id)
                 raise InvalidWorkflowStateException("Session has no active workflow state")
             workflow = self.unit_of_work.live_class_repository.find_workflow_by_topic(
                 classroom_session.generation_id,
@@ -138,8 +140,28 @@ class ClassroomSessionService:
             classroom_session = self.unit_of_work.classroom_session_repository.find_by_id(session_id)
             if classroom_session is None:
                 raise ClassroomSessionNotFoundException(f"Classroom session {session_id} not found")
-            classroom_session = self._advance_to_next_topic(classroom_session)
-            self.unit_of_work.classroom_session_repository.update(classroom_session)
+            if classroom_session.current_topic_id is None or classroom_session.current_state_id is None:
+                if classroom_session.session_status != ClassroomSessionStatus.COMPLETED:
+                    raise InvalidWorkflowStateException("Session has no active workflow state")
+            else:
+                workflow = self.unit_of_work.live_class_repository.find_workflow_by_topic(
+                    classroom_session.generation_id,
+                    classroom_session.current_topic_id,
+                )
+                if workflow is None:
+                    raise InvalidWorkflowStateException("Workflow not found")
+                current_state = next(
+                    (
+                        state
+                        for state in workflow.states
+                        if state.state_id == classroom_session.current_state_id
+                    ),
+                    None,
+                )
+                if current_state is None or current_state.state_type != WorkflowStateType.DOUBTS_RESOLUTION:
+                    raise InvalidWorkflowStateException("Session is not in doubts resolution state")
+                classroom_session = self._advance_to_next_topic(classroom_session)
+                self.unit_of_work.classroom_session_repository.update(classroom_session)
         return self.workflow_navigation_service.build_current_state_response(session_id)
 
     @validate_call(validate_return=True)
