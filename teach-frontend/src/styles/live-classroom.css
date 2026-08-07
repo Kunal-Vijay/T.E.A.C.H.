@@ -477,18 +477,28 @@ main.live-classroom-page {
 
 /* ── Right side panel ── */
 .live-classroom-side {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 0;
+  gap: 10px;
+  padding: 12px;
   overflow: hidden;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(14, 18, 30, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.03);
+}
+
+.live-classroom-side > * {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* ── Avatar card (compact, fixed) ── */
@@ -498,8 +508,10 @@ main.live-classroom-page {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 14px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(
     180deg,
     rgba(24, 30, 44, 0.98) 0%,
@@ -518,7 +530,8 @@ main.live-classroom-page {
 
 .live-classroom-avatar-card__stage {
   flex-shrink: 0;
-  transform: scale(1);
+  max-width: 100%;
+  transform: scale(0.92);
   transform-origin: center center;
   animation: live-classroom-avatar-breathe 4s ease-in-out infinite;
 }
@@ -528,13 +541,13 @@ main.live-classroom-page {
 }
 
 @keyframes live-classroom-avatar-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%, 100% { transform: scale(0.92); }
+  50% { transform: scale(0.94); }
 }
 
 @keyframes live-classroom-avatar-speak {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.025); }
+  0%, 100% { transform: scale(0.92); }
+  50% { transform: scale(0.945); }
 }
 
 .live-classroom-avatar-card__badge {
@@ -588,13 +601,16 @@ main.live-classroom-page {
 }
 
 .live-classroom-avatar-card__subtitle-card {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   text-align: center;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .live-classroom-avatar-card__subtitle-card.is-live {
@@ -718,9 +734,9 @@ main.live-classroom-page {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: #1a1f2a;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .live-classroom-chat__header {
@@ -847,9 +863,11 @@ main.live-classroom-page {
 /* ── Input (sticky bottom) ── */
 .live-classroom-composer {
   flex-shrink: 0;
-  padding: 10px 14px 12px;
+  padding: 10px 12px 12px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: #111827;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .live-classroom-composer__label {
@@ -861,14 +879,17 @@ main.live-classroom-page {
 }
 
 .live-classroom-composer__bar {
+  box-sizing: border-box;
   display: flex;
   align-items: flex-end;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
   min-height: 54px;
   padding: 6px 8px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0b1220;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
@@ -906,10 +927,11 @@ main.live-classroom-page {
 
 .live-classroom-composer__mic-ring {
   position: absolute;
-  inset: -4px;
+  inset: -2px;
   border-radius: 50%;
   border: 2px solid rgba(20, 184, 166, 0.55);
   opacity: 0;
+  pointer-events: none;
 }
 
 .live-classroom-composer__mic.is-active .live-classroom-composer__mic-ring {
