@@ -9,27 +9,23 @@ export interface PreparingMessage {
 
 const PREPARING_MESSAGES: readonly PreparingMessage[] = [
   {
-    headline: '📚 Reading today\'s lesson…',
-    detail: 'Nova is reviewing the topic outline and key concepts.',
+    headline: '🧠 Understanding the lesson',
+    detail: 'Reviewing the topic and how to explain it clearly.',
   },
   {
-    headline: '🧠 Understanding your learning preferences…',
-    detail: 'Matching pace, depth, and explanation style to you.',
-  },
-  {
-    headline: '🎯 Planning the explanation…',
-    detail: 'Structuring the opening so the lesson lands clearly.',
-  },
-  {
-    headline: '🎨 Preparing visual examples…',
+    headline: '✏️ Preparing visual examples',
     detail: 'Sketching diagrams and examples for the whiteboard.',
   },
   {
-    headline: '📖 Organizing the lesson flow…',
-    detail: 'Sequencing ideas so each step builds on the last.',
+    headline: '📋 Organizing the whiteboard',
+    detail: 'Arranging ideas so each step builds naturally.',
   },
   {
-    headline: '✨ Almost ready…',
+    headline: '🎙️ Getting Nova ready',
+    detail: 'Tuning voice and pacing for your session.',
+  },
+  {
+    headline: '✨ Almost ready',
     detail: 'Putting the finishing touches on your first explanation.',
   },
 ] as const

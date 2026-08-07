@@ -66,7 +66,7 @@ main.live-classroom-page {
 }
 
 .live-classroom.is-entering {
-  animation: live-classroom-enter 0.5s var(--ease-out, ease-out) both;
+  animation: live-classroom-enter 300ms var(--ease-out, ease-out) both;
 }
 
 @keyframes live-classroom-enter {

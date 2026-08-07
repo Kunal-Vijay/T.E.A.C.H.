@@ -3,6 +3,7 @@ import { ErrorState, PageAlert } from '../ui'
 import { topicApi } from '../../services/api/topicApi'
 import type { LearningSessionResponse, SessionSlide, SessionTurn, TopicResponse } from '../../types/learning.types'
 import { LEARNING_MODE_LABELS } from '../../types/learning.types'
+import { computeLessonProgressPercent } from '../../lib/classroom/lessonSessionProgress'
 import LiveClassroomAvatarCard from './LiveClassroomAvatarCard'
 import LiveClassroomBoardPane from './LiveClassroomBoardPane'
 import LiveClassroomComposer from './LiveClassroomComposer'
@@ -108,16 +109,25 @@ export default function LiveClassroomView({
     }
   }, [session.topic_id])
 
-  const progressPercent = useMemo(() => {
-    const tocCount = topic?.toc_items.length ?? 0
-    if (tocCount > 0) {
-      return Math.min(100, Math.round((session.taught_toc_item_ids.length / tocCount) * 100))
-    }
-    if (slidesCount > 0) {
-      return Math.min(100, Math.round(((slideIndex + 1) / slidesCount) * 100))
-    }
-    return session.goal_status === 'completed' ? 100 : 8
-  }, [topic, session.taught_toc_item_ids.length, session.goal_status, slideIndex, slidesCount])
+  const progressPercent = useMemo(
+    () =>
+      computeLessonProgressPercent({
+        slideIndex,
+        slidesCount,
+        taughtTocItemCount: session.taught_toc_item_ids.length,
+        tocItemCount: topic?.toc_items.length ?? 0,
+        goalStatus: session.goal_status,
+        sessionStatus: session.status,
+      }),
+    [
+      slideIndex,
+      slidesCount,
+      session.taught_toc_item_ids.length,
+      session.goal_status,
+      session.status,
+      topic?.toc_items.length,
+    ],
+  )
 
   const currentTopic = useMemo(() => {
     const heading = extractSlideHeading(currentSlide)

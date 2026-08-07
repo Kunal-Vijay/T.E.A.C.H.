@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import LoadingSessionScreen from '../../components/classroom/LoadingSessionScreen'
 import LiveClassroomView from '../../components/live-classroom/LiveClassroomView'
-import SessionPreparingView from '../../components/classroom/SessionPreparingView'
 import { AppPage, ErrorState, PageSection } from '../../components/ui'
 import { useClassroomFullscreen } from '../../hooks/useClassroomFullscreen'
 import { useLiveSessionTutorSpeech } from '../../hooks/useLiveSessionTutorSpeech'
@@ -18,7 +18,8 @@ import { learningSessionApi } from '../../services/api/learningSessionApi'
 import type { LearningSessionResponse, SessionSlide, SessionTurn } from '../../types/learning.types'
 import { LEARNING_MODE_LABELS } from '../../types/learning.types'
 
-const SESSION_ENTER_MS = 520
+const LOADING_EXIT_MS = 250
+const SESSION_ENTER_MS = 300
 
 function extractSlideHeading(slide: SessionSlide | undefined): string {
   if (slide == null) {
@@ -114,11 +115,11 @@ export default function LiveLearningSessionPage() {
   const [retryingFirstTurn, setRetryingFirstTurn] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [awaitingContinue, setAwaitingContinue] = useState(false)
-  const [preparingExiting, setPreparingExiting] = useState(false)
+  const [loadingExiting, setLoadingExiting] = useState(false)
   const [sessionEntering, setSessionEntering] = useState(false)
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
-  const wasPreparingRef = useRef(false)
+  const wasShowingLoadingRef = useRef(false)
   const workspaceRef = useRef<HTMLDivElement>(null)
   const {
     isFullscreen: isClassroomFullscreen,
@@ -152,6 +153,8 @@ export default function LiveLearningSessionPage() {
 
   const preparingFirstTurn = session != null && isFirstTurnPreparing(session)
   const firstTurnFailed = session != null && isFirstTurnFailed(session)
+  const loadingActive = initialLoading || preparingFirstTurn || firstTurnFailed
+  const showLoadingScreen = loadingActive || loadingExiting
 
   const slides = session?.current_visual?.slides ?? []
   const currentSlide = slides[slideIndex]
@@ -192,27 +195,22 @@ export default function LiveLearningSessionPage() {
   }, [])
 
   useEffect(() => {
-    if (preparingFirstTurn) {
-      wasPreparingRef.current = true
+    if (loadingActive) {
+      wasShowingLoadingRef.current = true
       return undefined
     }
-    if (wasPreparingRef.current && session != null && !firstTurnFailed) {
-      setPreparingExiting(true)
-      setSessionEntering(true)
-      wasPreparingRef.current = false
-      const timer = window.setTimeout(() => {
-        setPreparingExiting(false)
-        setSessionEntering(false)
-      }, SESSION_ENTER_MS)
-      return () => window.clearTimeout(timer)
+    if (!wasShowingLoadingRef.current || firstTurnFailed) {
+      return undefined
     }
-    return undefined
-  }, [preparingFirstTurn, session, firstTurnFailed])
-
-  const showPreparingOverlay =
-    initialLoading || preparingFirstTurn || firstTurnFailed || preparingExiting
-  const showActiveSession =
-    session != null && !firstTurnFailed && (!preparingFirstTurn || preparingExiting)
+    wasShowingLoadingRef.current = false
+    setLoadingExiting(true)
+    const timer = window.setTimeout(() => {
+      setLoadingExiting(false)
+      setSessionEntering(true)
+      window.setTimeout(() => setSessionEntering(false), SESSION_ENTER_MS)
+    }, LOADING_EXIT_MS)
+    return () => window.clearTimeout(timer)
+  }, [loadingActive, firstTurnFailed])
 
   useEffect(() => {
     let cancelled = false
@@ -456,77 +454,81 @@ export default function LiveLearningSessionPage() {
     )
   }
 
+  if (showLoadingScreen) {
+    return (
+      <LoadingSessionScreen
+        mode={session?.mode ?? 'teach'}
+        failed={firstTurnFailed}
+        errorMessage={session != null ? getFirstTurnError(session) ?? errorMessage : errorMessage}
+        retrying={retryingFirstTurn}
+        exiting={loadingExiting}
+        onRetry={() => void retryFirstTurn()}
+        onExit={() => navigate('/student')}
+      />
+    )
+  }
+
+  if (session == null) {
+    return null
+  }
+
   const canSendMessage = canInteractWithSession && message.trim() !== '' && !submitting
   const showTutorPauseControl = canInteractWithSession && isSpeechActive
   const isThinking = submitting || speechStatus === 'loading'
-  const isClassroomSession = session?.mode === 'teach' || session?.mode === 'doubt'
+  const isClassroomSession = session.mode === 'teach' || session.mode === 'doubt'
 
-  const classroomView = showActiveSession && session != null && isClassroomSession ? (
-    <LiveClassroomView
-      workspaceRef={workspaceRef}
-      session={session}
-      sessionEntering={sessionEntering}
-      errorMessage={errorMessage}
-      onDismissError={() => setErrorMessage(null)}
-      boardElements={boardElements}
-      slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
-      slideIndex={slideIndex}
-      slidesCount={slides.length}
-      currentSlide={currentSlide}
-      visibleTurns={visibleTurns}
-      message={message}
-      onMessageChange={setMessage}
-      submitting={submitting}
-      canInteractWithSession={canInteractWithSession}
-      canSendMessage={canSendMessage}
-      isListening={isListening}
-      isSpeechActive={isSpeechActive}
-      isNovaSpeaking={isNovaSpeaking}
-      isThinking={isThinking}
-      isPaused={isPaused}
-      showPauseControl={showTutorPauseControl}
-      onTogglePause={togglePauseSpeech}
-      tutorSubtitle={tutorSubtitle}
-      awaitingContinue={awaitingContinue}
-      hasMoreSlides={hasMoreSlides}
-      onContinueLesson={continueLesson}
-      onSubmitMessage={() => void submitMessage(message, 'chat')}
-      onSpeakClick={handleSpeakClick}
-      onComposerKeyDown={handleComposerKeyDown}
-      isFullscreen={isClassroomFullscreen}
-      onToggleFullscreen={() => void toggleClassroomFullscreen()}
-      onExit={() => navigate('/student')}
-    />
-  ) : null
+  if (!isClassroomSession) {
+    return (
+      <AppPage>
+        <PageSection label={`${LEARNING_MODE_LABELS[session.mode]} session`}>
+          <ErrorState
+            message="This session type is not supported in the live classroom yet."
+            onDismiss={() => navigate('/student')}
+          />
+        </PageSection>
+      </AppPage>
+    )
+  }
 
   return (
-    <>
-      {classroomView != null ? (
-        <main className="container page-main live-classroom-page">
-          <PageSection label={`${LEARNING_MODE_LABELS[session!.mode]} session`} className="live-classroom-section">
-            {classroomView}
-          </PageSection>
-        </main>
-      ) : showPreparingOverlay || session != null ? (
-        <AppPage>
-          <PageSection label={session != null ? `${LEARNING_MODE_LABELS[session.mode]} session` : 'Opening session'}>
-            {null}
-          </PageSection>
-        </AppPage>
-      ) : null}
-
-      {showPreparingOverlay ? (
-        <div className={`session-preparing-overlay${preparingExiting ? ' is-exiting' : ''}`}>
-          <SessionPreparingView
-            mode={session?.mode ?? 'teach'}
-            failed={firstTurnFailed}
-            errorMessage={session != null ? getFirstTurnError(session) ?? errorMessage : errorMessage}
-            retrying={retryingFirstTurn}
-            exiting={preparingExiting}
-            onRetry={() => void retryFirstTurn()}
-          />
-        </div>
-      ) : null}
-    </>
+    <main className="container page-main live-classroom-page">
+      <PageSection label={`${LEARNING_MODE_LABELS[session.mode]} session`} className="live-classroom-section">
+        <LiveClassroomView
+          workspaceRef={workspaceRef}
+          session={session}
+          sessionEntering={sessionEntering}
+          errorMessage={errorMessage}
+          onDismissError={() => setErrorMessage(null)}
+          boardElements={boardElements}
+          slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
+          slideIndex={slideIndex}
+          slidesCount={slides.length}
+          currentSlide={currentSlide}
+          visibleTurns={visibleTurns}
+          message={message}
+          onMessageChange={setMessage}
+          submitting={submitting}
+          canInteractWithSession={canInteractWithSession}
+          canSendMessage={canSendMessage}
+          isListening={isListening}
+          isSpeechActive={isSpeechActive}
+          isNovaSpeaking={isNovaSpeaking}
+          isThinking={isThinking}
+          isPaused={isPaused}
+          showPauseControl={showTutorPauseControl}
+          onTogglePause={togglePauseSpeech}
+          tutorSubtitle={tutorSubtitle}
+          awaitingContinue={awaitingContinue}
+          hasMoreSlides={hasMoreSlides}
+          onContinueLesson={continueLesson}
+          onSubmitMessage={() => void submitMessage(message, 'chat')}
+          onSpeakClick={handleSpeakClick}
+          onComposerKeyDown={handleComposerKeyDown}
+          isFullscreen={isClassroomFullscreen}
+          onToggleFullscreen={() => void toggleClassroomFullscreen()}
+          onExit={() => navigate('/student')}
+        />
+      </PageSection>
+    </main>
   )
 }
