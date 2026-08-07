@@ -32,7 +32,7 @@ function defineTutor(
 export const MENTOR_CONFIGS: MentorDefinition[] = [
   defineTutor('nova', {
     name: 'Nova',
-    tagline: 'Your AI Tutor',
+    tagline: 'Live lessons, your pace',
     teachingStyle: 'Warm, energetic coaching — clear steps, momentum, and encouragement',
     bestSubjects: ['Math', 'Physics', 'General Science', 'Exam Prep'],
     personality: {

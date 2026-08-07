@@ -77,7 +77,7 @@ export default function SageDoubtPanel({
     : SAGE_PROMPTS
 
   return (
-    <Modal open onClose={onClose} ariaLabel="SAGE assistant" panelClassName="sage-panel">
+    <Modal open onClose={onClose} ariaLabel="Ask SAGE" panelClassName="sage-panel">
       <header className="sage-header">
         <div className="sage-header-copy">
           <SageLogo />

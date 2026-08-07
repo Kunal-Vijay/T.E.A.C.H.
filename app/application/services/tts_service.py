@@ -59,7 +59,15 @@ class TtsService:
         from app.infrastructure.elevenlabs.elevenlabs_client import ElevenLabsClient
 
         client = ElevenLabsClient()
-        return client.synthesize(text, persona)
+        try:
+            return client.synthesize(text, persona)
+        except ValidationException as error:
+            # If ElevenLabs fails (quota, invalid voice, payment required etc.),
+            # fall back to gTTS so the session doesn't break. Log loudly.
+            logger.warning(
+                "ElevenLabs failed, falling back to gTTS: %s", error
+            )
+            return self._synthesize_gtts(text, None)
 
     def _synthesize_gtts(self, text: str, language_style: LanguageStyle | None) -> bytes:
         resolved_style = language_style if language_style is not None else LanguageStyle.SIMPLE_ENGLISH

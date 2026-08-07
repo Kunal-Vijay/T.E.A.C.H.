@@ -6,7 +6,7 @@ export default function SageLogo() {
       </div>
       <div>
         <div className="sage-logo-title">SAGE</div>
-        <div className="sage-logo-tagline">Smart AI for Guided Explanations</div>
+        <div className="sage-logo-tagline">Smart Guided Explanations</div>
       </div>
     </div>
   )

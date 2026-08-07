@@ -66,7 +66,7 @@ function TopicCatalogCard({
         ) : null}
         <li>
           <Icon icon={Sparkles} size={14} className="recorded-class-meta-icon" />
-          <span>AI Tutor · {tutorName}</span>
+          <span>Taught by {tutorName}</span>
         </li>
       </ul>
 

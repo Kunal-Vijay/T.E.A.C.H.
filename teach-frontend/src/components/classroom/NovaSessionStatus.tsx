@@ -16,7 +16,7 @@ export default function NovaSessionStatus({
   if (isSpeaking) {
     return (
       <div className="nova-session-status nova-session-status--speaking" aria-live="polite">
-        <span className="nova-session-status__label">Nova is explaining</span>
+        <span className="nova-session-status__label">Explaining</span>
         {liveCaption.trim() !== '' ? (
           <p className="nova-session-status__caption">{liveCaption}</p>
         ) : null}
@@ -27,7 +27,7 @@ export default function NovaSessionStatus({
   if (isListening) {
     return (
       <p className="nova-session-status nova-session-status--listening" aria-live="polite">
-        Nova is listening…
+        Listening…
       </p>
     )
   }
@@ -35,7 +35,7 @@ export default function NovaSessionStatus({
   if (isSubmitting) {
     return (
       <p className="nova-session-status nova-session-status--thinking" aria-live="polite">
-        Nova is thinking…
+        Thinking…
       </p>
     )
   }

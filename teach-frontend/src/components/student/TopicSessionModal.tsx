@@ -263,7 +263,7 @@ export default function TopicSessionModal({
               <p className="session-config-description">
                 {topic.description !== ''
                   ? topic.description
-                  : 'Learn with Nova in a live AI-guided session.'}
+                  : 'Learn with Nova in a live session.'}
               </p>
             </div>
             <IconButton

@@ -145,15 +145,15 @@ export default function VoiceDoubtSheet({
   const showAnswer = phase === 'answer'
 
   const statusLabel = showThinking
-    ? `${mentor.name} is thinking…`
+    ? 'Thinking…'
     : showAnswer
       ? `${mentor.name} says`
       : showListening
-        ? `${mentor.name} is listening`
-        : `${mentor.name}`
+        ? 'Listening'
+        : mentor.name
 
   return (
-    <div className="doubt-sheet-shell" role="dialog" aria-modal="true" aria-label="Ask your AI Tutor">
+    <div className="doubt-sheet-shell" role="dialog" aria-modal="true" aria-label="Ask Nova">
       <button type="button" className="doubt-sheet-backdrop" aria-label="Close" onClick={onClose} />
       <div className="doubt-sheet">
         <div className="doubt-sheet-glow" aria-hidden="true" />

@@ -40,12 +40,12 @@ export default function MentorTheater({
 
   const decorationSpeaking = showSpeaking || resolveNovaSpeaking(resolvedExpression, isTalking)
   const label = showSpeaking
-    ? `${mentor.name} is speaking`
+    ? 'Speaking'
     : mode === 'listening'
-      ? `${mentor.name} is listening`
+      ? 'Listening'
       : mode === 'thinking'
-        ? `${mentor.name} is thinking`
-        : `${mentor.name} is your AI Tutor`
+        ? 'Thinking'
+        : mentor.name
 
   const showLiveBadge = mode === 'speaking' || mode === 'listening' || mode === 'thinking'
 

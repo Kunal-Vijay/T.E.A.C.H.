@@ -4,7 +4,7 @@ import type { MentorDefinition, TutorId } from '../../types/mentor.types'
 /** Active tutor id — single source of truth for the product. */
 export const CURRENT_TUTOR_ID = 'nova' satisfies TutorId
 
-export const TUTOR_ROLE = 'AI Tutor' as const
+export const TUTOR_ROLE = 'Teacher' as const
 
 export interface CurrentTutorConfig {
   id: TutorId
@@ -30,18 +30,18 @@ export function getTutorDisplayName(): string {
 }
 
 export function getTutorLabel(): string {
-  return `${CURRENT_TUTOR.name} • ${TUTOR_ROLE}`
+  return CURRENT_TUTOR.name
 }
 
 export function getTutorAriaLabel(action?: 'explaining' | 'thinking' | 'listening'): string {
   switch (action) {
     case 'explaining':
-      return `${CURRENT_TUTOR.name} is explaining`
+      return 'Explaining'
     case 'thinking':
-      return `${CURRENT_TUTOR.name} is thinking`
+      return 'Thinking'
     case 'listening':
-      return `${CURRENT_TUTOR.name} is listening`
+      return 'Listening'
     default:
-      return `${CURRENT_TUTOR.name}, your ${TUTOR_ROLE}`
+      return CURRENT_TUTOR.name
   }
 }

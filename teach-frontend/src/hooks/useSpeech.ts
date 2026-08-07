@@ -178,7 +178,7 @@ function buildSpeechErrorMessage(errorCode: SpeechErrorCode): string {
     return 'Teacher audio is taking longer than expected. Please wait a moment and click Replay explanation.'
   }
   if (errorCode === 'network') {
-    return 'Could not load AI Tutor audio. Make sure the backend is running on port 8000.'
+    return 'Could not load Nova\'s voice. Make sure the backend is running on port 8000.'
   }
   if (errorCode === 'not-allowed') {
     return 'Your browser blocked audio playback. Click Enable Teacher Voice and try again.'

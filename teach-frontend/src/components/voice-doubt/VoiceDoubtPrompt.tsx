@@ -32,7 +32,7 @@ export default function VoiceDoubtPrompt({
   const label = `${mentor.name} is ready to answer your questions`
 
   return (
-    <div className="doubt-moment" role="dialog" aria-modal="true" aria-label="Ask your AI Tutor">
+    <div className="doubt-moment" role="dialog" aria-modal="true" aria-label="Ask Nova">
       <div className="doubt-moment-backdrop" aria-hidden="true" />
       <div className="doubt-moment-panel">
         <div className="doubt-moment-glow" aria-hidden="true" />
