@@ -91,10 +91,10 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--space-6), 4vh, var(--space-10));
+  gap: clamp(var(--space-4), 2.5vh, var(--space-6));
   padding-block:
-    clamp(1.25rem, 3vh, 2rem)
-    clamp(2rem, 5vh, 3.5rem);
+    clamp(0.75rem, 2vh, 1.25rem)
+    clamp(1rem, 2.5vh, 1.75rem);
 }
 
 .welcome-hero-top {
@@ -113,7 +113,7 @@
 .welcome-copy-main {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: clamp(var(--space-2), 1.5vh, var(--space-3));
   max-width: 34rem;
 }
 
@@ -125,70 +125,146 @@
 
 @media (min-width: 1024px) {
   .welcome {
-    --welcome-nav-offset: 3.25rem;
+    --welcome-nav-offset: 3rem;
+    height: 100dvh;
+    max-height: 100dvh;
     min-height: 100dvh;
+    overflow: hidden;
   }
 
   .welcome-hero {
     flex: 1;
     min-height: 0;
-    gap: clamp(var(--space-6), 4vh, var(--space-8));
-    padding-block: var(--space-4) var(--space-6);
+    gap: clamp(0.625rem, 1.5vh, 1rem);
+    padding-block: clamp(0.375rem, 1vh, 0.75rem) clamp(0.5rem, 1.25vh, 0.875rem);
     justify-content: center;
+    overflow: hidden;
   }
 
   .welcome-hero-top {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     min-height: 0;
     align-items: center;
-    gap: clamp(var(--space-6), 4vw, var(--space-8));
+    gap: clamp(var(--space-4), 3vw, var(--space-6));
   }
 
   .welcome-hero-bottom {
     flex-shrink: 0;
-    gap: var(--space-5);
+    gap: clamp(var(--space-2), 1vh, var(--space-3));
   }
 
   .welcome-copy-main {
-    gap: var(--space-4);
+    gap: clamp(0.375rem, 1.1vh, 0.75rem);
   }
 
   .welcome-headline {
-    font-size: clamp(2.25rem, 3.6vw, 3.25rem);
-    line-height: 1.1;
+    font-size: clamp(1.95rem, 3.1vw, 2.75rem);
+    line-height: 1.08;
   }
 
   .welcome-lead {
-    font-size: var(--text-body);
-    line-height: 1.6;
+    font-size: clamp(0.9rem, 1.35vw, 1rem);
+    line-height: 1.5;
   }
 
   .welcome-eyebrow {
-    padding: 0.3rem 0.7rem;
+    padding: 0.22rem 0.6rem;
+    font-size: 0.65rem;
   }
 
   .welcome-pillars li {
-    padding: 0.28rem 0.65rem;
-    font-size: var(--text-micro);
+    padding: 0.22rem 0.55rem;
+    font-size: 0.65rem;
   }
 
   .welcome-role-title {
-    font-size: var(--text-body);
+    font-size: clamp(0.95rem, 1.5vw, 1.0625rem);
     font-weight: var(--font-weight-semibold);
     color: var(--hub-text-primary);
   }
 
+  .hero-scene {
+    max-width: min(100%, 560px);
+  }
+
   .hero-scene-stage {
-    min-height: clamp(380px, 46vh, 500px);
-    max-height: 500px;
+    width: 100%;
+    height: clamp(240px, calc(100dvh - 20.5rem), 340px);
+    min-height: unset;
+    max-height: clamp(240px, calc(100dvh - 20.5rem), 340px);
+    aspect-ratio: 1 / 1.02;
   }
 
   .hero-scene-orbit-a {
-    width: min(96%, 520px);
+    width: min(94%, 460px);
   }
 
   .hero-orbit-item {
-    max-width: 9.75rem;
+    max-width: 8.75rem;
+  }
+
+  .hero-float-card {
+    gap: 0.35rem;
+    padding: 0.48rem 0.6rem;
+  }
+
+  .hero-float-kicker {
+    font-size: 0.6rem;
+  }
+
+  .hero-float-quote,
+  .hero-float-body,
+  .hero-float-lesson-title {
+    font-size: 0.62rem;
+  }
+
+  .hero-float-icon-wrap {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .hero-scene-tutor-nameplate {
+    min-width: 7rem;
+    padding: 0.4rem 0.9rem 0.5rem;
+  }
+
+  .hero-scene-tutor-name {
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+  }
+
+  .welcome .nova-tutor--hero {
+    width: min(100%, clamp(210px, 38vw, 280px));
+    height: min(100%, clamp(210px, 38vw, 300px));
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 820px) {
+  .welcome-hero {
+    gap: clamp(0.5rem, 1.2vh, 0.75rem);
+    padding-block: clamp(0.25rem, 0.75vh, 0.5rem) clamp(0.375rem, 1vh, 0.625rem);
+  }
+
+  .welcome-copy-main {
+    gap: clamp(0.3rem, 0.9vh, 0.55rem);
+  }
+
+  .welcome-headline {
+    font-size: clamp(1.75rem, 2.8vw, 2.35rem);
+  }
+
+  .welcome-lead {
+    font-size: clamp(0.85rem, 1.2vw, 0.9375rem);
+    line-height: 1.45;
+  }
+
+  .hero-scene-stage {
+    height: clamp(220px, calc(100dvh - 19rem), 300px);
+    max-height: clamp(220px, calc(100dvh - 19rem), 300px);
+  }
+
+  .welcome .nova-tutor--hero {
+    width: min(100%, clamp(190px, 34vw, 250px));
+    height: min(100%, clamp(190px, 34vw, 265px));
   }
 }
 
@@ -285,7 +361,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1.02;
-  min-height: clamp(440px, 52vw, 620px);
+  min-height: clamp(360px, 48vw, 520px);
   perspective: 1200px;
 }
 
@@ -775,25 +851,63 @@
 
 /* ── Responsive ── */
 @media (min-width: 961px) and (max-width: 1023px) {
+  .welcome {
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .welcome-hero {
+    flex: 1;
+    min-height: 0;
+    gap: clamp(0.625rem, 1.5vh, 1rem);
+    padding-block: clamp(0.375rem, 1vh, 0.75rem) clamp(0.5rem, 1.25vh, 0.875rem);
+    justify-content: center;
+    overflow: hidden;
+  }
+
   .welcome-hero-top {
-    gap: clamp(1.5rem, 3vw, 2rem);
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  .welcome-copy-main {
+    gap: clamp(0.375rem, 1.1vh, 0.75rem);
+  }
+
+  .welcome-headline {
+    font-size: clamp(1.85rem, 3.4vw, 2.35rem);
+    line-height: 1.08;
+  }
+
+  .welcome-lead {
+    font-size: clamp(0.875rem, 1.5vw, 0.975rem);
+    line-height: 1.5;
+  }
+
+  .hero-scene-stage {
+    height: clamp(230px, calc(100dvh - 20rem), 320px);
+    min-height: unset;
+    max-height: clamp(230px, calc(100dvh - 20rem), 320px);
+  }
+
+  .welcome .nova-tutor--hero {
+    width: min(100%, clamp(200px, 36vw, 260px));
+    height: min(100%, clamp(200px, 36vw, 275px));
   }
 }
 
 @media (min-width: 1440px) {
   .welcome-hero-top {
-    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-    gap: var(--space-6);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(var(--space-4), 2.5vw, var(--space-5));
   }
 
   .hero-scene {
     justify-self: end;
-    max-width: 660px;
-  }
-
-  .hero-scene-stage {
-    min-height: clamp(480px, 54vh, 640px);
-    max-height: 640px;
+    max-width: min(100%, 580px);
   }
 }
 

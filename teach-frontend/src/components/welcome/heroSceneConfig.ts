@@ -40,7 +40,7 @@ export interface HeroFloatCardConfig {
 
 /** Hero scene geometry — cards orbit outside Nova's face silhouette. */
 export const HERO_SCENE_SIZE = 640
-export const HERO_NOVA_SAFE_RADIUS_PX = 138
+export const HERO_NOVA_SAFE_RADIUS_PX = 124
 
 /** Contextual AI capability cards orbiting Nova. */
 export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
@@ -50,7 +50,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Live Narration',
     variant: 'narration',
     angle: 16,
-    radiusPx: 304,
+    radiusPx: 268,
     tilt: -2,
     floatDelay: 0,
     elevation: 2,
@@ -62,7 +62,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Lesson Board',
     variant: 'lesson',
     angle: 54,
-    radiusPx: 318,
+    radiusPx: 280,
     tilt: 1.5,
     floatDelay: 0.55,
     elevation: 1,
@@ -75,7 +75,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Adaptive Learning',
     variant: 'adaptive',
     angle: 92,
-    radiusPx: 326,
+    radiusPx: 287,
     tilt: -1,
     floatDelay: 1.05,
     elevation: 2,
@@ -87,7 +87,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Student Question',
     variant: 'question',
     angle: 132,
-    radiusPx: 314,
+    radiusPx: 276,
     tilt: 2,
     floatDelay: 0.25,
     elevation: 3,
@@ -99,7 +99,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Quiz Ready',
     variant: 'quiz',
     angle: 172,
-    radiusPx: 306,
+    radiusPx: 269,
     tilt: -1.5,
     floatDelay: 0.85,
     elevation: 1,
@@ -111,7 +111,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Progress',
     variant: 'progress',
     angle: 212,
-    radiusPx: 298,
+    radiusPx: 262,
     tilt: 1,
     floatDelay: 1.35,
     elevation: 2,
@@ -124,7 +124,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Personalized Path',
     variant: 'path',
     angle: 328,
-    radiusPx: 302,
+    radiusPx: 266,
     tilt: -2,
     floatDelay: 0.45,
     elevation: 1,
@@ -136,7 +136,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     title: 'Instant Explanations',
     variant: 'explain',
     angle: 246,
-    radiusPx: 292,
+    radiusPx: 257,
     tilt: 1.5,
     floatDelay: 1.15,
     elevation: 1,

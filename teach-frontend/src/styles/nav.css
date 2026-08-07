@@ -209,13 +209,13 @@
 
 @media (min-width: 1024px) {
   .app-nav-inner--landing {
-    min-height: 3rem;
-    padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
-    padding-bottom: var(--space-2);
+    min-height: 2.75rem;
+    padding-top: calc(var(--space-2) + env(safe-area-inset-top, 0px));
+    padding-bottom: var(--space-1);
   }
 
   .app-nav--landing .app-nav-tagline {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
   }
 }
 
