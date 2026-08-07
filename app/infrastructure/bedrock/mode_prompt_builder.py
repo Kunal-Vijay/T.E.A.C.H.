@@ -3,7 +3,12 @@ from __future__ import annotations
 from pydantic import validate_call
 
 from app.domain.entities import TopicEntity
-from app.domain.student_params import StudentParamsSnapshot, format_student_params_for_prompt
+from app.domain.student_params import (
+    StudentParamsSnapshot,
+    format_doubt_params_for_prompt,
+    format_teach_params_for_prompt,
+    format_viva_params_for_prompt,
+)
 
 
 @validate_call(validate_return=True)
@@ -34,5 +39,15 @@ def build_conversation_history_text(conversation_history: list[dict]) -> str:
 
 
 @validate_call(validate_return=True)
-def build_shared_student_context(params: StudentParamsSnapshot) -> str:
-    return f"Student parameters: {format_student_params_for_prompt(params)}"
+def build_teach_student_context(params: StudentParamsSnapshot) -> str:
+    return f"Student parameters: {format_teach_params_for_prompt(params)}"
+
+
+@validate_call(validate_return=True)
+def build_doubt_student_context(params: StudentParamsSnapshot) -> str:
+    return f"Student parameters: {format_doubt_params_for_prompt(params)}"
+
+
+@validate_call(validate_return=True)
+def build_viva_student_context(params: StudentParamsSnapshot) -> str:
+    return f"Student parameters: {format_viva_params_for_prompt(params)}"

@@ -33,10 +33,6 @@ class DoubtSessionNotFoundException(DomainException):
     pass
 
 
-class PopQuizQuestionNotFoundException(DomainException):
-    pass
-
-
 class InvalidWorkflowStateException(DomainException):
     pass
 

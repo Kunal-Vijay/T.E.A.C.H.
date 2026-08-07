@@ -159,12 +159,8 @@ class DoubtSessionService:
         class_plan = self.unit_of_work.class_plan_repository.find_by_id(generation.class_plan_id)
         topic = next(topic_item for topic_item in class_plan.topics if topic_item.id == topic_id)
         slides = self.unit_of_work.live_class_repository.find_slides_by_state(generation_id, topic_id, "explain")
-        quiz_attempts = self.unit_of_work.classroom_session_repository.find_quiz_attempts_by_session_and_topic(
-            session_id, generation_id, topic_id
-        )
         return {
             "topic_title": topic.title,
             "base_material": topic.base_material,
             "slides": [slide.model_dump(mode="json") for slide in slides],
-            "quiz_attempts": [attempt.model_dump(mode="json") for attempt in quiz_attempts],
         }

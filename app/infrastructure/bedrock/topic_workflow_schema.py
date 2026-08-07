@@ -10,7 +10,7 @@ from pydantic import validate_call
 from app.domain.entities import WorkflowStateEntity
 from app.domain.enums import TeachingApproach, WorkflowStateType
 from app.domain.exceptions import ValidationException
-from app.domain.workflow_state_normalizer import normalize_workflow_state
+from app.domain.workflow_state_normalizer import normalize_workflow_definition
 
 VALID_TEACHING_APPROACH_VALUES = {
     TeachingApproach.DIRECT_INSTRUCTION.value,
@@ -85,7 +85,7 @@ WORKFLOW_STATE_SCHEMA: dict[str, Any] = {
         "state_id": {"type": "string"},
         "phase": {
             "type": "string",
-            "enum": ["teach", "pop_quiz", "doubts_resolution"],
+            "enum": ["teach", "doubts_resolution"],
         },
         "state_type": {
             "type": "string",
@@ -94,7 +94,6 @@ WORKFLOW_STATE_SCHEMA: dict[str, Any] = {
                 "student_predict",
                 "explain",
                 "examples",
-                "pop_quiz",
                 "doubts_resolution",
             ],
         },
@@ -105,15 +104,10 @@ WORKFLOW_STATE_SCHEMA: dict[str, Any] = {
             "enum": [
                 "auto",
                 "student_submitted",
-                "all_questions_attempted",
                 "doubt_session_closed_or_skipped",
             ],
         },
         "slide_ids": {
-            "type": "array",
-            "items": {"type": "string"},
-        },
-        "quiz_question_ids": {
             "type": "array",
             "items": {"type": "string"},
         },
@@ -122,34 +116,9 @@ WORKFLOW_STATE_SCHEMA: dict[str, Any] = {
     },
 }
 
-QUIZ_OPTION_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "required": ["option_id", "text", "is_correct", "feedback_explanation"],
-    "properties": {
-        "option_id": {"type": "string"},
-        "text": {"type": "string"},
-        "is_correct": {"type": "boolean"},
-        "feedback_explanation": {"type": "string"},
-    },
-}
-
-QUIZ_QUESTION_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "required": ["question_id", "question_text", "order", "options"],
-    "properties": {
-        "question_id": {"type": "string"},
-        "question_text": {"type": "string"},
-        "order": {"type": "integer"},
-        "options": {
-            "type": "array",
-            "items": QUIZ_OPTION_SCHEMA,
-        },
-    },
-}
-
 TOPIC_WORKFLOW_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "required": ["teaching_approach", "approach_rationale", "workflow", "slides", "pop_quiz_questions"],
+    "required": ["teaching_approach", "approach_rationale", "workflow", "slides"],
     "properties": {
         "teaching_approach": {
             "type": "string",
@@ -170,10 +139,6 @@ TOPIC_WORKFLOW_JSON_SCHEMA: dict[str, Any] = {
             "type": "array",
             "items": SLIDE_SCHEMA,
         },
-        "pop_quiz_questions": {
-            "type": "array",
-            "items": QUIZ_QUESTION_SCHEMA,
-        },
     },
 }
 
@@ -193,8 +158,6 @@ REQUIRED_WORKFLOW_STATE_FIELDS = (
     "label",
     "advance_trigger",
 )
-REQUIRED_QUIZ_QUESTION_FIELDS = ("question_id", "question_text", "order", "options")
-REQUIRED_QUIZ_OPTION_FIELDS = ("option_id", "text", "is_correct", "feedback_explanation")
 REQUIRED_EXPLANATION_FIELDS = ("duration_seconds", "explanation_text")
 
 
@@ -246,29 +209,6 @@ def validate_topic_workflow_structure(generated_topic: dict[str, Any]) -> None:
             raise ValidationException(f"Slide {slide_index} must include an explanation object")
         _validate_required_fields(explanation, REQUIRED_EXPLANATION_FIELDS, f"Slide {slide_index} explanation")
 
-    quiz_questions = generated_topic.get("pop_quiz_questions")
-    if not isinstance(quiz_questions, list) or len(quiz_questions) == 0:
-        raise ValidationException("LLM response must include at least one pop quiz question")
-
-    for question_index, question in enumerate(quiz_questions, start=1):
-        if not isinstance(question, dict):
-            raise ValidationException(f"Pop quiz question {question_index} must be an object")
-        _validate_required_fields(question, REQUIRED_QUIZ_QUESTION_FIELDS, f"Pop quiz question {question_index}")
-        options = question.get("options")
-        if not isinstance(options, list) or len(options) == 0:
-            raise ValidationException(f"Pop quiz question {question_index} must include options")
-        for option_index, option in enumerate(options, start=1):
-            if not isinstance(option, dict):
-                raise ValidationException(
-                    f"Pop quiz question {question_index} option {option_index} must be an object"
-                )
-            _validate_required_fields(
-                option,
-                REQUIRED_QUIZ_OPTION_FIELDS,
-                f"Pop quiz question {question_index} option {option_index}",
-            )
-
-
 @validate_call(validate_return=False)
 def _validate_required_fields(payload: dict[str, Any], required_fields: tuple[str, ...], label: str) -> None:
     missing_fields = [
@@ -285,7 +225,6 @@ def _validate_required_fields(payload: dict[str, Any], required_fields: tuple[st
 def _normalize_identifier_references(generated_topic: dict[str, Any]) -> dict[str, Any]:
     normalized_topic = dict(generated_topic)
     slide_identifier_map: dict[str, str] = {}
-    question_identifier_map: dict[str, str] = {}
 
     normalized_slides: list[dict[str, Any]] = []
     for slide in normalized_topic.get("slides", []):
@@ -296,16 +235,8 @@ def _normalize_identifier_references(generated_topic: dict[str, Any]) -> dict[st
         normalized_slide["slide_id"] = slide_identifier_map[original_slide_id]
         normalized_slides.append(normalized_slide)
     normalized_topic["slides"] = normalized_slides
-
-    normalized_questions: list[dict[str, Any]] = []
-    for question in normalized_topic.get("pop_quiz_questions", []):
-        normalized_question = dict(question)
-        original_question_id = str(normalized_question["question_id"])
-        if original_question_id not in question_identifier_map:
-            question_identifier_map[original_question_id] = _ensure_uuid(original_question_id)
-        normalized_question["question_id"] = question_identifier_map[original_question_id]
-        normalized_questions.append(normalized_question)
-    normalized_topic["pop_quiz_questions"] = normalized_questions
+    if "pop_quiz_questions" in normalized_topic:
+        del normalized_topic["pop_quiz_questions"]
 
     workflow = normalized_topic.get("workflow")
     if isinstance(workflow, dict):
@@ -319,12 +250,8 @@ def _normalize_identifier_references(generated_topic: dict[str, Any]) -> dict[st
                     slide_identifier_map.get(str(slide_id), _ensure_uuid(str(slide_id)))
                     for slide_id in slide_ids
                 ]
-            quiz_question_ids = normalized_state.get("quiz_question_ids")
-            if isinstance(quiz_question_ids, list):
-                normalized_state["quiz_question_ids"] = [
-                    question_identifier_map.get(str(question_id), _ensure_uuid(str(question_id)))
-                    for question_id in quiz_question_ids
-                ]
+            if "quiz_question_ids" in normalized_state:
+                del normalized_state["quiz_question_ids"]
             normalized_states.append(normalized_state)
         normalized_workflow["states"] = normalized_states
         normalized_topic["workflow"] = normalized_workflow
@@ -392,16 +319,7 @@ def _normalize_workflow_states(generated_topic: dict[str, Any]) -> dict[str, Any
     workflow = normalized_topic.get("workflow")
     if not isinstance(workflow, dict):
         return normalized_topic
-
-    normalized_states: list[dict[str, Any]] = []
-    for state in workflow.get("states", []):
-        if not isinstance(state, dict):
-            continue
-        normalized_states.append(normalize_workflow_state(state))
-
-    normalized_workflow = dict(workflow)
-    normalized_workflow["states"] = normalized_states
-    normalized_topic["workflow"] = normalized_workflow
+    normalized_topic["workflow"] = normalize_workflow_definition(workflow)
     return _sync_slide_workflow_state_ids(normalized_topic)
 
 

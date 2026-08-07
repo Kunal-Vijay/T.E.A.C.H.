@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.domain.entities import (
     LearningSessionEntity,
-    SessionQuizAttemptEntity,
     SessionTurnEntity,
     SessionVisualEntity,
     VivaAssessmentEntity,
@@ -16,7 +15,6 @@ from app.domain.interfaces import ILearningSessionRepository
 from app.infrastructure.decorators import log_repo_call
 from app.infrastructure.models.learning_session_models import (
     LearningSessionModel,
-    SessionQuizAttemptModel,
     SessionTurnModel,
     SessionVisualModel,
     VivaAssessmentModel,
@@ -72,9 +70,6 @@ class LearningSessionRepository(ILearningSessionRepository):
                 joinedload(LearningSessionModel.turns.and_(SessionTurnModel.is_active.is_(True))),
                 joinedload(LearningSessionModel.visuals.and_(SessionVisualModel.is_active.is_(True))),
                 joinedload(
-                    LearningSessionModel.quiz_attempts.and_(SessionQuizAttemptModel.is_active.is_(True))
-                ),
-                joinedload(
                     LearningSessionModel.viva_assessment.and_(VivaAssessmentModel.is_active.is_(True))
                 ),
             )
@@ -97,14 +92,6 @@ class LearningSessionRepository(ILearningSessionRepository):
     @validate_call(validate_return=True)
     def create_visual(self, visual: SessionVisualEntity) -> SessionVisualEntity:
         model = SessionVisualModel.from_entity(visual)
-        self.session.add(model)
-        self.session.flush()
-        return model.to_entity()
-
-    @log_repo_call
-    @validate_call(validate_return=True)
-    def create_quiz_attempt(self, attempt: SessionQuizAttemptEntity) -> SessionQuizAttemptEntity:
-        model = SessionQuizAttemptModel.from_entity(attempt)
         self.session.add(model)
         self.session.flush()
         return model.to_entity()

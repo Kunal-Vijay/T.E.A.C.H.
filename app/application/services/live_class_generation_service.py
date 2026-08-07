@@ -18,8 +18,6 @@ from app.domain.entities import (
     GeneratedAssetEntity,
     LiveClassGenerationEntity,
     LiveClassSlideEntity,
-    PopQuizOptionEntity,
-    PopQuizQuestionEntity,
     SlideElementEntity,
     SlideExplanationEntity,
     TopicWorkflowEntity,
@@ -202,18 +200,6 @@ class LiveClassGenerationService:
                                 )
                     self.unit_of_work.live_class_repository.save_slides(slide_entities)
                     self.unit_of_work.live_class_repository.save_explanations(explanation_entities)
-                    quiz_entities = [
-                        PopQuizQuestionEntity(
-                            id=UUID(question_payload["question_id"]),
-                            generation_id=generation_id,
-                            topic_id=topic.id,
-                            question_text=question_payload["question_text"],
-                            options=[PopQuizOptionEntity.model_validate(option) for option in question_payload["options"]],
-                            order=question_payload["order"],
-                        )
-                        for question_payload in generated_topic["pop_quiz_questions"]
-                    ]
-                    self.unit_of_work.live_class_repository.save_quiz_questions(quiz_entities)
 
             with self.unit_of_work:
                 generation = self.unit_of_work.live_class_repository.find_generation_by_id(generation_id)

@@ -17,17 +17,34 @@ import { topicApi } from '../../services/api/topicApi'
 import { getStudentId } from '../../services/auth/authService'
 import {
   LEARNING_MODE_LABELS,
-  SESSION_SELECTABLE_KEYS,
+  MODE_SESSION_SELECTABLE_KEYS,
   type LearningMode,
   type StudentParamOverrides,
   type StudentProfileResponse,
   type TopicResponse,
 } from '../../types/learning.types'
 
-const MODES: LearningMode[] = ['teach', 'doubt', 'pop_quiz', 'viva']
+const MODES: LearningMode[] = ['teach', 'doubt', 'viva']
 
 function formatParamLabel(key: string): string {
   return key.replace(/_/g, ' ')
+}
+
+function buildOverridesForMode(
+  mode: LearningMode,
+  profile: StudentProfileResponse | null,
+): StudentParamOverrides {
+  const nextOverrides: StudentParamOverrides = {}
+  if (profile == null) {
+    return nextOverrides
+  }
+  for (const key of MODE_SESSION_SELECTABLE_KEYS[mode]) {
+    const field = profile.attributes[key]
+    if (field != null) {
+      nextOverrides[key as keyof StudentParamOverrides] = field.value
+    }
+  }
+  return nextOverrides
 }
 
 export default function TopicModeSelectPage() {
@@ -56,14 +73,7 @@ export default function TopicModeSelectPage() {
         }
         setTopic(topicResponse.data)
         setProfile(profileResponse.data)
-        const nextOverrides: StudentParamOverrides = {}
-        for (const key of SESSION_SELECTABLE_KEYS) {
-          const field = profileResponse.data.attributes[key]
-          if (field != null) {
-            nextOverrides[key] = field.value
-          }
-        }
-        setOverrides(nextOverrides)
+        setOverrides(buildOverridesForMode('teach', profileResponse.data))
       } catch (error) {
         if (cancelled) {
           return
@@ -89,6 +99,11 @@ export default function TopicModeSelectPage() {
     }
   }, [topicId])
 
+  const selectMode = (mode: LearningMode) => {
+    setSelectedMode(mode)
+    setOverrides(buildOverridesForMode(mode, profile))
+  }
+
   const startSession = async () => {
     if (topic == null) {
       return
@@ -99,7 +114,7 @@ export default function TopicModeSelectPage() {
         topic_id: topic.id,
         mode: selectedMode,
         student_identifier: getStudentId(),
-        param_overrides: overrides,
+        param_overrides: selectedMode === 'viva' ? undefined : overrides,
       })
       if (selectedMode === 'viva') {
         navigate(`/student/sessions/${response.data.id}/viva`)
@@ -138,6 +153,8 @@ export default function TopicModeSelectPage() {
     )
   }
 
+  const selectableKeys = MODE_SESSION_SELECTABLE_KEYS[selectedMode]
+
   return (
     <AppPage>
       <PageHeader title={topic.title} lede={topic.description} />
@@ -162,41 +179,45 @@ export default function TopicModeSelectPage() {
               key={mode}
               type="button"
               className={selectedMode === mode ? 'mode-card is-selected' : 'mode-card'}
-              onClick={() => setSelectedMode(mode)}
+              onClick={() => selectMode(mode)}
             >
               {LEARNING_MODE_LABELS[mode]}
             </button>
           ))}
         </div>
-        <h2>Session preferences</h2>
-        <div className="params-grid">
-          {SESSION_SELECTABLE_KEYS.map((key) => {
-            const field = profile?.attributes[key]
-            if (field == null) {
-              return null
-            }
-            return (
-              <label key={key} className="param-field">
-                <span>{formatParamLabel(key)}</span>
-                <select
-                  value={overrides[key] ?? field.value}
-                  onChange={(event) =>
-                    setOverrides((current) => ({
-                      ...current,
-                      [key]: event.target.value,
-                    }))
-                  }
-                >
-                  {field.possible_values.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )
-          })}
-        </div>
+        {selectableKeys.length > 0 ? (
+          <>
+            <h2>Session preferences</h2>
+            <div className="params-grid">
+              {selectableKeys.map((key) => {
+                const field = profile?.attributes[key]
+                if (field == null) {
+                  return null
+                }
+                return (
+                  <label key={key} className="param-field">
+                    <span>{formatParamLabel(key)}</span>
+                    <select
+                      value={overrides[key as keyof StudentParamOverrides] ?? field.value}
+                      onChange={(event) =>
+                        setOverrides((current) => ({
+                          ...current,
+                          [key]: event.target.value,
+                        }))
+                      }
+                    >
+                      {field.possible_values.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )
+              })}
+            </div>
+          </>
+        ) : null}
         <Button type="button" disabled={starting} onClick={() => void startSession()}>
           {starting ? 'Starting…' : 'Start session'}
         </Button>

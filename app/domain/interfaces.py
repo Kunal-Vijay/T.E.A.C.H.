@@ -15,9 +15,6 @@ from app.domain.entities import (
     LearningSessionEntity,
     LiveClassGenerationEntity,
     LiveClassSlideEntity,
-    PopQuizAttemptEntity,
-    PopQuizQuestionEntity,
-    SessionQuizAttemptEntity,
     SessionTurnEntity,
     SessionVisualEntity,
     SlideExplanationEntity,
@@ -101,10 +98,6 @@ class ILiveClassRepository(ABC):
         pass
 
     @abstractmethod
-    def save_quiz_questions(self, questions: list[PopQuizQuestionEntity]) -> list[PopQuizQuestionEntity]:
-        pass
-
-    @abstractmethod
     def save_assets(self, assets: list[GeneratedAssetEntity]) -> list[GeneratedAssetEntity]:
         pass
 
@@ -126,18 +119,6 @@ class ILiveClassRepository(ABC):
 
     @abstractmethod
     def find_explanation_by_slide_id(self, slide_id: UUID) -> SlideExplanationEntity | None:
-        pass
-
-    @abstractmethod
-    def find_quiz_questions_by_ids(self, question_ids: list[UUID]) -> list[PopQuizQuestionEntity]:
-        pass
-
-    @abstractmethod
-    def find_quiz_questions_by_topic(self, generation_id: UUID, topic_id: UUID) -> list[PopQuizQuestionEntity]:
-        pass
-
-    @abstractmethod
-    def find_quiz_question_by_id(self, question_id: UUID) -> PopQuizQuestionEntity | None:
         pass
 
     @abstractmethod
@@ -176,22 +157,6 @@ class IClassroomSessionRepository(ABC):
 
     @abstractmethod
     def find_by_id(self, session_id: UUID) -> ClassroomSessionEntity | None:
-        pass
-
-    @abstractmethod
-    def create_quiz_attempt(self, attempt: PopQuizAttemptEntity) -> PopQuizAttemptEntity:
-        pass
-
-    @abstractmethod
-    def find_quiz_attempts_by_session_and_questions(
-        self, session_id: UUID, question_ids: list[UUID]
-    ) -> list[PopQuizAttemptEntity]:
-        pass
-
-    @abstractmethod
-    def find_quiz_attempts_by_session_and_topic(
-        self, session_id: UUID, generation_id: UUID, topic_id: UUID
-    ) -> list[PopQuizAttemptEntity]:
         pass
 
 
@@ -330,10 +295,6 @@ class ILearningSessionRepository(ABC):
         pass
 
     @abstractmethod
-    def create_quiz_attempt(self, attempt: SessionQuizAttemptEntity) -> SessionQuizAttemptEntity:
-        pass
-
-    @abstractmethod
     def upsert_viva_assessment(self, assessment: VivaAssessmentEntity) -> VivaAssessmentEntity:
         pass
 
@@ -367,19 +328,6 @@ class ILLMInteractiveDoubtClient(ABC):
         params: StudentParamsSnapshot,
         conversation_history: list[dict],
         student_message: str,
-    ) -> dict:
-        pass
-
-
-class ILLMPopQuizClient(ABC):
-    @abstractmethod
-    def generate_pop_quiz_turn(
-        self,
-        topic: TopicEntity,
-        params: StudentParamsSnapshot,
-        conversation_history: list[dict],
-        mode_state: dict,
-        student_message: str | None,
     ) -> dict:
         pass
 
