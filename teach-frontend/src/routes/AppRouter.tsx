@@ -8,7 +8,6 @@ import RoleRoute from './RoleRoute'
 
 const WelcomePage = lazy(() => import('../pages/WelcomePage'))
 const StudentTopicCatalogPage = lazy(() => import('../pages/student/StudentTopicCatalogPage'))
-const TopicModeSelectPage = lazy(() => import('../pages/student/TopicModeSelectPage'))
 const LiveLearningSessionPage = lazy(() => import('../pages/student/LiveLearningSessionPage'))
 const VivaSessionPage = lazy(() => import('../pages/student/VivaSessionPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
@@ -27,7 +26,7 @@ function RouterContent() {
           <Route element={<RoleRoute allowedRole="student" />}>
             <Route element={<StudentLayout />}>
               <Route path="/student" element={<StudentTopicCatalogPage />} />
-              <Route path="/student/topics/:topicId" element={<TopicModeSelectPage />} />
+              <Route path="/student/topics/:topicId" element={<StudentTopicCatalogPage />} />
               <Route path="/student/sessions/:sessionId" element={<LiveLearningSessionPage />} />
               <Route path="/student/sessions/:sessionId/viva" element={<VivaSessionPage />} />
               <Route path="/student/settings" element={<SettingsPage />} />

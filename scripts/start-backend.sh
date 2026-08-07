@@ -28,9 +28,9 @@ if [ ! -f teach.db ]; then
   if [ -f teach_dump.sql ]; then
     sqlite3 teach.db < teach_dump.sql
     echo "Database restored from teach_dump.sql"
-  else
-    python scripts/init_db.py
   fi
 fi
+
+python scripts/init_db.py
 
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

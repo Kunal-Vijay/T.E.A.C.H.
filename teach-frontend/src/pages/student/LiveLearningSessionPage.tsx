@@ -74,6 +74,19 @@ export default function LiveLearningSessionPage() {
   }, [session, speakNow])
 
   useEffect(() => {
+    if (session == null) {
+      return
+    }
+    const taughtCount = session.taught_toc_item_ids.length
+    if (taughtCount === 0) {
+      return
+    }
+    void import('../../services/topicProgress').then(({ updateTopicProgress }) => {
+      updateTopicProgress(session.topic_id, taughtCount)
+    })
+  }, [session])
+
+  useEffect(() => {
     if (transcript.trim() === '') {
       return
     }

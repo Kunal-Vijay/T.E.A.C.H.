@@ -5,6 +5,22 @@
 }
 
 /* Modal */
+.modal-root {
+  position: relative;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  border: none;
+  background: var(--shadow-ghost-medium);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: modal-backdrop-in var(--duration-medium) var(--ease-out) both;
+}
+
 .modal-shell {
   position: fixed;
   inset: 0;
@@ -12,17 +28,11 @@
   display: grid;
   place-items: center;
   padding: var(--space-5);
+  pointer-events: none;
 }
 
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  border: none;
-  background: var(--shadow-ghost-medium);
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: modal-backdrop-in var(--duration-medium) var(--ease-out) both;
+.modal-shell > * {
+  pointer-events: auto;
 }
 
 .modal-panel {
