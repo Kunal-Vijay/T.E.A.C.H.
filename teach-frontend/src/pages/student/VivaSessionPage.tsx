@@ -24,9 +24,9 @@ const STATUS_COPY: Record<string, string> = {
 
 function formatClock(totalSeconds: number): string {
   const safe = Math.max(0, Math.round(totalSeconds))
-  const minutes = Math.floor(safe / 60)
+  const wholeMinutes = Math.floor(safe / 60)
   const seconds = safe % 60
-  return `${minutes}:${String(seconds).padStart(2, '0')}`
+  return `${wholeMinutes}:${String(seconds).padStart(2, '0')}`
 }
 
 export default function VivaSessionPage() {
@@ -141,8 +141,8 @@ export default function VivaSessionPage() {
             <p className="page-kicker">Know your understanding</p>
             <h1>Spoken viva</h1>
             <p>
-              Up to {maxQuestions} questions or {Math.round(maxSeconds / 60)} minutes, whichever
-              comes first. Your examiner speaks first — just answer out loud.
+              Up to {maxQuestions} questions or {formatClock(maxSeconds)}, whichever comes first.
+              Your examiner speaks first — just answer out loud.
             </p>
           </div>
           <Button type="button" variant="secondary" onClick={handleExit}>

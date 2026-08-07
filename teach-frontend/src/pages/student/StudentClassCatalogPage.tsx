@@ -208,7 +208,6 @@ export default function StudentClassCatalogPage() {
                         subject={classPlan.subject}
                         grade={classPlan.grade}
                         chapterName={classPlan.chapter_name}
-                        durationMinutes={classPlan.total_duration_minutes}
                         isJoining={isJoining}
                         joinDisabled={joiningId !== null}
                         onJoin={() => { void attendClass(generation.generation_id) }}

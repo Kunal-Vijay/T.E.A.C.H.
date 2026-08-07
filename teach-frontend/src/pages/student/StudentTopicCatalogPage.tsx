@@ -20,7 +20,6 @@ import {
 import { useMentor } from '../../context/MentorContext'
 import { useToast } from '../../context/ToastContext'
 import {
-  estimateTopicDurationMinutes,
   fetchAllPublishedTopics,
   formatRecordingDate,
   resolveRecordingStatus,
@@ -175,7 +174,6 @@ export default function StudentTopicCatalogPage() {
                         }
                         topicCount={topic.toc_items.length}
                         recordingDateLabel={formatRecordingDate(topic.updated_at ?? topic.created_at)}
-                        durationMinutes={estimateTopicDurationMinutes(topic.toc_items.length)}
                         recordingStatus={resolveRecordingStatus(progressPercent)}
                         tutorName={tutor.name}
                         onOpen={(event) => openTopic(topic, event.currentTarget)}

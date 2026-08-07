@@ -1,19 +1,17 @@
 import { memo } from 'react'
-import { BookOpen, Clock, Layers } from 'lucide-react'
+import { BookOpen, Layers } from 'lucide-react'
 import Icon from './Icon'
 
 export interface ClassCardMetaProps {
   subject: string
   grade: string
   chapterName: string
-  durationMinutes: number
 }
 
 function ClassCardMeta({
   subject,
   grade,
   chapterName,
-  durationMinutes,
 }: ClassCardMetaProps) {
   return (
     <ul className="class-catalog-meta">
@@ -24,10 +22,6 @@ function ClassCardMeta({
       <li>
         <Icon icon={Layers} size={14} className="class-catalog-meta-icon" />
         <span>{chapterName}</span>
-      </li>
-      <li>
-        <Icon icon={Clock} size={14} className="class-catalog-meta-icon" />
-        <span>{durationMinutes} min lesson</span>
       </li>
     </ul>
   )

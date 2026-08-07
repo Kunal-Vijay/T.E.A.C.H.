@@ -2,7 +2,6 @@ import {
   Brain,
   Check,
   ChevronDown,
-  Clock,
   GraduationCap,
   HelpCircle,
   Layers,
@@ -15,7 +14,6 @@ import Modal from '../ui/Modal'
 import { Button, ErrorState, IconButton, Select, StatusBadge } from '../ui'
 import Icon from '../ui/Icon'
 import { useToast } from '../../context/ToastContext'
-import { estimateTopicDurationMinutes } from '../../lib/topicCatalog'
 import {
   formatPreferenceFieldDescription,
   formatPreferenceFieldLabel,
@@ -214,10 +212,6 @@ export default function TopicSessionModal({
     }
   }
 
-  const durationMinutes = topic != null
-    ? estimateTopicDurationMinutes(topic.toc_items.length)
-    : null
-
   const topicItems = topic?.toc_items ?? []
   const hasHiddenTopics = topicItems.length > TOPIC_VISIBLE_LIMIT
   const visibleTopics = useMemo(() => {
@@ -300,12 +294,6 @@ export default function TopicSessionModal({
                       {topicItems.length} {topicItems.length === 1 ? 'topic' : 'topics'}
                     </span>
                   </div>
-                  {durationMinutes != null ? (
-                    <div className="session-config-stat">
-                      <Icon icon={Clock} size={16} className="session-config-stat-icon" />
-                      <span>{durationMinutes} min estimated</span>
-                    </div>
-                  ) : null}
                 </div>
 
                 <ol className="session-config-timeline" aria-label="Lesson topics">
@@ -445,18 +433,6 @@ export default function TopicSessionModal({
           </div>
 
           <footer className="session-config-footer">
-            <div className="session-config-footer-meta">
-              {durationMinutes != null ? (
-                <p className="session-config-duration">
-                  <Icon icon={Clock} size={15} />
-                  <span>
-                    <strong>{durationMinutes} min</strong> estimated
-                  </span>
-                </p>
-              ) : (
-                <span aria-hidden="true" />
-              )}
-            </div>
             <div className="session-config-footer-actions">
               <Button type="button" variant="secondary" onClick={requestClose} disabled={starting}>
                 Cancel

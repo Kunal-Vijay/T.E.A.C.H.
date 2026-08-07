@@ -1,15 +1,6 @@
 import { topicApi } from '../services/api/topicApi'
 import type { TopicResponse } from '../types/learning.types'
 
-const MINUTES_PER_LESSON = 12
-
-export function estimateTopicDurationMinutes(lessonCount: number): number | null {
-  if (lessonCount <= 0) {
-    return null
-  }
-  return lessonCount * MINUTES_PER_LESSON
-}
-
 export function formatRecordingDate(isoDate: string | null | undefined): string | null {
   if (isoDate == null || isoDate === '') {
     return null

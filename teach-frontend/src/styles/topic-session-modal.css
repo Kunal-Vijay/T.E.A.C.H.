@@ -531,7 +531,7 @@
 .session-config-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--space-4);
   flex-shrink: 0;
   flex-wrap: wrap;
@@ -539,26 +539,6 @@
   border-top: 1px solid color-mix(in srgb, var(--hub-border) 70%, transparent);
   background: color-mix(in srgb, var(--hub-surface-heavy) 92%, transparent);
   box-shadow: 0 -12px 32px color-mix(in srgb, #000 8%, transparent);
-}
-
-.session-config-footer-meta {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.session-config-duration {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0;
-  font-size: var(--text-micro);
-  color: var(--hub-text-muted);
-}
-
-.session-config-duration strong {
-  font-weight: var(--font-weight-semibold);
-  color: var(--hub-text-secondary);
 }
 
 .session-config-footer-actions {

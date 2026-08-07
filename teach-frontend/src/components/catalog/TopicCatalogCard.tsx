@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, Clock, Layers, Sparkles } from 'lucide-react'
+import { ArrowRight, Calendar, Layers, Sparkles } from 'lucide-react'
 import { memo, type KeyboardEvent, type MouseEvent } from 'react'
 import Icon from '../ui/Icon'
 import StatusBadge from '../ui/StatusBadge'
@@ -9,7 +9,6 @@ export interface TopicCatalogCardProps {
   description: string
   topicCount: number
   recordingDateLabel: string | null
-  durationMinutes: number | null
   recordingStatus: 'Completed' | 'Recorded'
   tutorName?: string
   onOpen: (event: MouseEvent<HTMLButtonElement> | KeyboardEvent<HTMLButtonElement>) => void
@@ -22,7 +21,6 @@ function TopicCatalogCard({
   description,
   topicCount,
   recordingDateLabel,
-  durationMinutes,
   recordingStatus,
   tutorName = 'Nova',
   onOpen,
@@ -60,12 +58,6 @@ function TopicCatalogCard({
           <Icon icon={Layers} size={14} className="recorded-class-meta-icon" />
           <span>{topicLabel}</span>
         </li>
-        {durationMinutes !== null ? (
-          <li>
-            <Icon icon={Clock} size={14} className="recorded-class-meta-icon" />
-            <span>{durationMinutes} min</span>
-          </li>
-        ) : null}
         {recordingDateLabel !== null ? (
           <li>
             <Icon icon={Calendar} size={14} className="recorded-class-meta-icon" />

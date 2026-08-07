@@ -8,7 +8,6 @@ export interface ClassCatalogCardProps {
   subject: string
   grade: string
   chapterName: string
-  durationMinutes: number
   isJoining: boolean
   joinDisabled: boolean
   onJoin: () => void
@@ -20,7 +19,6 @@ export default function ClassCatalogCard({
   subject,
   grade,
   chapterName,
-  durationMinutes,
   isJoining,
   joinDisabled,
   onJoin,
@@ -43,7 +41,6 @@ export default function ClassCatalogCard({
         subject={subject}
         grade={grade}
         chapterName={chapterName}
-        durationMinutes={durationMinutes}
       />
 
       <footer className="class-catalog-card-footer">

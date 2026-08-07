@@ -128,7 +128,7 @@ export const HERO_FLOAT_CARDS: HeroFloatCardConfig[] = [
     tilt: -2,
     floatDelay: 0.45,
     elevation: 1,
-    body: 'Next: Newton’s First Law · 8 min',
+    body: 'Next: Newton’s First Law',
   },
   {
     id: 'explain',
