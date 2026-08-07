@@ -30,6 +30,11 @@
   overflow: hidden;
 }
 
+.session-tutor-stage-controls {
+  display: flex;
+  justify-content: center;
+}
+
 .session-tutor-stage-status {
   display: inline-flex;
   align-items: center;

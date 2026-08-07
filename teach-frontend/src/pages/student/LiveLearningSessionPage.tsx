@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { useNavigate, useParams } from 'react-router-dom'
 import LearningWhiteboard from '../../components/classroom/LearningWhiteboard'
 import SessionTutorStage from '../../components/classroom/SessionTutorStage'
-import SyncedTutorTranscript from '../../components/classroom/SyncedTutorTranscript'
 import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../components/ui'
 import { useLiveSessionTutorSpeech } from '../../hooks/useLiveSessionTutorSpeech'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
@@ -94,13 +93,11 @@ export default function LiveLearningSessionPage() {
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
   const {
-    fullText,
     revealedText,
     speechStatus,
     isPaused,
     isSpeechActive,
     speakTutorText,
-    replayTutorText,
     interruptSpeech,
     resetSpeechTracking,
     togglePauseSpeech,
@@ -338,14 +335,8 @@ export default function LiveLearningSessionPage() {
     )
   }
 
-  const tutorText =
-    session.current_visual?.explanation_text ?? session.latest_tutor_message ?? ''
-  const transcriptText = fullText !== ''
-    ? fullText
-    : currentExplanation !== ''
-      ? currentExplanation
-      : tutorText
   const canSendMessage = canInteractWithSession && message.trim() !== '' && !submitting
+  const showTutorPauseControl = canInteractWithSession && isSpeechActive
 
   return (
     <AppPage>
@@ -375,17 +366,6 @@ export default function LiveLearningSessionPage() {
               elements={boardElements}
               slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
               variant="marker"
-            />
-            <SyncedTutorTranscript
-              fullText={transcriptText}
-              revealedText={revealedText}
-              speechStatus={speechStatus}
-              isPaused={isPaused}
-              canControlPlayback={canInteractWithSession}
-              onTogglePause={togglePauseSpeech}
-              onReplay={() => {
-                void replayTutorText(session.params_snapshot.language_style)
-              }}
             />
             {awaitingContinue && !isSpeechActive ? (
               <div className="session-composer-actions">
@@ -454,6 +434,9 @@ export default function LiveLearningSessionPage() {
             listening={isListening}
             subtitle={tutorSubtitle}
             statusLabel={tutorStageLabel}
+            showPauseControl={showTutorPauseControl}
+            isPaused={isPaused}
+            onTogglePause={togglePauseSpeech}
           />
         </div>
       </PageSection>
