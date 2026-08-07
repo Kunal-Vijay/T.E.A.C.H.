@@ -40,9 +40,12 @@ def get_bedrock_runtime_client(read_timeout_seconds: int | None = None):
 
 @validate_call(validate_return=True)
 def has_aws_credentials() -> bool:
-    session = boto3.Session()
-    credentials = session.get_credentials()
-    return credentials is not None and credentials.access_key is not None
+    try:
+        session = boto3.Session()
+        credentials = session.get_credentials()
+        return credentials is not None and credentials.access_key is not None
+    except Exception:
+        return False
 
 
 @validate_call(validate_return=True)

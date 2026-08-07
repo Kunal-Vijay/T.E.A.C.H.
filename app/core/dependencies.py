@@ -8,18 +8,29 @@ from sqlalchemy.orm import Session
 from app.application.services.class_plan_service import ClassPlanService
 from app.application.services.classroom_session_service import ClassroomSessionService
 from app.application.services.doubt_session_service import DoubtSessionService
-from app.application.services.tts_service import TtsService
+from app.application.services.learning_session_service import LearningSessionService
 from app.application.services.live_class_generation_service import LiveClassGenerationService
 from app.application.services.pop_quiz_service import PopQuizService
+from app.application.services.student_profile_service import StudentProfileService
+from app.application.services.topic_service import TopicService
+from app.application.services.tts_service import TtsService
 from app.application.services.workflow_navigation_service import WorkflowNavigationService
 from app.core.database import get_db
 from app.domain.interfaces import (
     ILLMDoubtClient,
+    ILLMInteractiveDoubtClient,
+    ILLMPopQuizClient,
+    ILLMTeachClient,
+    ILLMVivaClient,
     ILLMWorkflowClient,
     IQueueClient,
     IUnitOfWork,
 )
 from app.infrastructure.bedrock.bedrock_doubt_client import BedrockDoubtClient
+from app.infrastructure.bedrock.bedrock_interactive_doubt_client import BedrockInteractiveDoubtClient
+from app.infrastructure.bedrock.bedrock_pop_quiz_client import BedrockPopQuizClient
+from app.infrastructure.bedrock.bedrock_teach_client import BedrockTeachClient
+from app.infrastructure.bedrock.bedrock_viva_client import BedrockVivaClient
 from app.infrastructure.bedrock.bedrock_workflow_client import BedrockWorkflowClient
 from app.infrastructure.queue.sqs_queue_client import SQSQueueClient
 from app.infrastructure.unit_of_work import UnitOfWork
@@ -42,12 +53,54 @@ def get_llm_doubt_client() -> ILLMDoubtClient:
     return BedrockDoubtClient()
 
 
+def get_llm_teach_client() -> ILLMTeachClient:
+    return BedrockTeachClient()
+
+
+def get_llm_interactive_doubt_client() -> ILLMInteractiveDoubtClient:
+    return BedrockInteractiveDoubtClient()
+
+
+def get_llm_pop_quiz_client() -> ILLMPopQuizClient:
+    return BedrockPopQuizClient()
+
+
+def get_llm_viva_client() -> ILLMVivaClient:
+    return BedrockVivaClient()
+
+
 def get_workflow_navigation_service(unit_of_work: IUnitOfWork = Depends(get_unit_of_work)) -> WorkflowNavigationService:
     return WorkflowNavigationService(unit_of_work)
 
 
 def get_class_plan_service(unit_of_work: IUnitOfWork = Depends(get_unit_of_work)) -> ClassPlanService:
     return ClassPlanService(unit_of_work)
+
+
+def get_topic_service(unit_of_work: IUnitOfWork = Depends(get_unit_of_work)) -> TopicService:
+    return TopicService(unit_of_work)
+
+
+def get_student_profile_service(
+    unit_of_work: IUnitOfWork = Depends(get_unit_of_work),
+) -> StudentProfileService:
+    return StudentProfileService(unit_of_work)
+
+
+def get_learning_session_service(
+    unit_of_work: IUnitOfWork = Depends(get_unit_of_work),
+    teach_client: ILLMTeachClient = Depends(get_llm_teach_client),
+    doubt_client: ILLMInteractiveDoubtClient = Depends(get_llm_interactive_doubt_client),
+    pop_quiz_client: ILLMPopQuizClient = Depends(get_llm_pop_quiz_client),
+    viva_client: ILLMVivaClient = Depends(get_llm_viva_client),
+) -> LearningSessionService:
+    return LearningSessionService(
+        unit_of_work,
+        teach_client,
+        doubt_client,
+        pop_quiz_client,
+        viva_client,
+    )
 
 
 def get_live_class_generation_service(

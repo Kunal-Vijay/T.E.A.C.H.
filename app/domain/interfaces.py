@@ -12,14 +12,23 @@ from app.domain.entities import (
     DoubtMessageEntity,
     DoubtSessionEntity,
     GeneratedAssetEntity,
+    LearningSessionEntity,
     LiveClassGenerationEntity,
     LiveClassSlideEntity,
     PopQuizAttemptEntity,
     PopQuizQuestionEntity,
+    SessionQuizAttemptEntity,
+    SessionTurnEntity,
+    SessionVisualEntity,
     SlideExplanationEntity,
+    StudentProfileEntity,
+    TopicEntity,
+    TopicTocItemEntity,
     TopicWorkflowEntity,
+    VivaAssessmentEntity,
 )
-from app.domain.enums import GenerationStatus, PlanStatus
+from app.domain.enums import GenerationStatus, PlanStatus, TopicStatus, VivaAdvanceReason
+from app.domain.student_params import StudentParamsSnapshot
 
 
 class IClassPlanRepository(ABC):
@@ -253,12 +262,151 @@ class ILLMImageClient(ABC):
         pass
 
 
+class ITopicRepository(ABC):
+    @abstractmethod
+    def create(self, topic: TopicEntity) -> TopicEntity:
+        pass
+
+    @abstractmethod
+    def update(self, topic: TopicEntity) -> TopicEntity:
+        pass
+
+    @abstractmethod
+    def find_by_id(self, topic_id: UUID) -> TopicEntity | None:
+        pass
+
+    @abstractmethod
+    def find_all(
+        self,
+        subject: str | None,
+        status: TopicStatus | None,
+        offset: int,
+        limit: int,
+    ) -> tuple[list[TopicEntity], int]:
+        pass
+
+    @abstractmethod
+    def update_status(self, topic_id: UUID, status: TopicStatus) -> TopicEntity:
+        pass
+
+    @abstractmethod
+    def soft_delete(self, topic_id: UUID) -> None:
+        pass
+
+    @abstractmethod
+    def replace_toc_items(self, topic_id: UUID, toc_items: list[TopicTocItemEntity]) -> TopicEntity:
+        pass
+
+
+class IStudentProfileRepository(ABC):
+    @abstractmethod
+    def upsert(self, profile: StudentProfileEntity) -> StudentProfileEntity:
+        pass
+
+    @abstractmethod
+    def find_by_student_identifier(self, student_identifier: str) -> StudentProfileEntity | None:
+        pass
+
+
+class ILearningSessionRepository(ABC):
+    @abstractmethod
+    def create(self, learning_session: LearningSessionEntity) -> LearningSessionEntity:
+        pass
+
+    @abstractmethod
+    def update(self, learning_session: LearningSessionEntity) -> LearningSessionEntity:
+        pass
+
+    @abstractmethod
+    def find_by_id(self, session_id: UUID) -> LearningSessionEntity | None:
+        pass
+
+    @abstractmethod
+    def create_turn(self, turn: SessionTurnEntity) -> SessionTurnEntity:
+        pass
+
+    @abstractmethod
+    def create_visual(self, visual: SessionVisualEntity) -> SessionVisualEntity:
+        pass
+
+    @abstractmethod
+    def create_quiz_attempt(self, attempt: SessionQuizAttemptEntity) -> SessionQuizAttemptEntity:
+        pass
+
+    @abstractmethod
+    def upsert_viva_assessment(self, assessment: VivaAssessmentEntity) -> VivaAssessmentEntity:
+        pass
+
+    @abstractmethod
+    def find_turns_by_session(self, session_id: UUID) -> list[SessionTurnEntity]:
+        pass
+
+    @abstractmethod
+    def find_latest_visual(self, session_id: UUID) -> SessionVisualEntity | None:
+        pass
+
+
+class ILLMTeachClient(ABC):
+    @abstractmethod
+    def generate_teach_turn(
+        self,
+        topic: TopicEntity,
+        params: StudentParamsSnapshot,
+        conversation_history: list[dict],
+        taught_toc_item_ids: list[str],
+        student_message: str | None,
+    ) -> dict:
+        pass
+
+
+class ILLMInteractiveDoubtClient(ABC):
+    @abstractmethod
+    def generate_doubt_turn(
+        self,
+        topic: TopicEntity,
+        params: StudentParamsSnapshot,
+        conversation_history: list[dict],
+        student_message: str,
+    ) -> dict:
+        pass
+
+
+class ILLMPopQuizClient(ABC):
+    @abstractmethod
+    def generate_pop_quiz_turn(
+        self,
+        topic: TopicEntity,
+        params: StudentParamsSnapshot,
+        conversation_history: list[dict],
+        mode_state: dict,
+        student_message: str | None,
+    ) -> dict:
+        pass
+
+
+class ILLMVivaClient(ABC):
+    @abstractmethod
+    def generate_viva_turn(
+        self,
+        topic: TopicEntity,
+        params: StudentParamsSnapshot,
+        conversation_history: list[dict],
+        mode_state: dict,
+        student_message: str | None,
+        advance_reason: VivaAdvanceReason | None,
+    ) -> dict:
+        pass
+
+
 class IUnitOfWork(ABC):
     session: Session
     class_plan_repository: IClassPlanRepository
     live_class_repository: ILiveClassRepository
     classroom_session_repository: IClassroomSessionRepository
     doubt_session_repository: IDoubtSessionRepository
+    topic_repository: ITopicRepository
+    student_profile_repository: IStudentProfileRepository
+    learning_session_repository: ILearningSessionRepository
 
     @abstractmethod
     def __enter__(self) -> IUnitOfWork:

@@ -27,6 +27,7 @@ export type SpeakOptions = SpeakCallbacks & {
   gapMs?: number
   /** How many upcoming segments to prefetch while playing. */
   prefetchAhead?: number
+  languageStyle?: string
 }
 
 export class SpeechController {
@@ -38,6 +39,7 @@ export class SpeechController {
   private prefetchPromises = new Map<string, Promise<string>>()
   private paused = false
   private resumeWaiters: Array<() => void> = []
+  private currentLanguageStyle: string | undefined = undefined
 
   isSupported(): boolean {
     return typeof window !== 'undefined' && typeof Audio !== 'undefined'
@@ -66,6 +68,7 @@ export class SpeechController {
     this.stop()
     const requestId = this.activeRequestId + 1
     this.activeRequestId = requestId
+    this.currentLanguageStyle = options?.languageStyle
 
     try {
       if (options?.voice?.pauseBeforeMs !== undefined && options.voice.pauseBeforeMs > 0) {
@@ -249,7 +252,7 @@ export class SpeechController {
   }
 
   private async fetchAndCache(text: string, cacheLookup: string): Promise<string> {
-    const audioBlob = await ttsApi.synthesize(text)
+    const audioBlob = await ttsApi.synthesize(text, this.currentLanguageStyle)
     if (audioBlob.size === 0) {
       throw new Error('empty-audio')
     }

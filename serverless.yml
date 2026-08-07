@@ -15,8 +15,6 @@ provider:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     FRONTEND_ORIGIN: ${param:FRONTEND_ORIGIN, 'http://localhost:5173'}
-    LIVE_CLASS_CONTENT_GENERATION_QUEUE_URL: ${param:LIVE_CLASS_CONTENT_GENERATION_QUEUE_URL}
-    LIVE_CLASS_IMAGE_GENERATION_QUEUE_URL: ${param:LIVE_CLASS_IMAGE_GENERATION_QUEUE_URL}
 
 params:
   dev:
@@ -24,27 +22,9 @@ params:
     BEDROCK_MODEL_ID: us.anthropic.claude-sonnet-4-6
     BEDROCK_REGION: us-west-2
     S3_BUCKET: ai-tutor-assets-dev
-    LIVE_CLASS_CONTENT_GENERATION_QUEUE_URL: ""
-    LIVE_CLASS_IMAGE_GENERATION_QUEUE_URL: ""
 
 functions:
   app: ${file(serverless/app/app.${self:provider.stage}.yml):app}
-  liveClassContentGenerationHandler:
-    handler: app.handlers.live_class_content_generation_handler.handle
-    timeout: 900
-    memorySize: 1024
-    events:
-      - sqs:
-          arn: ${param:CONTENT_QUEUE_ARN, 'arn:aws:sqs:ap-south-1:123456789012:live-class-content-generation-queue'}
-          batchSize: 1
-  liveClassImageGenerationHandler:
-    handler: app.handlers.live_class_image_generation_handler.handle
-    timeout: 300
-    memorySize: 512
-    events:
-      - sqs:
-          arn: ${param:IMAGE_QUEUE_ARN, 'arn:aws:sqs:ap-south-1:123456789012:live-class-image-generation-queue'}
-          batchSize: 1
 
 package:
   patterns:

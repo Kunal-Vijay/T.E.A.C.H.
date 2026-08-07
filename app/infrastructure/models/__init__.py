@@ -1,4 +1,14 @@
 from app.infrastructure.models.base import Base
+from app.infrastructure.models.learning_session_models import (
+    LearningSessionModel,
+    SessionQuizAttemptModel,
+    SessionTurnModel,
+    SessionVisualModel,
+    StudentProfileModel,
+    TopicModel,
+    TopicTocItemModel,
+    VivaAssessmentModel,
+)
 from app.infrastructure.models.live_class_models import (
     ClassPlanModel,
     ClassPlanTopicModel,
@@ -22,10 +32,18 @@ __all__ = [
     "DoubtMessageModel",
     "DoubtSessionModel",
     "GeneratedAssetModel",
+    "LearningSessionModel",
     "LiveClassGenerationModel",
     "LiveClassSlideModel",
     "PopQuizAttemptModel",
     "PopQuizQuestionModel",
+    "SessionQuizAttemptModel",
+    "SessionTurnModel",
+    "SessionVisualModel",
     "SlideExplanationModel",
+    "StudentProfileModel",
+    "TopicModel",
+    "TopicTocItemModel",
     "TopicWorkflowModel",
+    "VivaAssessmentModel",
 ]

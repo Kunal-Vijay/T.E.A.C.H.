@@ -8,7 +8,10 @@ from app.domain.interfaces import IUnitOfWork
 from app.infrastructure.repositories.class_plan_repository import ClassPlanRepository
 from app.infrastructure.repositories.classroom_session_repository import ClassroomSessionRepository
 from app.infrastructure.repositories.doubt_session_repository import DoubtSessionRepository
+from app.infrastructure.repositories.learning_session_repository import LearningSessionRepository
 from app.infrastructure.repositories.live_class_repository import LiveClassRepository
+from app.infrastructure.repositories.student_profile_repository import StudentProfileRepository
+from app.infrastructure.repositories.topic_repository import TopicRepository
 
 
 class UnitOfWork(IUnitOfWork):
@@ -18,6 +21,9 @@ class UnitOfWork(IUnitOfWork):
         self.live_class_repository = LiveClassRepository(session)
         self.classroom_session_repository = ClassroomSessionRepository(session)
         self.doubt_session_repository = DoubtSessionRepository(session)
+        self.topic_repository = TopicRepository(session)
+        self.student_profile_repository = StudentProfileRepository(session)
+        self.learning_session_repository = LearningSessionRepository(session)
 
     def __enter__(self) -> IUnitOfWork:
         return self

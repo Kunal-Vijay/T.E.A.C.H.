@@ -16,12 +16,12 @@ export default function TeacherLayout() {
     <div className="teach-shell teach-shell--hub">
       <ProductAmbient intensity="hub" />
       <AppNavBar
-        homeTo="/teacher/classes"
+        homeTo="/teacher/topics"
         homeAriaLabel="Teacher dashboard home"
         roleLabel="Teacher"
         links={[
-          { kind: 'route', to: '/teacher/classes', label: 'Classes', icon: LayoutGrid, end: true },
-          { kind: 'route', to: '/teacher/classes/new', label: 'Create Class', icon: Plus },
+          { kind: 'route', to: '/teacher/topics', label: 'Topics', icon: LayoutGrid, end: true },
+          { kind: 'route', to: '/teacher/topics/new', label: 'Create Topic', icon: Plus },
           { kind: 'route', to: '/teacher/settings', label: 'Settings', icon: Settings },
           { kind: 'action', label: 'Switch role', icon: LogOut, onClick: switchRole, tone: 'exit' },
         ]}

@@ -11,6 +11,7 @@ import type { MentorDefinition, VoiceProfile } from '../types/mentor.types'
 export interface SpeakMentorOptions {
   voice?: VoiceProfile
   mentor?: MentorDefinition
+  languageStyle?: string
   onEnd?: () => void
   onSentenceStart?: SpeakOptions['onSentenceStart']
   onSentenceEnd?: SpeakOptions['onSentenceEnd']
@@ -38,6 +39,7 @@ export function useSpeech() {
     setSpeechStatus('speaking')
     const speakOptions: SpeakOptions = {
       voice: options?.voice,
+      languageStyle: options?.languageStyle,
       onSentenceStart: options?.onSentenceStart,
       onSentenceEnd: options?.onSentenceEnd,
       onEnd: () => {

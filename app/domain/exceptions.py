@@ -39,3 +39,19 @@ class PopQuizQuestionNotFoundException(DomainException):
 
 class InvalidWorkflowStateException(DomainException):
     pass
+
+
+class TopicNotFoundException(DomainException):
+    pass
+
+
+class StudentProfileNotFoundException(DomainException):
+    pass
+
+
+class LearningSessionNotFoundException(DomainException):
+    pass
+
+
+class LearningSessionNotActiveException(DomainException):
+    pass

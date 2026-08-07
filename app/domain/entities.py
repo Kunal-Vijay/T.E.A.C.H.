@@ -11,11 +11,18 @@ from app.domain.enums import (
     ClassroomSessionStatus,
     DoubtSessionStatus,
     GenerationStatus,
+    GoalStatus,
+    InputChannel,
+    LearningMode,
+    LearningSessionStatus,
     PlanStatus,
+    SessionTurnRole,
     TeachingApproach,
+    TopicStatus,
     WorkflowPhase,
     WorkflowStateType,
 )
+from app.domain.student_params import StudentParamsSnapshot
 from app.domain.workflow_state_normalizer import normalize_workflow_state
 
 
@@ -240,3 +247,136 @@ class GeneratedAssetEntity(BaseModel):
     is_active: bool = True
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class TopicTocItemEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    topic_id: UUID
+    order: int
+    title: str
+    summary: str
+    teaching_notes: list[str] = Field(default_factory=list)
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class TopicEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    title: str
+    subject: str
+    description: str
+    status: TopicStatus
+    created_by: str | None = None
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    toc_items: list[TopicTocItemEntity] = Field(default_factory=list)
+
+
+class StudentProfileEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    student_identifier: str
+    display_name: str | None = None
+    attributes: StudentParamsSnapshot
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class SessionSlideElementEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    element_id: str
+    type: str
+    content: str | list[str] | None = None
+
+
+class SessionSlideEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    slide_id: str
+    layout: str
+    elements: list[SessionSlideElementEntity] = Field(default_factory=list)
+
+
+class SessionTurnEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    learning_session_id: UUID
+    order: int
+    role: SessionTurnRole
+    text: str
+    input_channel: InputChannel | None = None
+    is_active: bool = True
+    created_at: datetime | None = None
+
+
+class SessionVisualEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    learning_session_id: UUID
+    session_turn_id: UUID
+    slides: list[SessionSlideEntity] = Field(default_factory=list)
+    explanation_text: str
+    quiz_payload: dict | None = None
+    is_active: bool = True
+    created_at: datetime | None = None
+
+
+class SessionQuizAttemptEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    learning_session_id: UUID
+    question_text: str
+    selected_option_id: str | None = None
+    student_answer_text: str | None = None
+    is_correct: bool | None = None
+    explanation_text: str
+    order: int
+    is_active: bool = True
+    created_at: datetime | None = None
+
+
+class VivaAssessmentEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    learning_session_id: UUID
+    weak_toc_item_ids: list[str] = Field(default_factory=list)
+    insight_summary: str
+    question_evaluations: list[dict] = Field(default_factory=list)
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class LearningSessionEntity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    topic_id: UUID
+    mode: LearningMode
+    student_identifier: str
+    params_snapshot: StudentParamsSnapshot
+    status: LearningSessionStatus
+    goal_status: GoalStatus
+    taught_toc_item_ids: list[str] = Field(default_factory=list)
+    mode_state: dict = Field(default_factory=dict)
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    completed_at: datetime | None = None
+    turns: list[SessionTurnEntity] = Field(default_factory=list)
+    visuals: list[SessionVisualEntity] = Field(default_factory=list)
+    quiz_attempts: list[SessionQuizAttemptEntity] = Field(default_factory=list)
+    viva_assessment: VivaAssessmentEntity | None = None

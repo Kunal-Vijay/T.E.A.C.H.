@@ -17,7 +17,10 @@ def synthesize_speech(
     tts_service: TtsService = Depends(get_tts_service),
 ) -> Response:
     try:
-        audio_bytes = tts_service.synthesize_speech(request_dto.text)
+        audio_bytes = tts_service.synthesize_speech(
+            request_dto.text,
+            language_style=request_dto.language_style,
+        )
         return Response(content=audio_bytes, media_type="audio/mpeg")
     except ValidationException as error:
         raise HTTPException(status_code=400, detail=str(error)) from error

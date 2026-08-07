@@ -27,7 +27,7 @@ export default function WelcomePage() {
     window.setTimeout(() => {
       setRole(role)
       trackEvent('role_selected', { role, source: 'welcome' })
-      navigate(role === 'teacher' ? '/teacher/classes' : '/student')
+      navigate(role === 'teacher' ? '/teacher/topics' : '/student')
     }, COMMIT_DELAY_MS)
   }, [navigate, pendingRole])
 
