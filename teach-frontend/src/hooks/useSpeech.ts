@@ -12,6 +12,8 @@ export interface SpeakMentorOptions {
   voice?: VoiceProfile
   mentor?: MentorDefinition
   languageStyle?: string
+  /** ElevenLabs persona ID (e.g. "male", "female"). From MentorContext. */
+  persona?: string
   onEnd?: () => void
   onSentenceStart?: SpeakOptions['onSentenceStart']
   onSentenceEnd?: SpeakOptions['onSentenceEnd']
@@ -50,6 +52,7 @@ export function useSpeech() {
     const speakOptions: SpeakOptions = {
       voice: options?.voice,
       languageStyle: options?.languageStyle,
+      persona: options?.persona,
       onSentenceStart: (index, text) => {
         if (speechStatusRef.current !== 'paused') {
           updateSpeechStatus('speaking')

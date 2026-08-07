@@ -35,6 +35,8 @@ export type SpeakOptions = SpeakCallbacks & {
   /** How many upcoming segments to prefetch while playing. */
   prefetchAhead?: number
   languageStyle?: string
+  /** ElevenLabs persona ID (e.g. "male", "female"). Passed to the backend proxy. */
+  persona?: string
 }
 
 export class SpeechController {
@@ -47,6 +49,7 @@ export class SpeechController {
   private paused = false
   private resumeWaiters: Array<() => void> = []
   private currentLanguageStyle: string | undefined = undefined
+  private currentPersona: string | undefined = undefined
 
   isSupported(): boolean {
     return typeof window !== 'undefined' && typeof Audio !== 'undefined'
@@ -76,6 +79,7 @@ export class SpeechController {
     const requestId = this.activeRequestId + 1
     this.activeRequestId = requestId
     this.currentLanguageStyle = options?.languageStyle
+    this.currentPersona = options?.persona
 
     try {
       if (options?.voice?.pauseBeforeMs !== undefined && options.voice.pauseBeforeMs > 0) {
@@ -296,7 +300,7 @@ export class SpeechController {
   }
 
   private async fetchAndCache(text: string, cacheLookup: string): Promise<string> {
-    const audioBlob = await ttsApi.synthesize(text, this.currentLanguageStyle)
+    const audioBlob = await ttsApi.synthesize(text, this.currentLanguageStyle, this.currentPersona)
     if (audioBlob.size === 0) {
       throw new Error('empty-audio')
     }
