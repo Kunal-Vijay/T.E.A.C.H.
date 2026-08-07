@@ -1,13 +1,10 @@
 import AppNavBar from '../nav/AppNavBar'
 import ProductAmbient from '../shell/ProductAmbient'
-import { NovaTutor } from '../nova'
-import { useMentor } from '../../context/MentorContext'
 import { LayoutGrid } from 'lucide-react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 export default function StudentLayout() {
   const location = useLocation()
-  const { tutor, tutorLabel } = useMentor()
   const isClassroom = location.pathname.includes('/student/classroom/')
 
   return (
@@ -16,16 +13,7 @@ export default function StudentLayout() {
       {!isClassroom ? (
         <AppNavBar
           homeTo="/student"
-          homeAriaLabel="Student dashboard home"
-          roleLabel="Student"
-          mentorSlot={(
-            <div className="app-nav-tutor" aria-label={tutorLabel}>
-              <span aria-hidden="true">
-                <NovaTutor size="xs" label="" />
-              </span>
-              <span>{tutor.name}</span>
-            </div>
-          )}
+          homeAriaLabel="T.E.A.C.H home"
           links={[
             { kind: 'route', to: '/student', label: 'Classes', icon: LayoutGrid, end: true },
           ]}

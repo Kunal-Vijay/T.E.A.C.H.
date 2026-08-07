@@ -47,10 +47,12 @@ import './styles/nova-tutor.css'
 import './styles/product-shell.css'
 import './styles/classroom-immersive.css'
 import './styles/lesson-board.css'
+import './styles/lesson-embed-card.css'
 import './styles/mentor-panel.css'
 import './styles/voice-player.css'
 import './styles/voice-doubt.css'
 import './styles/classroom-tutor-experience.css'
+import './styles/live-classroom.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

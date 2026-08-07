@@ -439,11 +439,19 @@
 
 .lesson-formula {
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-2);
+  border-radius: var(--lesson-embed-radius, 18px);
+  border: 1px solid var(--lesson-embed-border, rgba(15, 23, 42, 0.08));
+  background: var(--lesson-embed-bg, #ffffff);
+  box-shadow: var(--lesson-embed-shadow);
   overflow-x: auto;
   font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--lesson-embed-text-body, #111827);
+}
+
+.lesson-formula .katex,
+.lesson-formula .katex * {
+  color: var(--lesson-embed-text-body, #111827);
 }
 
 .image-placeholder {

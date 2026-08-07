@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import LearningWhiteboard from '../../components/classroom/LearningWhiteboard'
+import LiveClassroomView from '../../components/live-classroom/LiveClassroomView'
 import SessionPreparingView from '../../components/classroom/SessionPreparingView'
-import SessionTutorStage from '../../components/classroom/SessionTutorStage'
-import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../components/ui'
+import { AppPage, ErrorState, PageSection } from '../../components/ui'
+import { useClassroomFullscreen } from '../../hooks/useClassroomFullscreen'
 import { useLiveSessionTutorSpeech } from '../../hooks/useLiveSessionTutorSpeech'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
@@ -119,6 +119,11 @@ export default function LiveLearningSessionPage() {
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
   const wasPreparingRef = useRef(false)
+  const workspaceRef = useRef<HTMLDivElement>(null)
+  const {
+    isFullscreen: isClassroomFullscreen,
+    toggleFullscreen: toggleClassroomFullscreen,
+  } = useClassroomFullscreen(workspaceRef)
   const {
     revealedText,
     speechStatus,
@@ -453,143 +458,75 @@ export default function LiveLearningSessionPage() {
 
   const canSendMessage = canInteractWithSession && message.trim() !== '' && !submitting
   const showTutorPauseControl = canInteractWithSession && isSpeechActive
+  const isThinking = submitting || speechStatus === 'loading'
+  const isClassroomSession = session?.mode === 'teach' || session?.mode === 'doubt'
+
+  const classroomView = showActiveSession && session != null && isClassroomSession ? (
+    <LiveClassroomView
+      workspaceRef={workspaceRef}
+      session={session}
+      sessionEntering={sessionEntering}
+      errorMessage={errorMessage}
+      onDismissError={() => setErrorMessage(null)}
+      boardElements={boardElements}
+      slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
+      slideIndex={slideIndex}
+      slidesCount={slides.length}
+      currentSlide={currentSlide}
+      visibleTurns={visibleTurns}
+      message={message}
+      onMessageChange={setMessage}
+      submitting={submitting}
+      canInteractWithSession={canInteractWithSession}
+      canSendMessage={canSendMessage}
+      isListening={isListening}
+      isSpeechActive={isSpeechActive}
+      isNovaSpeaking={isNovaSpeaking}
+      isThinking={isThinking}
+      isPaused={isPaused}
+      showPauseControl={showTutorPauseControl}
+      onTogglePause={togglePauseSpeech}
+      tutorSubtitle={tutorSubtitle}
+      awaitingContinue={awaitingContinue}
+      hasMoreSlides={hasMoreSlides}
+      onContinueLesson={continueLesson}
+      onSubmitMessage={() => void submitMessage(message, 'chat')}
+      onSpeakClick={handleSpeakClick}
+      onComposerKeyDown={handleComposerKeyDown}
+      isFullscreen={isClassroomFullscreen}
+      onToggleFullscreen={() => void toggleClassroomFullscreen()}
+      onExit={() => navigate('/student')}
+    />
+  ) : null
 
   return (
-    <AppPage>
-      <PageSection label={session != null ? `${LEARNING_MODE_LABELS[session.mode]} session` : 'Opening session'}>
-        {showActiveSession && session != null ? (
-          <div className={`live-session-active${sessionEntering ? ' is-entering' : ''}`}>
-            <div className="live-session-header">
-              <div>
-                <p className="page-kicker">{LEARNING_MODE_LABELS[session.mode]}</p>
-                <h1>Live session</h1>
-                <p>
-                  Goal: {session.goal_status} · Status: {session.status}
-                  {slides.length > 0 ? ` · Slide ${slideIndex + 1} of ${slides.length}` : ''}
-                  {isSpeechActive ? ' · Type or speak anytime to interrupt Nova' : ''}
-                </p>
-              </div>
-              <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
-                Exit
-              </Button>
-            </div>
-            {errorMessage !== null ? (
-              <PageAlert>
-                <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
-              </PageAlert>
-            ) : null}
-            <div className="live-session-layout live-session-layout--tutor-right">
-              <div className="live-session-main">
-                <LearningWhiteboard
-                  elements={boardElements}
-                  slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
-                  variant="marker"
-                />
-                {visibleTurns.length > 0 ? (
-                  <div className="session-conversation" aria-label="Conversation">
-                    {visibleTurns.map((turn) => (
-                      <div
-                        key={turn.id}
-                        className={`session-conversation-turn session-conversation-turn--${turn.role}`}
-                      >
-                        <span className="session-conversation-role">
-                          {turn.role === 'tutor' ? 'Nova' : 'You'}
-                        </span>
-                        <p>{turn.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-                {awaitingContinue && !isSpeechActive ? (
-                  <div className="session-composer-actions">
-                    <Button
-                      type="button"
-                      disabled={submitting || session.status !== 'active'}
-                      onClick={() => continueLesson()}
-                    >
-                      {hasMoreSlides ? 'Next slide' : 'Continue teaching'}
-                    </Button>
-                  </div>
-                ) : null}
-                {!isSpeechActive && !awaitingContinue && hasMoreSlides ? (
-                  <div className="session-composer-actions">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled={submitting || session.status !== 'active'}
-                      onClick={() => continueLesson()}
-                    >
-                      Next slide
-                    </Button>
-                  </div>
-                ) : null}
-                <div className="session-composer session-composer-interactive">
-                  {isSpeechActive ? (
-                    <p className="session-composer-hint">
-                      Nova is talking — you can still type or tap Speak. Sending a message stops Nova and gets an answer.
-                    </p>
-                  ) : null}
-                  <textarea
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    onKeyDown={handleComposerKeyDown}
-                    placeholder="Type a question anytime — Enter to send, Shift+Enter for a new line…"
-                    disabled={!canInteractWithSession}
-                    aria-disabled={!canInteractWithSession}
-                  />
-                  <div className="session-composer-actions">
-                    <Button
-                      type="button"
-                      loading={submitting}
-                      disabled={!canSendMessage}
-                      onClick={() => void submitMessage(message, 'chat')}
-                    >
-                      Send
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled={!canInteractWithSession}
-                      onClick={handleSpeakClick}
-                    >
-                      {isListening ? 'Stop & send voice' : 'Speak'}
-                    </Button>
-                  </div>
-                </div>
-                {session.goal_status === 'completed' ? (
-                  <PageAlert>
-                    <p>Mode goal completed. You can exit anytime.</p>
-                  </PageAlert>
-                ) : null}
-              </div>
-              <SessionTutorStage
-                speaking={isNovaSpeaking}
-                listening={isListening}
-                submitting={submitting || speechStatus === 'loading'}
-                liveCaption=""
-                mode={session.mode}
-                subtitle={tutorSubtitle}
-                showPauseControl={showTutorPauseControl}
-                isPaused={isPaused}
-                onTogglePause={togglePauseSpeech}
-              />
-            </div>
-          </div>
-        ) : null}
+    <>
+      {classroomView != null ? (
+        <main className="container page-main live-classroom-page">
+          <PageSection label={`${LEARNING_MODE_LABELS[session!.mode]} session`} className="live-classroom-section">
+            {classroomView}
+          </PageSection>
+        </main>
+      ) : showPreparingOverlay || session != null ? (
+        <AppPage>
+          <PageSection label={session != null ? `${LEARNING_MODE_LABELS[session.mode]} session` : 'Opening session'}>
+            {null}
+          </PageSection>
+        </AppPage>
+      ) : null}
 
-        {showPreparingOverlay ? (
-          <div className={`session-preparing-overlay${preparingExiting ? ' is-exiting' : ''}`}>
-            <SessionPreparingView
-              mode={session?.mode ?? 'teach'}
-              failed={firstTurnFailed}
-              errorMessage={session != null ? getFirstTurnError(session) ?? errorMessage : errorMessage}
-              retrying={retryingFirstTurn}
-              exiting={preparingExiting}
-              onRetry={() => void retryFirstTurn()}
-            />
-          </div>
-        ) : null}
-      </PageSection>
-    </AppPage>
+      {showPreparingOverlay ? (
+        <div className={`session-preparing-overlay${preparingExiting ? ' is-exiting' : ''}`}>
+          <SessionPreparingView
+            mode={session?.mode ?? 'teach'}
+            failed={firstTurnFailed}
+            errorMessage={session != null ? getFirstTurnError(session) ?? errorMessage : errorMessage}
+            retrying={retryingFirstTurn}
+            exiting={preparingExiting}
+            onRetry={() => void retryFirstTurn()}
+          />
+        </div>
+      ) : null}
+    </>
   )
 }

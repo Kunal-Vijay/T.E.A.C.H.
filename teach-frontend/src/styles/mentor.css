@@ -30,25 +30,6 @@
   filter: drop-shadow(0 12px 28px color-mix(in srgb, var(--mentor-glow) 35%, transparent));
 }
 
-.app-nav-tutor {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  color: var(--color-ink-soft);
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-
-@media (max-width: 900px) {
-  .app-nav-tutor span:last-child {
-    max-width: 8ch;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
 /* ── Speaking / celebration overlays ── */
 .mentor-speak-ring {
   position: absolute;

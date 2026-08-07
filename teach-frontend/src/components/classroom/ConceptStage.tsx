@@ -1,7 +1,7 @@
-import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import LessonContent from '../lesson/LessonContent'
 import { highlightKeywords } from '../../lib/classroom/keywordHighlight'
+import { renderBoardLatex } from '../../lib/lessonContent/renderBoardLatex'
 import { isSafeAssetUrl } from '../../lib/urlValidation'
 import type { BeatPhase, TeachingBeat } from '../../lib/classroom/teachingBeats'
 
@@ -16,7 +16,7 @@ function ConceptVisual({ imageUrl, caption }: { imageUrl: string; caption?: stri
     return <div className="concept-visual-placeholder">Visual example</div>
   }
   return (
-    <figure className="concept-visual">
+    <figure className="lesson-board-embed-card concept-visual">
       <img src={imageUrl} alt={caption ?? 'Lesson visual'} loading="lazy" decoding="async" />
       {caption !== undefined && caption.trim() !== '' ? (
         <figcaption>{caption}</figcaption>
@@ -26,8 +26,23 @@ function ConceptVisual({ imageUrl, caption }: { imageUrl: string; caption?: stri
 }
 
 function ConceptLatex({ content }: { content: string }) {
-  const html = katex.renderToString(content, { throwOnError: false })
-  return <div className="concept-latex" dangerouslySetInnerHTML={{ __html: html }} />
+  const { html, failed } = renderBoardLatex(content)
+
+  if (failed) {
+    return (
+      <div className="lesson-board-embed-card concept-latex lesson-board-embed-card--fallback">
+        <p className="lesson-board-embed-fallback-label">Equation</p>
+        <pre className="lesson-board-embed-fallback">{content.trim() || 'Unable to render equation'}</pre>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="lesson-board-embed-card concept-latex lesson-board-formula"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
 }
 
 interface ConceptStagePropsExtended extends ConceptStageProps {

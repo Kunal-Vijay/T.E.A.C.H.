@@ -1,6 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
 import TeachLogo from '../branding/TeachLogo'
 import Icon from '../ui/Icon'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -26,17 +25,13 @@ export type AppNavLink = AppNavRouteLink | AppNavActionLink
 interface AppNavBarProps {
   homeTo: string
   homeAriaLabel: string
-  roleLabel: string
   links: AppNavLink[]
-  mentorSlot?: ReactNode
 }
 
 export default function AppNavBar({
   homeTo,
   homeAriaLabel,
-  roleLabel,
   links,
-  mentorSlot,
 }: AppNavBarProps) {
   return (
     <header className="app-nav">
@@ -45,10 +40,8 @@ export default function AppNavBar({
           <Link to={homeTo} className="app-nav-logo" aria-label={homeAriaLabel}>
             <TeachLogo showTagline={false} />
           </Link>
-          <span className="app-nav-role">{roleLabel}</span>
-          {mentorSlot}
         </div>
-        <nav className="app-nav-links" aria-label={roleLabel}>
+        <nav className="app-nav-links" aria-label="Main navigation">
           <ThemeSwitcher />
           {links.map((link, index) => {
             const showDivider = link.kind === 'action' && link.tone === 'exit' && index > 0

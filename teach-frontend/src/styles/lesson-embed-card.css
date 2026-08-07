@@ -1,0 +1,216 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Lesson embed cards — equations, diagrams, tables on any board surface.
+   Isolated from chalkboard / dark-shell text color. Never inherit parent color.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --lesson-embed-bg: #ffffff;
+  --lesson-embed-border: rgba(15, 23, 42, 0.08);
+  --lesson-embed-shadow:
+    0 4px 18px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+  --lesson-embed-radius: 18px;
+  --lesson-embed-pad: 22px;
+  --lesson-embed-text: #0f172a;
+  --lesson-embed-text-body: #111827;
+  --lesson-embed-text-weight: 500;
+}
+
+/* ── Base card ── */
+.lesson-board-embed-card {
+  box-sizing: border-box;
+  color: var(--lesson-embed-text-body);
+  background: var(--lesson-embed-bg);
+  border: 1px solid var(--lesson-embed-border);
+  border-radius: var(--lesson-embed-radius);
+  padding: var(--lesson-embed-pad);
+  box-shadow: var(--lesson-embed-shadow);
+  isolation: isolate;
+  /* Break chalk / dark-shell color cascade */
+  --color-ink: var(--lesson-embed-text-body);
+  --color-ink-soft: var(--lesson-embed-text-body);
+  --color-primary: var(--lesson-embed-text);
+  --color-primary-hover: var(--lesson-embed-text);
+  --color-slate-soft: var(--lesson-embed-text-body);
+}
+
+/* Marker / chalkboard parents set light text — cards always stay dark-on-white */
+.is-marker-board .lesson-board-embed-card,
+.learning-whiteboard.is-marker-board .lesson-board-embed-card,
+.live-classroom-board .lesson-board-embed-card {
+  color: var(--lesson-embed-text-body);
+  background: var(--lesson-embed-bg);
+}
+
+/* ── KaTeX / MathJax-style math ── */
+.lesson-board-embed-card .katex,
+.lesson-board-embed-card .katex-display,
+.lesson-board-embed-card .katex-html,
+.lesson-board-embed-card .katex-mathml {
+  color: var(--lesson-embed-text-body);
+  font-weight: var(--lesson-embed-text-weight);
+}
+
+.lesson-board-embed-card .katex .mord,
+.lesson-board-embed-card .katex .mbin,
+.lesson-board-embed-card .katex .mrel,
+.lesson-board-embed-card .katex .mopen,
+.lesson-board-embed-card .katex .mclose,
+.lesson-board-embed-card .katex .mpunct,
+.lesson-board-embed-card .katex .minner,
+.lesson-board-embed-card .katex .mop,
+.lesson-board-embed-card .katex .mspace,
+.lesson-board-embed-card .katex .msupsub,
+.lesson-board-embed-card .katex .vlist-t,
+.lesson-board-embed-card .katex .frac-line,
+.lesson-board-embed-card .katex .sqrt > .vlist-t,
+.lesson-board-embed-card .katex .overline .overline-line,
+.lesson-board-embed-card .katex .underline .underline-line {
+  color: var(--lesson-embed-text-body);
+}
+
+.lesson-board-embed-card .katex svg {
+  color: var(--lesson-embed-text-body);
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.lesson-board-embed-card .katex-error {
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.65);
+  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+}
+
+/* ── Markdown / lesson content inside cards ── */
+.lesson-board-embed-card .lesson-content,
+.lesson-board-embed-card .lesson-inline,
+.lesson-board-embed-card .lesson-paragraph,
+.lesson-board-embed-card .lesson-heading,
+.lesson-board-embed-card .lesson-subheading,
+.lesson-board-embed-card .lesson-minor-heading,
+.lesson-board-embed-card .lesson-list li,
+.lesson-board-embed-card .lesson-blockquote,
+.lesson-board-embed-card .lesson-table td {
+  color: var(--lesson-embed-text-body);
+}
+
+.lesson-board-embed-card .lesson-content strong,
+.lesson-board-embed-card .lesson-inline strong {
+  color: var(--lesson-embed-text);
+  font-weight: 600;
+}
+
+.lesson-board-embed-card .lesson-content code,
+.lesson-board-embed-card .lesson-inline code {
+  color: var(--lesson-embed-text-body);
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+/* ── SVG diagrams (currentColor) ── */
+.lesson-board-embed-card svg:not(.katex svg) {
+  color: var(--lesson-embed-text-body);
+}
+
+/* ── Images on transparent backgrounds ── */
+.lesson-board-embed-card.lesson-board-visual img,
+.lesson-board-embed-card .concept-visual img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--lesson-embed-bg);
+}
+
+/* ── Formula layout ── */
+.lesson-board-embed-card.lesson-board-formula,
+.lesson-board-formula.lesson-board-embed-card {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: var(--lesson-embed-text-weight);
+  overflow-x: auto;
+}
+
+.lesson-board-embed-card.lesson-board-formula .katex {
+  font-size: 1.15em;
+}
+
+/* ── Visual / diagram layout ── */
+.lesson-board-embed-card.lesson-board-visual,
+.lesson-board-visual.lesson-board-embed-card {
+  margin: 0;
+  overflow: hidden;
+}
+
+.lesson-board-visual-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Render fallback ── */
+.lesson-board-embed-card--fallback {
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.lesson-board-embed-fallback {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--lesson-embed-text-body);
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+}
+
+.lesson-board-embed-fallback-label {
+  margin: 0 0 8px;
+  font-family: var(--font-family, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #b91c1c;
+}
+
+/* ── Concept stage (immersive classroom) ── */
+.concept-latex.lesson-board-embed-card {
+  margin-top: var(--space-4, 1rem);
+}
+
+.concept-visual.lesson-board-embed-card {
+  margin: var(--space-4, 1rem) 0 0;
+  padding: var(--lesson-embed-pad);
+}
+
+.concept-visual.lesson-board-embed-card figcaption {
+  margin-top: 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--lesson-embed-text-body);
+  text-align: center;
+}
+
+.concept-visual-placeholder {
+  min-height: 160px;
+  border-radius: var(--lesson-embed-radius);
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+  background: var(--lesson-embed-bg);
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}

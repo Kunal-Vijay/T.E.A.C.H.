@@ -1,10 +1,10 @@
-import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { Check } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 import Icon from '../ui/Icon'
 import LessonContent from './LessonContent'
 import { normalizeBulletItems } from '../../lib/classroom/lessonPlayback'
+import { renderBoardLatex } from '../../lib/lessonContent/renderBoardLatex'
 import { isSafeAssetUrl } from '../../lib/urlValidation'
 
 interface LessonBoardElementsProps {
@@ -14,6 +14,42 @@ interface LessonBoardElementsProps {
 
 function writeStyle(writeIndex: number): CSSProperties {
   return { '--write-index': writeIndex } as CSSProperties
+}
+
+function renderLatexCard(content: string): ReactNode {
+  const { html, failed } = renderBoardLatex(content)
+
+  if (failed) {
+    return (
+      <div className="lesson-board-embed-card lesson-board-formula lesson-board-embed-card--fallback">
+        <p className="lesson-board-embed-fallback-label">Equation</p>
+        <pre className="lesson-board-embed-fallback">{content.trim() || 'Unable to render equation'}</pre>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="lesson-board-embed-card lesson-board-formula"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
+function renderImageFigure(element: Record<string, unknown>): ReactNode {
+  const assetUrl = element.asset_url !== null && element.asset_url !== undefined
+    ? String(element.asset_url)
+    : null
+
+  return (
+    <figure className="lesson-board-embed-card lesson-board-visual">
+      {assetUrl !== null && assetUrl !== '' && isSafeAssetUrl(assetUrl) ? (
+        <img src={assetUrl} alt="Lesson visual" loading="lazy" decoding="async" />
+      ) : (
+        <div className="lesson-board-visual-placeholder">Diagram</div>
+      )}
+    </figure>
+  )
 }
 
 export default function LessonBoardElements({
@@ -92,9 +128,6 @@ function renderMarkerElements(elements: Array<Record<string, unknown>>): ReactNo
     }
 
     if (elementType === 'image') {
-      const assetUrl = element.asset_url !== null && element.asset_url !== undefined
-        ? String(element.asset_url)
-        : null
       const imageWriteIndex = writeIndex
       writeIndex += 1
       nodes.push(
@@ -103,37 +136,22 @@ function renderMarkerElements(elements: Array<Record<string, unknown>>): ReactNo
           className="lesson-board-block lesson-board-block--visual is-fading-in"
           style={writeStyle(imageWriteIndex)}
         >
-          <figure className="lesson-board-visual">
-            {assetUrl !== null && assetUrl !== '' && isSafeAssetUrl(assetUrl) ? (
-              <img src={assetUrl} alt="Lesson visual" loading="lazy" decoding="async" />
-            ) : (
-              <div className="lesson-board-visual-placeholder">Diagram</div>
-            )}
-          </figure>
+          {renderImageFigure(element)}
         </div>,
       )
       continue
     }
 
     if (elementType === 'latex') {
-      const html = katex.renderToString(String(element.content ?? ''), { throwOnError: false })
       const formulaWriteIndex = writeIndex
       writeIndex += 1
       nodes.push(
         <div
           key={`lb-latex-${index}`}
-          className="lesson-board-block lesson-board-block--formula is-marker"
+          className="lesson-board-block lesson-board-block--formula is-marker is-fading-in"
+          style={writeStyle(formulaWriteIndex)}
         >
-          <div
-            className="lesson-board-formula is-writing-in"
-            style={writeStyle(formulaWriteIndex)}
-          >
-            <div
-              className="khan-write-ink"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-            <span className="khan-chalk-tip" aria-hidden="true" />
-          </div>
+          {renderLatexCard(String(element.content ?? ''))}
         </div>,
       )
       continue
@@ -223,33 +241,20 @@ function renderDefaultElements(elements: Array<Record<string, unknown>>): ReactN
     }
 
     if (elementType === 'image') {
-      const assetUrl = element.asset_url !== null && element.asset_url !== undefined
-        ? String(element.asset_url)
-        : null
       return (
         <div key={`lb-image-${index}`} className="lesson-board-block lesson-board-block--visual">
-          <figure className="lesson-board-visual">
-            {assetUrl !== null && assetUrl !== '' && isSafeAssetUrl(assetUrl) ? (
-              <img src={assetUrl} alt="Lesson visual" loading="lazy" decoding="async" />
-            ) : (
-              <div className="lesson-board-visual-placeholder">Diagram</div>
-            )}
-          </figure>
+          {renderImageFigure(element)}
         </div>
       )
     }
 
     if (elementType === 'latex') {
-      const html = katex.renderToString(String(element.content ?? ''), { throwOnError: false })
       return (
         <div
           key={`lb-latex-${index}`}
           className="lesson-board-block lesson-board-block--formula"
         >
-          <div
-            className="lesson-board-formula"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          {renderLatexCard(String(element.content ?? ''))}
         </div>
       )
     }
