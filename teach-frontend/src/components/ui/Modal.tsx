@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 interface ModalProps {
@@ -23,8 +24,10 @@ export default function Modal({
     if (!open) {
       return undefined
     }
-    const previousOverflow = document.body.style.overflow
+    const previousBodyOverflow = document.body.style.overflow
+    const previousHtmlOverflow = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         void onClose()
@@ -32,7 +35,8 @@ export default function Modal({
     }
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = previousOverflow
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousHtmlOverflow
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [open, onClose])
@@ -41,12 +45,25 @@ export default function Modal({
     return null
   }
 
-  return (
-    <div className="modal-shell" role="dialog" aria-modal="true" aria-label={ariaLabel}>
-      <button type="button" className="modal-backdrop" aria-label="Close" onClick={() => { void onClose() }} />
-      <div className={panelClassName} ref={panelRef}>
-        {children}
+  return createPortal(
+    <div className="modal-root">
+      <button
+        type="button"
+        className="modal-backdrop"
+        aria-label="Close"
+        onClick={() => { void onClose() }}
+      />
+      <div
+        className="modal-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
+      >
+        <div className={panelClassName} ref={panelRef}>
+          {children}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

@@ -1,44 +1,89 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Ear, Mic, MicOff, Square, Timer } from 'lucide-react'
 import SessionTutorStage from '../../components/classroom/SessionTutorStage'
+import VivaAssessmentPanel from '../../components/classroom/VivaAssessmentPanel'
 import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../components/ui'
-import { useSpeech } from '../../hooks/useSpeech'
-import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
-import type { LearningSessionResponse, VivaAdvanceReason } from '../../types/learning.types'
+import { isVoiceCaptureSupported } from '../../lib/voice/novaSonicAudio'
+import { useVivaVoiceSession } from '../../hooks/useVivaVoiceSession'
+import type { LearningSessionResponse } from '../../types/learning.types'
+import './vivaSession.css'
 
-const SILENCE_MS = 12_000
+const STATUS_COPY: Record<string, string> = {
+  idle: 'Press start — the examiner asks the first question.',
+  connecting: 'Connecting to your examiner…',
+  listening: 'Your turn — answer out loud.',
+  student_speaking: 'Listening to you…',
+  examiner_speaking: 'Examiner speaking — listen, then answer.',
+  ended: 'Viva complete.',
+  error: 'Something went wrong.',
+}
+
+function formatClock(totalSeconds: number): string {
+  const safe = Math.max(0, Math.round(totalSeconds))
+  const minutes = Math.floor(safe / 60)
+  const seconds = safe % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
 
 export default function VivaSessionPage() {
   const { sessionId = '' } = useParams()
   const navigate = useNavigate()
+
   const [session, setSession] = useState<LearningSessionResponse | null>(null)
-  const [message, setMessage] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [micUnlocked, setMicUnlocked] = useState(false)
-  const lastSpokenRef = useRef<string | null>(null)
-  const silenceTimerRef = useRef<number | null>(null)
-  const { speakNow, stopSpeech, speechStatus } = useSpeech()
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [voiceAvailable, setVoiceAvailable] = useState<boolean | null>(null)
+  const transcriptEndRef = useRef<HTMLDivElement | null>(null)
+
   const {
-    phase,
+    status,
+    isLive,
+    errorMessage,
     transcript,
-    startListening,
-    stopListening,
-    reset,
-  } = useVoiceRecognition()
-  const isListening = phase === 'listening'
-  const isSpeaking = speechStatus === 'speaking'
+    micLevel,
+    progress,
+    completionReason,
+    assessment,
+    assessmentError,
+    maxQuestions,
+    maxSeconds,
+    setAssessment,
+    start,
+    stop,
+  } = useVivaVoiceSession(sessionId)
 
   useEffect(() => {
     let cancelled = false
+
     const load = async () => {
       try {
-        const response = await learningSessionApi.get(sessionId)
-        if (!cancelled) {
-          setSession(response.data)
+        const [sessionResponse, healthResponse] = await Promise.all([
+          learningSessionApi.get(sessionId),
+          learningSessionApi.voiceHealth(),
+        ])
+        if (cancelled) {
+          return
+        }
+        setSession(sessionResponse.data)
+        setVoiceAvailable(healthResponse.data.voice_viva_available)
+
+        // If this viva was already marked, show the result straight away rather
+        // than inviting the student to redo it.
+        if (
+          sessionResponse.data.viva_assessment !== null &&
+          sessionResponse.data.goal_status === 'completed'
+        ) {
+          try {
+            const stored = await learningSessionApi.voiceVivaAssessment(sessionId)
+            if (!cancelled) {
+              setAssessment(stored.data)
+            }
+          } catch {
+            // An older text-mode viva has no rubric to rebuild; ignore.
+          }
         }
       } catch (error) {
         if (cancelled) {
@@ -51,138 +96,42 @@ export default function VivaSessionPage() {
           'Failed to load viva',
         )
         if (resolved !== null) {
-          setErrorMessage(resolved)
+          setLoadError(resolved)
         }
       }
     }
+
     void load()
     return () => {
       cancelled = true
-      stopSpeech()
-      if (silenceTimerRef.current != null) {
-        window.clearTimeout(silenceTimerRef.current)
-      }
     }
-  }, [sessionId, stopSpeech])
+  }, [sessionId, setAssessment])
 
   useEffect(() => {
-    if (session == null) {
-      return
-    }
-    const spoken = session.latest_tutor_message ?? ''
-    if (spoken === '' || spoken === lastSpokenRef.current) {
-      return
-    }
-    lastSpokenRef.current = spoken
-    setMicUnlocked(false)
-    stopListening()
-    void speakNow(spoken, {
-      languageStyle: session.params_snapshot.language_style,
-      onEnd: () => setMicUnlocked(true),
-    }).then((started) => {
-      if (started !== true) {
-        setMicUnlocked(true)
-      }
-    })
-  }, [session, speakNow, stopListening])
-
-  useEffect(() => {
-    if (silenceTimerRef.current != null) {
-      window.clearTimeout(silenceTimerRef.current)
-      silenceTimerRef.current = null
-    }
-    if (
-      session == null ||
-      session.status !== 'active' ||
-      !micUnlocked ||
-      isSpeaking ||
-      isListening ||
-      submitting
-    ) {
-      return
-    }
-    silenceTimerRef.current = window.setTimeout(() => {
-      void advance('silence')
-    }, SILENCE_MS)
-    return () => {
-      if (silenceTimerRef.current != null) {
-        window.clearTimeout(silenceTimerRef.current)
-      }
-    }
-  }, [session, micUnlocked, isSpeaking, isListening, submitting, message])
-
-  useEffect(() => {
-    if (transcript.trim() === '') {
-      return
-    }
-    setMessage(transcript)
+    transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [transcript])
 
-  const advance = async (reason: VivaAdvanceReason) => {
-    if (session == null || session.status !== 'active' || submitting) {
-      return
-    }
-    setSubmitting(true)
-    stopSpeech()
-    stopListening()
-    try {
-      const response = await learningSessionApi.advanceViva(session.id, reason)
-      setSession(response.data)
-      setMessage('')
-      reset()
-    } catch (error) {
-      captureException(error, { page: 'viva_session', action: 'advance' })
-      const resolved = resolveDisplayedError(
-        error,
-        { component: 'VivaSessionPage', action: 'advance' },
-        'Failed to advance viva',
-      )
-      if (resolved !== null) {
-        setErrorMessage(resolved)
+  const handleExit = useCallback(() => {
+    void (async () => {
+      if (isLive) {
+        await stop()
       }
-    } finally {
-      setSubmitting(false)
-    }
-  }
+      navigate('/student')
+    })()
+  }, [isLive, navigate, stop])
 
-  const submitAnswer = async (channel: 'chat' | 'speech') => {
-    const trimmed = message.trim()
-    if (trimmed === '' || session == null || session.status !== 'active' || !micUnlocked) {
-      return
-    }
-    setSubmitting(true)
-    stopSpeech()
-    stopListening()
-    try {
-      const response = await learningSessionApi.submitTurn(session.id, {
-        message: trimmed,
-        channel,
-      })
-      setSession(response.data)
-      setMessage('')
-      reset()
-    } catch (error) {
-      captureException(error, { page: 'viva_session', action: 'submit' })
-      const resolved = resolveDisplayedError(
-        error,
-        { component: 'VivaSessionPage', action: 'submit' },
-        'Failed to submit answer',
-      )
-      if (resolved !== null) {
-        setErrorMessage(resolved)
-      }
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  if (session == null) {
+  if (session === null) {
     return (
       <AppPage>
-        <PageSection label="Loading viva">{errorMessage ?? 'Loading viva…'}</PageSection>
+        <PageSection label="Loading viva">{loadError ?? 'Loading viva…'}</PageSection>
       </AppPage>
     )
   }
+
+  const alreadyMarked = assessment !== null && !isLive
+  const answered = Math.min(progress.questionsAnswered, maxQuestions)
+  const timeLow = isLive && progress.secondsRemaining <= 20
+  const canStart = status === 'idle' || status === 'error'
 
   return (
     <AppPage>
@@ -190,101 +139,163 @@ export default function VivaSessionPage() {
         <div className="live-session-header">
           <div>
             <p className="page-kicker">Know your understanding</p>
-            <h1>Viva</h1>
+            <h1>Spoken viva</h1>
             <p>
-              Turn-by-turn oral check. Wait for the tutor to finish before answering.
-              {isSpeaking ? ' Tutor speaking…' : micUnlocked ? ' Your turn.' : ''}
+              Up to {maxQuestions} questions or {Math.round(maxSeconds / 60)} minutes, whichever
+              comes first. Your examiner speaks first — just answer out loud.
             </p>
           </div>
-          <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
+          <Button type="button" variant="secondary" onClick={handleExit}>
             Exit
           </Button>
         </div>
-        {errorMessage !== null ? (
+
+        {!isVoiceCaptureSupported() ? (
           <PageAlert>
-            <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
+            <ErrorState message="This browser cannot capture microphone audio. Try the latest Chrome, Edge or Safari." />
           </PageAlert>
         ) : null}
+
+        {voiceAvailable === false ? (
+          <PageAlert>
+            <ErrorState message="Spoken vivas are unavailable right now. Please try again later or tell your teacher." />
+          </PageAlert>
+        ) : null}
+
+        {loadError !== null ? (
+          <PageAlert>
+            <ErrorState message={loadError} onDismiss={() => setLoadError(null)} />
+          </PageAlert>
+        ) : null}
+
+        {errorMessage !== null ? (
+          <PageAlert>
+            <ErrorState message={errorMessage} />
+          </PageAlert>
+        ) : null}
+
         <div className="live-session-layout">
           <SessionTutorStage
-            speaking={isSpeaking}
-            listening={isListening || (micUnlocked && !isSpeaking && !submitting)}
-            statusLabel={
-              isSpeaking
-                ? 'Nova is speaking — wait for your turn'
-                : submitting
-                  ? 'Nova is evaluating'
-                  : micUnlocked
-                    ? 'Your turn to answer'
-                    : 'Nova is ready'
-            }
+            speaking={status === 'examiner_speaking'}
+            listening={status === 'listening' || status === 'student_speaking'}
+            statusLabel={STATUS_COPY[status] ?? STATUS_COPY.idle}
           />
+
           <div className="live-session-main">
-            <div className="viva-transcript">
-              {session.turns.map((turn) => (
-                <div key={turn.id} className={`viva-turn viva-turn-${turn.role}`}>
-                  <strong>{turn.role}</strong>
-                  <p>{turn.text}</p>
+            <div className="viva-controls">
+              <span className="viva-status">
+                <span className={`viva-status-dot viva-status-dot--${status}`} aria-hidden="true" />
+                {STATUS_COPY[status] ?? STATUS_COPY.idle}
+              </span>
+
+              {isLive || progress.questionsAsked > 0 ? (
+                <div className="viva-progress" aria-label="Viva progress">
+                  <div className="viva-progress-track">
+                    <div
+                      className="viva-progress-fill"
+                      style={{
+                        width: `${Math.min(100, (answered / Math.max(1, maxQuestions)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="viva-progress-label">
+                    {answered} of {maxQuestions} answered
+                  </span>
+                  <span className={`viva-clock${timeLow ? ' viva-clock--low' : ''}`}>
+                    <Timer size={13} aria-hidden="true" />
+                    {formatClock(progress.secondsRemaining)}
+                  </span>
                 </div>
-              ))}
-            </div>
-            {session.viva_assessment != null && session.goal_status === 'completed' ? (
-              <PageAlert>
-                <strong>Insights</strong>
-                <p>{session.viva_assessment.insight_summary}</p>
-                {session.viva_assessment.weak_toc_item_ids.length > 0 ? (
-                  <p>Weaker TOC ids: {session.viva_assessment.weak_toc_item_ids.join(', ')}</p>
+              ) : null}
+
+              {/* Mic level, so the student can see they are being heard. */}
+              {isLive ? (
+                <div className="viva-mic-meter" aria-hidden="true">
+                  <div
+                    className="viva-mic-meter-fill"
+                    style={{ width: `${Math.min(100, micLevel * 140)}%` }}
+                  />
+                </div>
+              ) : null}
+
+              <div className="viva-actions">
+                {canStart && !alreadyMarked ? (
+                  <Button
+                    type="button"
+                    icon={Mic}
+                    withIcon
+                    disabled={voiceAvailable === false || !isVoiceCaptureSupported()}
+                    onClick={() => void start()}
+                  >
+                    Start viva
+                  </Button>
                 ) : null}
-              </PageAlert>
-            ) : null}
-            <div className="session-composer">
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                placeholder={micUnlocked ? 'Answer here…' : 'Wait for the tutor to finish…'}
-                disabled={!micUnlocked || submitting || session.status !== 'active' || isSpeaking}
-              />
-              <div className="session-composer-actions">
-                <Button
-                  type="button"
-                  disabled={!micUnlocked || submitting || session.status !== 'active' || isSpeaking}
-                  onClick={() => void submitAnswer('chat')}
-                >
-                  Submit answer
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!micUnlocked || submitting || session.status !== 'active' || isSpeaking}
-                  onClick={() => {
-                    if (isListening) {
-                      stopListening()
-                      void submitAnswer('speech')
-                    } else {
-                      reset()
-                      startListening()
-                    }
-                  }}
-                >
-                  {isListening ? 'Stop & send' : 'Speak answer'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!micUnlocked || submitting || session.status !== 'active' || isSpeaking}
-                  onClick={() => void advance('pass')}
-                >
-                  Pass
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={!micUnlocked || submitting || session.status !== 'active' || isSpeaking}
-                  onClick={() => void advance('dont_know')}
-                >
-                  I don&apos;t know
-                </Button>
+
+                {status === 'connecting' ? (
+                  <Button type="button" disabled>
+                    Connecting…
+                  </Button>
+                ) : null}
+
+                {isLive ? (
+                  <Button type="button" variant="secondary" icon={Square} withIcon onClick={() => void stop()}>
+                    End &amp; mark
+                  </Button>
+                ) : null}
+
+                {alreadyMarked ? (
+                  <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
+                    Back to topics
+                  </Button>
+                ) : null}
               </div>
+
+              {completionReason !== null && assessment === null && assessmentError === null ? (
+                <p className="viva-note">
+                  {completionReason === 'time_limit'
+                    ? 'Time is up — marking your answers…'
+                    : completionReason === 'question_limit'
+                      ? `That's all ${maxQuestions} questions — marking your answers…`
+                      : 'Marking your answers…'}
+                </p>
+              ) : null}
+
+              {assessmentError !== null ? (
+                <p className="viva-note viva-note--muted">{assessmentError}</p>
+              ) : null}
+            </div>
+
+            {assessment !== null ? <VivaAssessmentPanel assessment={assessment} /> : null}
+
+            <div className="viva-transcript">
+              {transcript.length === 0 ? (
+                <div className="viva-transcript-empty">
+                  {isLive ? (
+                    <>
+                      <Ear size={18} aria-hidden="true" />
+                      <span>Waiting for the examiner to ask the first question…</span>
+                    </>
+                  ) : (
+                    <>
+                      <MicOff size={18} aria-hidden="true" />
+                      <span>Your conversation will appear here.</span>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {transcript.map((turn) => (
+                    <div
+                      key={turn.id}
+                      className={`viva-turn viva-turn-${turn.role === 'USER' ? 'student' : 'tutor'}`}
+                    >
+                      <strong>{turn.role === 'USER' ? 'You' : 'Examiner'}</strong>
+                      <p>{turn.text}</p>
+                    </div>
+                  ))}
+                  <div ref={transcriptEndRef} />
+                </>
+              )}
             </div>
           </div>
         </div>

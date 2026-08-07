@@ -18,6 +18,29 @@ from app.infrastructure.bedrock.bedrock_runtime_client import (
 logger = logging.getLogger(__name__)
 
 
+_EXPIRED_CREDENTIAL_MARKERS = (
+    "ExpiredToken",
+    "ExpiredTokenException",
+    "InvalidClientTokenId",
+    "UnrecognizedClientException",
+    "security token included in the request is expired",
+)
+
+
+def _is_expired_credentials_error(error: Exception) -> bool:
+    """True when a Bedrock call failed because the credentials are stale.
+
+    Matched on the botocore error code where available, falling back to the message,
+    so it does not depend on a specific botocore version.
+    """
+    code = ""
+    response = getattr(error, "response", None)
+    if isinstance(response, dict):
+        code = str(response.get("Error", {}).get("Code", ""))
+    haystack = f"{code} {error}"
+    return any(marker.lower() in haystack.lower() for marker in _EXPIRED_CREDENTIAL_MARKERS)
+
+
 @validate_call(validate_return=True)
 def require_bedrock_configuration() -> None:
     if settings.BEDROCK_MODEL_ID.strip() == "":
@@ -71,6 +94,18 @@ def invoke_structured_tool(
             inferenceConfig={"maxTokens": 8192},
         )
     except Exception as error:
+        # has_aws_credentials() only checks that keys are PRESENT, so expired
+        # temporary credentials sail past it and fail here instead of taking the
+        # mock path. Treat expiry as "no usable credentials" so the app stays
+        # demoable, but log loudly — this is a configuration problem, not a
+        # normal offline run.
+        if _is_expired_credentials_error(error):
+            logger.warning(
+                "AWS credentials are EXPIRED — falling back to the mock response for "
+                "operation=%s. Refresh them to get real model output.",
+                operation,
+            )
+            return mock_response
         log_external_api_error(logger, "Bedrock", operation, error, request_payload=request_payload)
         raise ValidationException(f"Bedrock {operation} failed: {error}") from error
 

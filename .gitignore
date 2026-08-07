@@ -12,3 +12,13 @@ teach-frontend/dist/
 .pytest_cache/
 .mypy_cache/
 *.db
+
+# Python 3.12 venv, required by the Nova Sonic voice viva
+venv312/
+.venv312/
+
+# SQLite backups, e.g. teach.db.bak.20260808-014247
+*.db.bak.*
+
+# Kiro workspace config. The steering file holds live AWS credentials.
+.kiro/steering/aws-credentials.md

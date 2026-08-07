@@ -96,11 +96,13 @@
   /* ── Z-index ── */
   --z-base: 0;
   --z-raised: 1;
-  --z-sticky: 10;
-  --z-dropdown: 20;
-  --z-overlay: 40;
-  --z-modal: 50;
-  --z-toast: 60;
+  --z-sticky: 100;
+  --z-dropdown: 200;
+  --z-overlay: 900;
+  --z-modal-backdrop: 1000;
+  --z-modal: 1010;
+  --z-modal-popover: 1050;
+  --z-toast: 1100;
 
   /* ── Layout shell — global horizontal spacing ── */
   --layout-shell-max: 1680px;
