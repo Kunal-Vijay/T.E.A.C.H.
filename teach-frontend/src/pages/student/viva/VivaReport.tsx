@@ -157,9 +157,9 @@ function RadarChart({ rubric }: { rubric: VivaRubricScore[] }) {
   const count = rubric.length
   if (count < 3) return null
 
-  const size = 200
+  const size = 240
   const center = size / 2
-  const maxR = 80
+  const maxR = 70
   const angleStep = (2 * Math.PI) / count
 
   const getPoint = (index: number, value: number) => {
@@ -192,12 +192,12 @@ function RadarChart({ rubric }: { rubric: VivaRubricScore[] }) {
       ))}
       {/* Labels */}
       {rubric.map((entry, i) => {
-        const labelR = maxR + 18
+        const labelR = maxR + 24
         const angle = angleStep * i - Math.PI / 2
         const x = center + labelR * Math.cos(angle)
         const y = center + labelR * Math.sin(angle)
         return (
-          <text key={entry.key} x={x} y={y} className="viva-radar-label" textAnchor="middle">
+          <text key={entry.key} x={x} y={y} className="viva-radar-label" textAnchor="middle" dominantBaseline="central">
             {entry.label.split(' ')[0]}
           </text>
         )
