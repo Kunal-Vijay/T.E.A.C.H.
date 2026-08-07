@@ -18,6 +18,7 @@ const STATUS_COPY: Record<string, string> = {
   listening: 'Your turn — answer out loud.',
   student_speaking: 'Listening to you…',
   examiner_speaking: 'Examiner speaking — listen, then answer.',
+  grading: 'Marking your answers…',
   ended: 'Viva complete.',
   error: 'Something went wrong.',
 }
@@ -41,6 +42,7 @@ export default function VivaSessionPage() {
   const {
     status,
     isLive,
+    isGrading,
     errorMessage,
     transcript,
     micLevel,
@@ -128,7 +130,7 @@ export default function VivaSessionPage() {
     )
   }
 
-  const alreadyMarked = assessment !== null && !isLive
+  const alreadyMarked = assessment !== null && !isLive && !isGrading
   const answered = Math.min(progress.questionsAnswered, maxQuestions)
   const timeLow = isLive && progress.secondsRemaining <= 20
   const canStart = status === 'idle' || status === 'error'
@@ -258,6 +260,10 @@ export default function VivaSessionPage() {
                       ? `That's all ${maxQuestions} questions — marking your answers…`
                       : 'Marking your answers…'}
                 </p>
+              ) : null}
+
+              {isGrading && assessment === null ? (
+                <p className="viva-note">Marking your answers — this takes a few seconds…</p>
               ) : null}
 
               {assessmentError !== null ? (

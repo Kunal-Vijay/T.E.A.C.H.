@@ -202,10 +202,23 @@ async def viva_voice_socket(session_id: UUID, websocket: WebSocket) -> None:
     async def model_to_browser() -> None:
         nonlocal close_reason, questions_asked, questions_answered
         current_role = "UNKNOWN"
+        is_speculative = False
         async for payload in session.events():
             name, body = classify_event(payload)
             if name == "contentStart":
                 current_role = body.get("role", current_role)
+                # Nova Sonic emits SPECULATIVE text before the final version. Both
+                # carry the same content, so forwarding both produces duplicates in
+                # the transcript. Only forward the final (non-speculative) version.
+                additional = body.get("additionalModelFields", "")
+                if isinstance(additional, str) and "SPECULATIVE" in additional:
+                    is_speculative = True
+                else:
+                    is_speculative = False
+            elif name == "contentEnd":
+                is_speculative = False
+                if str(body.get("stopReason", "")).upper() == "INTERRUPTED":
+                    await _send_json(websocket, {"type": "interrupted"})
             elif name == "textOutput":
                 content = str(body.get("content", "")).strip()
                 if content == "":
@@ -215,6 +228,11 @@ async def viva_voice_socket(session_id: UUID, websocket: WebSocket) -> None:
                 # must never reach the transcript.
                 if is_interruption_text(content):
                     await _send_json(websocket, {"type": "interrupted"})
+                    continue
+
+                # Skip speculative content — the final version follows shortly and
+                # forwarding both produces the duplicate-text bug.
+                if is_speculative:
                     continue
 
                 role = "USER" if current_role == "USER" else "ASSISTANT"
@@ -242,9 +260,6 @@ async def viva_voice_socket(session_id: UUID, websocket: WebSocket) -> None:
                 content = body.get("content")
                 if content:
                     await _send_json(websocket, {"type": "audio", "data": content})
-            elif name == "contentEnd":
-                if str(body.get("stopReason", "")).upper() == "INTERRUPTED":
-                    await _send_json(websocket, {"type": "interrupted"})
             elif name == "userSpeechStart":
                 await _send_json(websocket, {"type": "speech", "state": "start"})
             elif name == "userSpeechEnd":
@@ -292,6 +307,19 @@ async def viva_voice_socket(session_id: UUID, websocket: WebSocket) -> None:
         close_reason = "client disconnected"
     finally:
         await session.close()
+
+    # Tell the UI we are now grading so it can show a loader. The assessment model
+    # call takes 5–30 seconds; without this the student stares at nothing.
+    with contextlib.suppress(Exception):
+        await _send_json(
+            websocket,
+            {
+                "type": "grading",
+                "reason": close_reason,
+                "questions_asked": questions_asked,
+                "questions_answered": questions_answered,
+            },
+        )
 
     # Persist and grade. Done after the stream is torn down so a slow model call
     # cannot hold the audio channel open.

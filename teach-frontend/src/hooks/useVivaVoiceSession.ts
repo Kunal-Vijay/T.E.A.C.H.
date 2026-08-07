@@ -13,6 +13,7 @@ export type VivaVoiceStatus =
   | 'listening'
   | 'student_speaking'
   | 'examiner_speaking'
+  | 'grading'
   | 'ended'
   | 'error'
 
@@ -109,8 +110,23 @@ export function useVivaVoiceSession(sessionId: string) {
   const appendTranscript = useCallback((role: 'USER' | 'ASSISTANT', text: string) => {
     setTranscript((previous) => {
       const last = previous[previous.length - 1]
-      // Nova Sonic emits partial fragments; merge consecutive same-speaker text.
+      // Nova Sonic emits partial fragments and sometimes repeats the same content
+      // (SPECULATIVE then FINAL). The merge window below handles concatenation, but
+      // we also need to skip outright duplicates so the UI never shows the same
+      // sentence twice.
       if (last !== undefined && last.role === role && Date.now() - last.at < 8000) {
+        // Skip if the new text is already contained in the previous entry, which
+        // happens when Nova sends the same segment twice (speculative → final).
+        if (last.text.includes(text) || text.includes(last.text)) {
+          // Keep the longer of the two (final is usually ≥ speculative).
+          if (text.length > last.text.length) {
+            const merged = [...previous]
+            merged[merged.length - 1] = { ...last, text, at: Date.now() }
+            return merged
+          }
+          return previous
+        }
+        // Otherwise concatenate: two genuinely different fragments from the same turn.
         const merged = [...previous]
         merged[merged.length - 1] = { ...last, text: `${last.text} ${text}`.trim(), at: Date.now() }
         return merged
@@ -249,6 +265,19 @@ export function useVivaVoiceSession(sessionId: string) {
           })
           break
         }
+        case 'grading': {
+          // The server has closed the Nova Sonic stream and is now calling the
+          // assessment model (5–30 seconds). Show a loader rather than silence.
+          setProgress((current) => ({
+            ...current,
+            questionsAsked: Number(message.questions_asked ?? current.questionsAsked),
+            questionsAnswered: Number(message.questions_answered ?? current.questionsAnswered),
+            secondsRemaining: 0,
+          }))
+          setStatus('grading')
+          void teardown()
+          break
+        }
         case 'complete': {
           const rawReason = String(message.reason ?? '')
           const reason: VivaCompletionReason =
@@ -315,6 +344,7 @@ export function useVivaVoiceSession(sessionId: string) {
 
   const isLive =
     status === 'listening' || status === 'student_speaking' || status === 'examiner_speaking'
+  const isGrading = status === 'grading'
 
   // The server only pushes progress when a transcript event lands, so tick the clock
   // locally to keep the countdown smooth. Server frames overwrite this.
@@ -335,6 +365,7 @@ export function useVivaVoiceSession(sessionId: string) {
   return {
     status,
     isLive,
+    isGrading,
     errorMessage,
     transcript,
     micLevel,

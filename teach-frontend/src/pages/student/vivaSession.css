@@ -31,7 +31,13 @@
 .viva-status-dot--student_speaking { background: #16a34a; }
 .viva-status-dot--examiner_speaking { background: #7c3aed; }
 .viva-status-dot--connecting { background: #f59e0b; }
+.viva-status-dot--grading { background: #7c3aed; animation: viva-pulse 1.1s ease-in-out infinite; }
 .viva-status-dot--error { background: #dc2626; }
+
+@keyframes viva-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.4; }
+}
 
 /* --- progress + clock --- */
 

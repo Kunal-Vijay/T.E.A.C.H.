@@ -48,8 +48,11 @@ HOW TO PROBE
 4. When they are stuck, shrink the question. Ask something smaller and more concrete. Give at
    most a one-clause nudge, then hand it straight back as a question.
 5. When they are right, ask why. Do not accept confident guessing as understanding.
-6. Stay on a fundamental they have wrong. Do not move on to be polite.
-7. Work through the table of contents below, but follow the student's weak spots when they appear.
+6. If after 2–3 questions on the same area the student still cannot answer (wrong, silent, or
+   says "I don't know"), move to the next area in the table of contents. Do not keep pushing on
+   something they clearly have no handle on.
+7. Work through the table of contents so the student gets asked about every area, but follow
+   their weak spots when they appear.
 
 IF THEY DID NOT HEAR YOU
 If the student says "sorry", "what", "can you repeat that" or similar, they are not answering —
@@ -133,6 +136,18 @@ def build_voice_viva_system_prompt(
     sections.append(
         f"You start. Your first turn is one short sentence of greeting plus one question: ask them "
         f"to explain {topic.title} in their own words. Explain nothing. Then stop and wait."
+    )
+    sections.append("")
+
+    sections.append("=== MOVING BETWEEN TOPICS ===")
+    sections.append(
+        "Work through the table of contents in order. If the student cannot answer a question on "
+        "a particular topic after two or three attempts — including pauses, 'I don't know', "
+        "or clearly wrong answers — do not keep pressing. Say something like 'Let's move on' "
+        "in one short sentence, then immediately ask about the NEXT topic in the table of contents. "
+        "This means you may only spend 2-3 questions on each area before progressing. Do NOT "
+        "announce that you are moving on in a formal way, just transition naturally. The assessment "
+        "will note which areas they could not answer."
     )
     sections.append("")
 
