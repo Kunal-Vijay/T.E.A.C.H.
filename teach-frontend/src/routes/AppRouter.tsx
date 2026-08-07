@@ -9,7 +9,7 @@ import RoleRoute from './RoleRoute'
 const WelcomePage = lazy(() => import('../pages/WelcomePage'))
 const StudentTopicCatalogPage = lazy(() => import('../pages/student/StudentTopicCatalogPage'))
 const LiveLearningSessionPage = lazy(() => import('../pages/student/LiveLearningSessionPage'))
-const VivaSessionPage = lazy(() => import('../pages/student/VivaSessionPage'))
+const VivaSessionPage = lazy(() => import('../pages/student/viva/VivaExperience'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const StudentLayout = lazy(() => import('../components/layouts/StudentLayout'))
 
