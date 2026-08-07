@@ -27,9 +27,11 @@
 
 .welcome-role-track {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
   align-items: stretch;
 }
 
@@ -62,11 +64,6 @@
     border-color 250ms var(--ease-spring),
     box-shadow 250ms var(--ease-spring),
     background 250ms var(--ease-out);
-}
-
-.role-card--teacher {
-  --role-accent: var(--color-accent-border);
-  --role-accent-soft: var(--color-slate-light);
 }
 
 .role-card-top {

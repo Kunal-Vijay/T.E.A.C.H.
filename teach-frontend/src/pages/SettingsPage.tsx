@@ -1,15 +1,11 @@
 import { AppPage, GlassPanel, PageHeader, SectionTitle } from '../components/ui'
 import EnvironmentPicker from '../components/settings/EnvironmentPicker'
 import ThemePicker from '../components/settings/ThemePicker'
-import { getRole } from '../services/auth/authService'
 
 export default function SettingsPage() {
-  const role = getRole()
-  const isTeacher = role === 'teacher'
-
   return (
     <AppPage
-      variant={isTeacher ? 'teacher-wide' : 'student'}
+      variant="student"
       className="settings-page"
     >
       <PageHeader

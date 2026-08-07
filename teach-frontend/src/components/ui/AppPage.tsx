@@ -4,16 +4,10 @@ import { cn } from '../../lib/cn'
 export type AppPageVariant =
   | 'default'
   | 'student'
-  | 'teacher-wide'
-  | 'teacher-form'
-  | 'teacher-detail'
 
 const PAGE_CLASS: Record<AppPageVariant, string> = {
   default: 'container page-main',
   student: 'container page-main dashboard-home',
-  'teacher-wide': 'container page-main teacher-hub-page teacher-hub-page--wide',
-  'teacher-form': 'container page-main teacher-hub-page teacher-hub-page--form',
-  'teacher-detail': 'container page-main teacher-hub-page teacher-hub-page--detail',
 }
 
 interface AppPageProps {

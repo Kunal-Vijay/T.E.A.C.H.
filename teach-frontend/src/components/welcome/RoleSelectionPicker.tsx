@@ -53,12 +53,6 @@ function RoleSelectionPicker({
       className="welcome-role"
       aria-labelledby="welcome-role-heading"
     >
-      <header className="welcome-role-header">
-        <h2 id="welcome-role-heading" className="welcome-role-title">
-          Choose your role
-        </h2>
-        <p className="welcome-role-lede">Select how you&apos;ll experience T.E.A.C.H</p>
-      </header>
 
       <div
         ref={groupRef}
