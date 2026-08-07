@@ -14,6 +14,25 @@ class Settings(BaseSettings):
     BEDROCK_MODEL_ID: str = "us.anthropic.claude-sonnet-4-6"
     BEDROCK_REGION: str = ""
     BEDROCK_READ_TIMEOUT_SECONDS: int = 600
+
+    # --- Voice viva (Amazon Nova Sonic speech-to-speech) ---
+    # Deliberately a separate region from BEDROCK_REGION: Nova Sonic is only served
+    # in a few regions, and BEDROCK_REGION falls back to REGION (ap-south-1) which
+    # does not host it. Verify with scripts/check_bedrock_access.py before changing.
+    NOVA_SONIC_MODEL_ID: str = "amazon.nova-2-sonic-v1:0"
+    NOVA_SONIC_REGION: str = "us-west-2"
+    NOVA_SONIC_VOICE_ID: str = "matthew"
+    # Kept low on purpose — this is the main lever on how much the examiner says per
+    # turn. Raising it is the fastest way to make it start lecturing again.
+    NOVA_SONIC_MAX_TOKENS: int = 320
+    NOVA_SONIC_TEMPERATURE: float = 0.6
+    NOVA_SONIC_TOP_P: float = 0.9
+    # HIGH answers fastest but clips slow speakers; LOW waits longer, which suits a
+    # student thinking mid-sentence. MEDIUM is the AWS default.
+    NOVA_SONIC_ENDPOINTING_SENSITIVITY: str = "LOW"
+    # Viva bounds. The session ends on whichever limit is reached first.
+    VIVA_MAX_QUESTIONS: int = 10
+    VIVA_MAX_SECONDS: int = 120
     S3_BUCKET: str = "ai-tutor-assets-dev"
     STAGE: str = "dev"
     REGION: str = "ap-south-1"

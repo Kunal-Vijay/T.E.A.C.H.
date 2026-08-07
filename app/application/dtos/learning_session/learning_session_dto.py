@@ -104,6 +104,52 @@ class VivaAssessmentResponseDTO(BaseModel):
         )
 
 
+class VoiceVivaPromptDTO(BaseModel):
+    """Everything the voice relay needs to open a Nova Sonic viva."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    session_id: UUID
+    topic_id: UUID
+    topic_title: str
+    system_prompt: str
+    kickoff: str
+    max_questions: int
+    max_seconds: int
+
+
+class RubricScoreDTO(BaseModel):
+    """One scored dimension of the student's understanding."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    key: str
+    label: str
+    score: int = Field(ge=0, le=5)
+    max_score: int = 5
+    comment: str = ""
+
+
+class VoiceVivaAssessmentDTO(BaseModel):
+    """Scored result of a finished spoken viva."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    session_id: UUID
+    topic_title: str
+    grasp_level: str = Field(description="solid | partial | shaky")
+    headline: str
+    overall_score: int = Field(ge=0, le=100)
+    rubric: list[RubricScoreDTO] = Field(default_factory=list)
+    understood_well: list[str] = Field(default_factory=list)
+    needs_work: list[str] = Field(default_factory=list)
+    misconceptions: list[str] = Field(default_factory=list)
+    next_steps: list[str] = Field(default_factory=list)
+    weak_toc_item_ids: list[str] = Field(default_factory=list)
+    questions_asked: int = 0
+    questions_answered: int = 0
+
+
 class LearningSessionResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

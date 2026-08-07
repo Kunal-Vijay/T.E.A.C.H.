@@ -158,3 +158,40 @@ export const SESSION_SELECTABLE_KEYS = [
   'interaction_mode',
   'practice_preference',
 ] as const
+
+// --- Spoken viva (Amazon Nova Sonic) ---
+
+export type GraspLevel = 'solid' | 'partial' | 'shaky'
+
+export interface VivaRubricScore {
+  key: string
+  label: string
+  score: number
+  max_score: number
+  comment: string
+}
+
+export interface VoiceVivaAssessment {
+  session_id: string
+  topic_title: string
+  grasp_level: GraspLevel
+  headline: string
+  overall_score: number
+  rubric: VivaRubricScore[]
+  understood_well: string[]
+  needs_work: string[]
+  misconceptions: string[]
+  next_steps: string[]
+  weak_toc_item_ids: string[]
+  questions_asked: number
+  questions_answered: number
+}
+
+export interface VoiceVivaHealth {
+  voice_viva_available: boolean
+  sdk_available: boolean
+  credentials_available: boolean
+  sdk_error: string
+  max_questions: number
+  max_seconds: number
+}

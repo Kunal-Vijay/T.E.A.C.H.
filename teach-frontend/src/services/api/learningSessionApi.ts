@@ -5,6 +5,8 @@ import type {
   LearningSessionResponse,
   StudentParamOverrides,
   VivaAdvanceReason,
+  VoiceVivaAssessment,
+  VoiceVivaHealth,
 } from '../../types/learning.types'
 
 const SESSION_TIMEOUT_MS = 120_000
@@ -42,6 +44,20 @@ export const learningSessionApi = {
   abandon: (sessionId: string) =>
     apiClient.post<LearningSessionResponse>(
       `/api/v1/learning-sessions/${sessionId}/abandon`,
+      {},
+      { timeout: SESSION_TIMEOUT_MS },
+    ),
+
+  // --- Spoken viva ---
+  // The viva itself runs over a WebSocket (see lib/voice/novaSonicAudio.ts); these
+  // are the REST endpoints around it.
+  voiceHealth: () =>
+    apiClient.get<VoiceVivaHealth>('/api/v1/learning-sessions/voice/health'),
+
+  /** Re-read a stored assessment, for when the student reloads after finishing. */
+  voiceVivaAssessment: (sessionId: string) =>
+    apiClient.post<VoiceVivaAssessment>(
+      `/api/v1/learning-sessions/${sessionId}/viva/voice/complete`,
       {},
       { timeout: SESSION_TIMEOUT_MS },
     ),

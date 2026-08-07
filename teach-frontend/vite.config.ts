@@ -18,9 +18,13 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // ws: true is required for the spoken viva at
+      // /api/v1/learning-sessions/{id}/viva/voice — without it the WebSocket
+      // upgrade request 404s and the session never opens.
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        ws: true,
       },
       '/health': {
         target: 'http://localhost:8000',

@@ -13,6 +13,7 @@ from app.presentation.routes.learning_session_routes import router as learning_s
 from app.presentation.routes.student_profile_routes import router as student_profile_router
 from app.presentation.routes.topic_routes import router as topic_router
 from app.presentation.routes.tts_routes import router as tts_router
+from app.presentation.routes.viva_voice_routes import router as viva_voice_router
 
 app = FastAPI(
     title="TEACH API",
@@ -31,6 +32,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(topic_router)
 app.include_router(student_profile_router)
 app.include_router(learning_session_router)
+app.include_router(viva_voice_router)
 app.include_router(tts_router)
 register_exception_handlers(app)
 

@@ -1,0 +1,369 @@
+/* Spoken viva (Amazon Nova Sonic).
+   Shared session chrome lives in styles/learning-session.css; this file only adds
+   what the voice loop and the scored assessment need. */
+
+.viva-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #fff);
+}
+
+.viva-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.viva-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94a3b8;
+  flex: 0 0 auto;
+}
+
+.viva-status-dot--listening { background: #22c55e; }
+.viva-status-dot--student_speaking { background: #16a34a; }
+.viva-status-dot--examiner_speaking { background: #7c3aed; }
+.viva-status-dot--connecting { background: #f59e0b; }
+.viva-status-dot--error { background: #dc2626; }
+
+/* --- progress + clock --- */
+
+.viva-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.viva-progress-track {
+  flex: 1 1 8rem;
+  height: 6px;
+  max-width: 16rem;
+  border-radius: 999px;
+  background: var(--color-border, #e2e8f0);
+  overflow: hidden;
+}
+
+.viva-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #60a5fa, #7c3aed);
+  transition: width 260ms ease-out;
+}
+
+.viva-progress-label,
+.viva-clock {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary, #64748b);
+  white-space: nowrap;
+}
+
+.viva-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.16rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 14%);
+  font-variant-numeric: tabular-nums;
+}
+
+.viva-clock--low {
+  background: rgb(220 38 38 / 14%);
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* --- mic meter --- */
+
+.viva-mic-meter {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-border, #e2e8f0);
+  overflow: hidden;
+}
+
+.viva-mic-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #22c55e;
+  transition: width 110ms ease-out;
+}
+
+.viva-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.viva-note {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+}
+
+.viva-note--muted {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* --- transcript --- */
+
+.viva-transcript-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2.25rem 1rem;
+  border-radius: 14px;
+  border: 1px dashed var(--color-border, #e2e8f0);
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* --- assessment --- */
+
+.viva-assessment {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #fff);
+}
+
+.viva-assessment-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.viva-assessment-verdict {
+  flex: 1 1 16rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.viva-overall {
+  flex: 0 0 auto;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  grid-auto-flow: column;
+  align-items: baseline;
+  border: 3px solid;
+  font-variant-numeric: tabular-nums;
+}
+
+.viva-overall-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.viva-overall-unit {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.viva-overall--solid {
+  border-color: #22c55e;
+  background: rgb(34 197 94 / 10%);
+  color: #15803d;
+}
+
+.viva-overall--partial {
+  border-color: #f59e0b;
+  background: rgb(245 158 11 / 12%);
+  color: #b45309;
+}
+
+.viva-overall--shaky {
+  border-color: #dc2626;
+  background: rgb(220 38 38 / 10%);
+  color: #b91c1c;
+}
+
+.viva-grasp {
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.viva-grasp--solid { background: rgb(34 197 94 / 14%); color: #15803d; }
+.viva-grasp--partial { background: rgb(245 158 11 / 16%); color: #b45309; }
+.viva-grasp--shaky { background: rgb(220 38 38 / 13%); color: #b91c1c; }
+
+.viva-assessment-headline {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.viva-assessment-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.viva-assessment-thin {
+  margin: 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* --- rubric --- */
+
+.viva-rubric {
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding-top: 1.1rem;
+}
+
+.viva-rubric-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.viva-rubric-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem 1.75rem;
+}
+
+.viva-rubric-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.viva-rubric-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.viva-rubric-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.viva-rubric-score {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.viva-rubric-score--strong { color: #15803d; }
+.viva-rubric-score--fair { color: #b45309; }
+.viva-rubric-score--weak { color: #b91c1c; }
+.viva-rubric-score--none { color: var(--color-text-secondary, #64748b); }
+
+.viva-rubric-score-max {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+.viva-rubric-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.viva-pip {
+  flex: 1 1 0;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border, #e2e8f0);
+}
+
+.viva-pip--strong { background: #22c55e; }
+.viva-pip--fair { background: #f59e0b; }
+.viva-pip--weak { background: #dc2626; }
+
+.viva-rubric-comment {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* --- narrative blocks --- */
+
+.viva-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.viva-feedback-block {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border-left: 3px solid transparent;
+  background: rgb(148 163 184 / 7%);
+}
+
+.viva-feedback-block--good { border-left-color: #22c55e; }
+.viva-feedback-block--warn { border-left-color: #f59e0b; }
+.viva-feedback-block--bad { border-left-color: #dc2626; }
+.viva-feedback-block--next { border-left-color: #7c3aed; }
+
+.viva-feedback-block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.viva-feedback-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.viva-feedback-list li {
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viva-progress-fill,
+  .viva-mic-meter-fill {
+    transition: none;
+  }
+}
