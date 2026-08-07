@@ -20,6 +20,8 @@ export interface NovaTutorProps {
   speaking?: boolean
   /** Pre-resolved visual speaking state — skips internal idle delay when provided. */
   speakingVisual?: boolean
+  /** Lesson prep — idle PNG only, no speaking GIF. */
+  preparing?: boolean
   size?: NovaTutorSize
   className?: string
   /** Override default aria label. Pass empty string for decorative use. */
@@ -29,13 +31,14 @@ export interface NovaTutorProps {
 function NovaTutorInner({
   speaking = false,
   speakingVisual,
+  preparing = false,
   size = 'md',
   className,
   label,
 }: NovaTutorProps) {
   const speakingGifReady = useNovaTutorSpeakingReady()
   const debouncedSpeaking = useNovaSpeakingVisual(speaking)
-  const showSpeaking = (speakingVisual ?? debouncedSpeaking) && speakingGifReady
+  const showSpeaking = !preparing && (speakingVisual ?? debouncedSpeaking) && speakingGifReady
   const speakingSrc = speakingGifReady ? NOVA_TUTOR_SPEAKING_SRC : undefined
   const idleLoading = EAGER_IDLE_SIZES.has(size) ? 'eager' : 'lazy'
 
@@ -56,6 +59,7 @@ function NovaTutorInner({
       aria-hidden={isDecorative ? true : undefined}
       data-nova-speaking={showSpeaking ? 'true' : 'false'}
       data-nova-narrating={speaking ? 'true' : 'false'}
+      data-nova-preparing={preparing ? 'true' : 'false'}
     >
       <div className="nova-tutor__ambient" aria-hidden="true" />
       <div className="nova-tutor__shadow" aria-hidden="true" />

@@ -113,13 +113,54 @@ class LearningSessionService:
             if created.mode == LearningMode.VIVA:
                 return LearningSessionResponseDTO.from_entity(created, None)
 
-            return self._generate_and_apply_tutor_turn(
-                session=created,
-                topic=topic,
-                student_message=None,
-                channel=None,
-                advance_reason=None,
+            return LearningSessionResponseDTO.from_entity(created, None)
+
+    @validate_call(validate_return=False)
+    def generate_first_tutor_turn(self, session_id: uuid.UUID) -> None:
+        try:
+            with self.unit_of_work:
+                session = self._require_active_session(session_id)
+                if session.mode == LearningMode.VIVA:
+                    return None
+                turns = self.unit_of_work.learning_session_repository.find_turns_by_session(session_id)
+                if any(turn.role == SessionTurnRole.TUTOR for turn in turns):
+                    self._set_first_turn_status(session, "ready")
+                    return None
+                topic = self._require_published_topic(session.topic_id)
+                self._generate_and_apply_tutor_turn(
+                    session=session,
+                    topic=topic,
+                    student_message=None,
+                    channel=None,
+                    advance_reason=None,
+                )
+                refreshed = self._require_session(session_id)
+                self._set_first_turn_status(refreshed, "ready")
+        except Exception as error:
+            logger.exception(
+                "First tutor turn generation failed session_id=%s error=%s",
+                session_id,
+                error,
             )
+            with self.unit_of_work:
+                session = self.unit_of_work.learning_session_repository.find_by_id(session_id)
+                if session is not None:
+                    self._set_first_turn_status(session, "failed", str(error))
+            raise
+
+    @validate_call(validate_return=True)
+    def retry_first_tutor_turn(self, session_id: uuid.UUID) -> LearningSessionResponseDTO:
+        with self.unit_of_work:
+            session = self._require_active_session(session_id)
+            if session.mode == LearningMode.VIVA:
+                raise ValidationException("First turn retry is not applicable for viva mode")
+            first_turn_status = session.mode_state.get("first_turn_status")
+            if first_turn_status != "failed":
+                raise ValidationException("First turn retry is only available after a preparation failure")
+            self._set_first_turn_status(session, "preparing")
+            latest_visual = self.unit_of_work.learning_session_repository.find_latest_visual(session_id)
+            refreshed = self._require_session(session_id)
+        return LearningSessionResponseDTO.from_entity(refreshed, latest_visual)
 
     @validate_call(validate_return=True)
     def get_session(self, session_id: uuid.UUID) -> LearningSessionResponseDTO:
@@ -685,7 +726,24 @@ class LearningSessionService:
                 "question_evaluations": [],
                 "next_action": "ask",
             }
-        return {}
+        return {"first_turn_status": "preparing"}
+
+    def _set_first_turn_status(
+        self,
+        session: LearningSessionEntity,
+        status: str,
+        error_message: str | None = None,
+    ) -> None:
+        next_state = {
+            **session.mode_state,
+            "first_turn_status": status,
+        }
+        if error_message is not None:
+            next_state["first_turn_error"] = error_message[:500]
+        elif status != "failed":
+            next_state["first_turn_error"] = None
+        session.mode_state = next_state
+        self.unit_of_work.learning_session_repository.update(session)
 
     def _parse_slides(self, raw_slides: list) -> list[SessionSlideEntity]:
         slides: list[SessionSlideEntity] = []
