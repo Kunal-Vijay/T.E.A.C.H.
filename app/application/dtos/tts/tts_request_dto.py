@@ -8,6 +8,7 @@ from app.domain.enums import LanguageStyle
 class TtsRequestDTO(BaseModel):
     text: str
     language_style: LanguageStyle | None = None
+    persona: str | None = None
 
     @field_validator("text")
     @classmethod

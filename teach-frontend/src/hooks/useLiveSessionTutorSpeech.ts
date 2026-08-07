@@ -1,9 +1,17 @@
 import { useCallback, useRef, useState } from 'react'
 import { speechController } from '../components/avatar/SpeechController'
 import { chunkTextForSpeech } from '../lib/speech/sentenceChunker'
+import { useMentorOptional } from '../context/MentorContext'
 import { useSpeech } from './useSpeech'
 
 const LIVE_SESSION_CHUNK_SIZE = 180
+
+/** Map tutor ID → ElevenLabs persona. Extend as more voices are added. */
+function resolveTtsPersona(tutorId: string | undefined): string {
+  // Default to "male" (Albert). The backend's voice_config.py holds the mapping.
+  if (tutorId === 'nova') return 'female'
+  return 'male'
+}
 
 function joinSpeechChunks(completedText: string, nextChunk: string): string {
   if (completedText === '') {
@@ -27,6 +35,8 @@ export function useLiveSessionTutorSpeech() {
     speechError,
     isPaused,
   } = useSpeech()
+  const mentorCtx = useMentorOptional()
+  const persona = resolveTtsPersona(mentorCtx?.tutorId)
   const [fullText, setFullText] = useState('')
   const [revealedText, setRevealedText] = useState('')
   const lastSpokenRef = useRef<string | null>(null)
@@ -74,6 +84,7 @@ export function useLiveSessionTutorSpeech() {
 
     return speakSequence(speechChunks, {
       languageStyle,
+      persona,
       onPlaybackProgress: (_index, chunkText, currentTimeSeconds, durationSeconds) => {
         if (playbackGeneration !== playbackGenerationRef.current) {
           return

@@ -15,6 +15,13 @@ class Settings(BaseSettings):
     BEDROCK_REGION: str = ""
     BEDROCK_READ_TIMEOUT_SECONDS: int = 600
 
+    # --- ElevenLabs Text-to-Speech ---
+    # When set, TTS goes through ElevenLabs instead of gTTS. The key is never
+    # exposed to the frontend; only the backend calls the ElevenLabs API.
+    ELEVENLABS_API_KEY: str = ""
+    # "elevenlabs" | "gtts" | "auto". auto prefers ElevenLabs when the key is set.
+    TTS_PROVIDER: str = "auto"
+
     # --- Voice viva (Amazon Nova Sonic speech-to-speech) ---
     # Deliberately a separate region from BEDROCK_REGION: Nova Sonic is only served
     # in a few regions, and BEDROCK_REGION falls back to REGION (ap-south-1) which
