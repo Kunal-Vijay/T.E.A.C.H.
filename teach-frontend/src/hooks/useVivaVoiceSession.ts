@@ -268,6 +268,9 @@ export function useVivaVoiceSession(sessionId: string) {
         case 'grading': {
           // The server has closed the Nova Sonic stream and is now calling the
           // assessment model (5–30 seconds). Show a loader rather than silence.
+          // IMPORTANT: do NOT call teardown() here — that closes the WebSocket,
+          // and the 'complete' frame with the actual assessment has not arrived yet.
+          // Only stop the mic and playback since the voice part is over.
           setProgress((current) => ({
             ...current,
             questionsAsked: Number(message.questions_asked ?? current.questionsAsked),
@@ -275,7 +278,24 @@ export function useVivaVoiceSession(sessionId: string) {
             secondsRemaining: 0,
           }))
           setStatus('grading')
-          void teardown()
+          // Stop mic and audio but keep the socket alive for the assessment.
+          if (captureRef.current !== null) {
+            void captureRef.current.stop()
+            captureRef.current = null
+          }
+          if (playerRef.current !== null) {
+            void playerRef.current.close()
+            playerRef.current = null
+          }
+          if (levelTimerRef.current !== null) {
+            window.clearInterval(levelTimerRef.current)
+            levelTimerRef.current = null
+          }
+          if (speakingTimerRef.current !== null) {
+            window.clearInterval(speakingTimerRef.current)
+            speakingTimerRef.current = null
+          }
+          setMicLevel(0)
           break
         }
         case 'complete': {
