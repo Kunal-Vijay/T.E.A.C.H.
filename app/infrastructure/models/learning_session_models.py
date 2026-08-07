@@ -272,6 +272,7 @@ class SessionVisualModel(Base, TimestampMixin, SoftDeleteMixin):
                     for element in slide.get("elements", [])
                     if isinstance(element, dict)
                 ],
+                explanation_text=str(slide.get("explanation_text", "") or ""),
             )
             for slide in raw_slides
             if isinstance(slide, dict)

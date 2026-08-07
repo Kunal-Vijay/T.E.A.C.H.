@@ -41,7 +41,6 @@ def build_off_topic_redirect_response(topic: TopicEntity) -> dict:
     )
     return {
         "tutor_message": redirect_text,
-        "explanation_text": redirect_text,
         "slides": [
             {
                 "slide_id": "off-topic-redirect",
@@ -63,6 +62,7 @@ def build_off_topic_redirect_response(topic: TopicEntity) -> dict:
                         "content": toc_titles[:5] if len(toc_titles) > 0 else [topic.title],
                     },
                 ],
+                "explanation_text": redirect_text,
             }
         ],
         "is_goal_complete": False,

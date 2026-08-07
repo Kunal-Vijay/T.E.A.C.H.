@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import LearningWhiteboard from '../../components/classroom/LearningWhiteboard'
 import SessionTutorStage from '../../components/classroom/SessionTutorStage'
@@ -8,8 +8,54 @@ import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
-import type { LearningSessionResponse } from '../../types/learning.types'
+import type { LearningSessionResponse, SessionSlide } from '../../types/learning.types'
 import { LEARNING_MODE_LABELS } from '../../types/learning.types'
+
+function buildFallbackExplanation(slide: SessionSlide): string {
+  const parts: string[] = []
+  for (const element of slide.elements) {
+    if (typeof element.content === 'string' && element.content.trim() !== '') {
+      parts.push(element.content.trim())
+      continue
+    }
+    if (Array.isArray(element.content)) {
+      for (const item of element.content) {
+        if (typeof item === 'string' && item.trim() !== '') {
+          parts.push(item.trim())
+        }
+      }
+    }
+  }
+  if (parts.length === 0) {
+    return "Let's look at the next slide."
+  }
+  return parts.join('. ')
+}
+
+function resolveSlideExplanation(
+  slides: SessionSlide[],
+  slideIndex: number,
+  visualExplanation: string | undefined,
+): string {
+  const slide = slides[slideIndex]
+  if (slide == null) {
+    return ''
+  }
+  const slideText = slide.explanation_text?.trim() ?? ''
+  if (slideText !== '') {
+    return slideText
+  }
+  const anySlideHasExplanation = slides.some(
+    (item) => (item.explanation_text?.trim() ?? '') !== '',
+  )
+  if (!anySlideHasExplanation && slideIndex === 0) {
+    const visualText = visualExplanation?.trim() ?? ''
+    if (visualText !== '') {
+      return visualText
+    }
+  }
+  return buildFallbackExplanation(slide)
+}
 
 export default function LiveLearningSessionPage() {
   const { sessionId = '' } = useParams()
@@ -18,7 +64,10 @@ export default function LiveLearningSessionPage() {
   const [message, setMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const lastSpokenRef = useRef<string | null>(null)
+  const [slideIndex, setSlideIndex] = useState(0)
+  const [awaitingContinue, setAwaitingContinue] = useState(false)
+  const lastSpokenKeyRef = useRef<string | null>(null)
+  const slideIndexRef = useRef(0)
   const { speakNow, stopSpeech, speechStatus } = useSpeech()
   const {
     phase,
@@ -30,6 +79,20 @@ export default function LiveLearningSessionPage() {
   const isListening = phase === 'listening'
   const isSpeaking = speechStatus === 'speaking'
 
+  const slides = session?.current_visual?.slides ?? []
+  const currentSlide = slides[slideIndex]
+  const currentExplanation = resolveSlideExplanation(
+    slides,
+    slideIndex,
+    session?.current_visual?.explanation_text,
+  )
+  const hasMoreSlides = slideIndex < slides.length - 1
+  const visualId = session?.current_visual?.id ?? 'empty'
+
+  useEffect(() => {
+    slideIndexRef.current = slideIndex
+  }, [slideIndex])
+
   useEffect(() => {
     let cancelled = false
     const load = async () => {
@@ -37,6 +100,9 @@ export default function LiveLearningSessionPage() {
         const response = await learningSessionApi.get(sessionId)
         if (!cancelled) {
           setSession(response.data)
+          setSlideIndex(0)
+          setAwaitingContinue(false)
+          lastSpokenKeyRef.current = null
         }
       } catch (error) {
         if (cancelled) {
@@ -61,17 +127,39 @@ export default function LiveLearningSessionPage() {
   }, [sessionId, stopSpeech])
 
   useEffect(() => {
-    if (session == null) {
+    setSlideIndex(0)
+    setAwaitingContinue(false)
+    lastSpokenKeyRef.current = null
+  }, [visualId])
+
+  const advanceAfterSpeech = useCallback(() => {
+    const currentIndex = slideIndexRef.current
+    const slideCount = slides.length
+    if (currentIndex < slideCount - 1) {
+      setSlideIndex(currentIndex + 1)
+      setAwaitingContinue(false)
       return
     }
-    const spoken =
-      session.current_visual?.explanation_text ?? session.latest_tutor_message ?? ''
-    if (spoken === '' || spoken === lastSpokenRef.current) {
+    setAwaitingContinue(true)
+  }, [slides.length])
+
+  useEffect(() => {
+    if (session == null || currentExplanation === '') {
       return
     }
-    lastSpokenRef.current = spoken
-    void speakNow(spoken, { languageStyle: session.params_snapshot.language_style })
-  }, [session, speakNow])
+    const spokenKey = `${visualId}:${slideIndex}:${currentExplanation}`
+    if (spokenKey === lastSpokenKeyRef.current) {
+      return
+    }
+    lastSpokenKeyRef.current = spokenKey
+    setAwaitingContinue(false)
+    void speakNow(currentExplanation, {
+      languageStyle: session.params_snapshot.language_style,
+      onEnd: () => {
+        advanceAfterSpeech()
+      },
+    })
+  }, [session, currentExplanation, slideIndex, visualId, speakNow, advanceAfterSpeech])
 
   useEffect(() => {
     if (transcript.trim() === '') {
@@ -81,16 +169,15 @@ export default function LiveLearningSessionPage() {
   }, [transcript])
 
   const boardElements = useMemo(() => {
-    const slides = session?.current_visual?.slides ?? []
-    if (slides.length === 0) {
+    if (currentSlide == null) {
       return []
     }
-    return slides[0].elements.map((element) => ({
+    return currentSlide.elements.map((element) => ({
       element_id: element.element_id,
       type: element.type,
       content: element.content,
     }))
-  }, [session])
+  }, [currentSlide])
 
   const submitMessage = async (text: string, channel: 'chat' | 'speech') => {
     const trimmed = text.trim()
@@ -107,6 +194,9 @@ export default function LiveLearningSessionPage() {
       })
       setSession(response.data)
       setMessage('')
+      setSlideIndex(0)
+      setAwaitingContinue(false)
+      lastSpokenKeyRef.current = null
       reset()
     } catch (error) {
       captureException(error, { page: 'live_session', action: 'submit' })
@@ -121,6 +211,17 @@ export default function LiveLearningSessionPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const continueLesson = () => {
+    if (hasMoreSlides) {
+      stopSpeech()
+      lastSpokenKeyRef.current = null
+      setSlideIndex((current) => current + 1)
+      setAwaitingContinue(false)
+      return
+    }
+    void submitMessage('Please continue to the next part.', 'chat')
   }
 
   if (session == null) {
@@ -140,6 +241,7 @@ export default function LiveLearningSessionPage() {
             <h1>Live session</h1>
             <p>
               Goal: {session.goal_status} · Status: {session.status}
+              {slides.length > 0 ? ` · Slide ${slideIndex + 1} of ${slides.length}` : ''}
               {isSpeaking ? ' · Tutor speaking…' : ''}
             </p>
           </div>
@@ -169,11 +271,36 @@ export default function LiveLearningSessionPage() {
           <div className="live-session-main">
             <LearningWhiteboard
               elements={boardElements}
-              slideKey={session.current_visual?.id ?? 'empty'}
+              slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
             />
             <p className="tutor-message">
-              {session.current_visual?.explanation_text ?? session.latest_tutor_message}
+              {currentExplanation !== ''
+                ? currentExplanation
+                : session.latest_tutor_message}
             </p>
+            {awaitingContinue && !isSpeaking ? (
+              <div className="session-composer-actions">
+                <Button
+                  type="button"
+                  disabled={submitting || session.status !== 'active'}
+                  onClick={() => continueLesson()}
+                >
+                  {hasMoreSlides ? 'Next slide' : 'Continue teaching'}
+                </Button>
+              </div>
+            ) : null}
+            {!isSpeaking && !awaitingContinue && hasMoreSlides ? (
+              <div className="session-composer-actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={submitting || session.status !== 'active'}
+                  onClick={() => continueLesson()}
+                >
+                  Next slide
+                </Button>
+              </div>
+            ) : null}
             <div className="session-composer">
               <textarea
                 value={message}

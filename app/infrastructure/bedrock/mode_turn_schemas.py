@@ -16,22 +16,24 @@ SLIDE_SCHEMA = {
         "slide_id": {"type": "string"},
         "layout": {"type": "string", "enum": ["title_content", "formula_focus", "full_image"]},
         "elements": {"type": "array", "items": SLIDE_ELEMENT_SCHEMA},
+        "explanation_text": {
+            "type": "string",
+            "description": "Exact spoken narration for this slide only",
+        },
     },
-    "required": ["slide_id", "layout", "elements"],
+    "required": ["slide_id", "layout", "elements", "explanation_text"],
 }
 
 TEACH_TURN_SCHEMA = {
     "type": "object",
     "properties": {
         "tutor_message": {"type": "string"},
-        "explanation_text": {"type": "string"},
         "slides": {"type": "array", "items": SLIDE_SCHEMA},
         "taught_toc_item_ids": {"type": "array", "items": {"type": "string"}},
         "is_goal_complete": {"type": "boolean"},
     },
     "required": [
         "tutor_message",
-        "explanation_text",
         "slides",
         "taught_toc_item_ids",
         "is_goal_complete",
@@ -42,11 +44,10 @@ DOUBT_TURN_SCHEMA = {
     "type": "object",
     "properties": {
         "tutor_message": {"type": "string"},
-        "explanation_text": {"type": "string"},
         "slides": {"type": "array", "items": SLIDE_SCHEMA},
         "is_goal_complete": {"type": "boolean"},
     },
-    "required": ["tutor_message", "explanation_text", "slides", "is_goal_complete"],
+    "required": ["tutor_message", "slides", "is_goal_complete"],
 }
 
 VIVA_TURN_SCHEMA = {

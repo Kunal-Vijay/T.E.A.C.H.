@@ -100,6 +100,7 @@ export interface SessionSlide {
   slide_id: string
   layout: string
   elements: SessionSlideElement[]
+  explanation_text?: string
 }
 
 export interface SessionVisual {

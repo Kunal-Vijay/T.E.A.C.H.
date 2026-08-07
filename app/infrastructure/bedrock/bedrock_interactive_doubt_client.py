@@ -34,12 +34,12 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
             return build_off_topic_redirect_response(topic)
 
         mock_slide_id = str(uuid4())
+        mock_explanation = (
+            f"Regarding your question: {student_message}. "
+            f"Using the concepts in {topic.title}, focus on the related TOC ideas and solve step by step."
+        )
         mock_response = {
             "tutor_message": f"Here is a clear explanation for your doubt on {topic.title}.",
-            "explanation_text": (
-                f"Regarding your question: {student_message}. "
-                f"Using the concepts in {topic.title}, focus on the related TOC ideas and solve step by step."
-            ),
             "slides": [
                 {
                     "slide_id": mock_slide_id,
@@ -65,6 +65,7 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
                             ],
                         },
                     ],
+                    "explanation_text": mock_explanation,
                 }
             ],
             "is_goal_complete": False,
@@ -72,7 +73,7 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
         prompt = (
             "You are an interactive voice tutor in DOUBT mode.\n"
             "Goal: answer student doubts and help solve problems based on this topic only.\n"
-            "Return slides when a visual explanation helps; always provide spoken explanation_text.\n"
+            "Return slides with a spoken narration on every slide.\n"
             f"{build_topic_context_text(topic)}\n"
             f"{build_doubt_student_context(params)}\n"
             f"Conversation history:\n{build_conversation_history_text(conversation_history)}\n"
@@ -82,10 +83,10 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
             "- OFF-TOPIC / PERSONAL / CHAT questions (name, identity, jokes, weather, small talk, etc.):\n"
             "  do NOT answer them, do NOT invent a persona name, do NOT use emojis.\n"
             "  Immediately redirect with one short line asking for a topic doubt.\n"
-            "  Set tutor_message and explanation_text to the SAME redirect text.\n"
+            "  Set tutor_message and every slide explanation_text to the SAME redirect text.\n"
             "  Slide should only show the topic/TOC reminder, not the off-topic answer.\n"
-            "- For on-topic doubts: tutor_message and explanation_text must match in meaning;\n"
-            "  explanation_text is the exact spoken narration.\n"
+            "- Every slide MUST include its own explanation_text for that slide only.\n"
+            "- For on-topic doubts: tutor_message should summarize; slide explanation_text is the spoken narration.\n"
             "- No emojis in tutor_message or explanation_text.\n"
             "- Use knowledge_level and preferred_explanation for on-topic answers.\n"
             "- Also respect language_style from the student profile.\n"
@@ -103,14 +104,15 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
 
     def _normalize_spoken_and_display_text(self, response: dict[str, Any]) -> dict[str, Any]:
         tutor_message = str(response["tutor_message"]) if "tutor_message" in response else ""
-        explanation_text = (
-            str(response["explanation_text"]) if "explanation_text" in response else ""
-        )
-        if tutor_message.strip() == "" and explanation_text.strip() != "":
-            response["tutor_message"] = explanation_text
-        elif explanation_text.strip() == "" and tutor_message.strip() != "":
-            response["explanation_text"] = tutor_message
-        elif tutor_message.strip() != explanation_text.strip():
-            response["tutor_message"] = explanation_text if explanation_text.strip() != "" else tutor_message
-            response["explanation_text"] = response["tutor_message"]
+        slides = response["slides"] if "slides" in response and isinstance(response["slides"], list) else []
+        first_explanation = ""
+        for slide in slides:
+            if not isinstance(slide, dict):
+                continue
+            if "explanation_text" not in slide or str(slide["explanation_text"]).strip() == "":
+                slide["explanation_text"] = tutor_message
+            if first_explanation == "" and str(slide["explanation_text"]).strip() != "":
+                first_explanation = str(slide["explanation_text"])
+        if tutor_message.strip() == "" and first_explanation.strip() != "":
+            response["tutor_message"] = first_explanation
         return response

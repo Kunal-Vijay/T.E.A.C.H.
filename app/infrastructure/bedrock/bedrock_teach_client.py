@@ -34,16 +34,16 @@ class BedrockTeachClient(ILLMTeachClient):
         ]
         next_toc = remaining_toc[0] if len(remaining_toc) > 0 else None
         mock_slide_id = str(uuid4())
+        mock_explanation = (
+            f"Today we focus on {next_toc.title}. {next_toc.summary}"
+            if next_toc is not None
+            else f"You have completed the teaching goal for {topic.title}."
+        )
         mock_response = {
             "tutor_message": (
                 f"Let's learn {next_toc.title}."
                 if next_toc is not None
                 else f"We have covered {topic.title}. Great work!"
-            ),
-            "explanation_text": (
-                f"Today we focus on {next_toc.title}. {next_toc.summary}"
-                if next_toc is not None
-                else f"You have completed the teaching goal for {topic.title}."
             ),
             "slides": [
                 {
@@ -65,6 +65,7 @@ class BedrockTeachClient(ILLMTeachClient):
                             ),
                         },
                     ],
+                    "explanation_text": mock_explanation,
                 }
             ],
             "taught_toc_item_ids": (
@@ -83,7 +84,7 @@ class BedrockTeachClient(ILLMTeachClient):
         prompt = (
             "You are an interactive voice tutor in TEACH mode.\n"
             "Goal: teach the topic using the TOC. Students may ask doubts only about material already taught.\n"
-            "Return the next teaching turn with slides and spoken explanation_text.\n"
+            "Return the next teaching turn with one or more slides.\n"
             f"{build_topic_context_text(topic)}\n"
             f"{build_teach_student_context(params)}\n"
             f"Already taught TOC ids: {taught_toc_item_ids}\n"
@@ -92,7 +93,10 @@ class BedrockTeachClient(ILLMTeachClient):
             "Rules:\n"
             "- Adapt explanation_depth, pace, and interaction_mode from session parameters.\n"
             "- Also respect language_style and learning_style from the student profile.\n"
-            "- explanation_text is the exact spoken narration.\n"
+            "- Every slide MUST include its own explanation_text: the exact spoken narration for THAT slide only.\n"
+            "- Do not put the full lesson narration only on the first slide; each slide gets the speech that matches its on-screen content.\n"
+            "- Keep slide element content concise; put the full spoken teaching in each slide explanation_text.\n"
+            "- No emojis in slide content or explanation_text.\n"
             "- taught_toc_item_ids must include previously taught ids plus any newly covered in this turn.\n"
             "- is_goal_complete is true only when every TOC item has been taught.\n"
             "- If the student asks a doubt about untaught material, briefly defer and continue teaching.\n"

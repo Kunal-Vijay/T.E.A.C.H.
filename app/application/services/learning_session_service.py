@@ -233,12 +233,12 @@ class LearningSessionService:
             )
         if session.mode == LearningMode.DOUBT:
             if student_message is None or student_message.strip() == "":
+                welcome_text = (
+                    f"I am ready to help with doubts and problems on {topic.title}. "
+                    "Share your question whenever you are ready."
+                )
                 return {
                     "tutor_message": f"Ask me any doubt about {topic.title}.",
-                    "explanation_text": (
-                        f"I am ready to help with doubts and problems on {topic.title}. "
-                        "Share your question whenever you are ready."
-                    ),
                     "slides": [
                         {
                             "slide_id": str(uuid.uuid4()),
@@ -255,6 +255,7 @@ class LearningSessionService:
                                     "content": f"Ask anything about {topic.title}",
                                 },
                             ],
+                            "explanation_text": welcome_text,
                         }
                     ],
                     "is_goal_complete": False,
@@ -283,8 +284,18 @@ class LearningSessionService:
         agent_response: dict,
     ) -> SessionVisualEntity:
         slides = self._parse_slides(agent_response["slides"] if "slides" in agent_response else [])
-        explanation_text = (
+        slide_explanations = [
+            slide.explanation_text.strip()
+            for slide in slides
+            if slide.explanation_text.strip() != ""
+        ]
+        fallback_explanation = (
             str(agent_response["explanation_text"]) if "explanation_text" in agent_response else ""
+        )
+        explanation_text = (
+            "\n\n".join(slide_explanations)
+            if len(slide_explanations) > 0
+            else fallback_explanation
         )
         visual = SessionVisualEntity(
             id=uuid.uuid4(),
@@ -420,11 +431,15 @@ class LearningSessionService:
                         content=element["content"] if "content" in element else None,
                     )
                 )
+            slide_explanation = (
+                str(slide["explanation_text"]) if "explanation_text" in slide else ""
+            )
             slides.append(
                 SessionSlideEntity(
                     slide_id=str(slide["slide_id"]) if "slide_id" in slide else str(uuid.uuid4()),
                     layout=str(slide["layout"]) if "layout" in slide else "title_content",
                     elements=elements,
+                    explanation_text=slide_explanation,
                 )
             )
         return slides

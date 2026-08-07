@@ -267,6 +267,7 @@ class SessionSlideEntity(BaseModel):
     slide_id: str
     layout: str
     elements: list[SessionSlideElementEntity] = Field(default_factory=list)
+    explanation_text: str = ""
 
 
 class SessionTurnEntity(BaseModel):
