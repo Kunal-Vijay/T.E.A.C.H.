@@ -12,6 +12,7 @@ const CreateClassPage = lazy(() => import('../pages/admin/CreateClassPage'))
 const ClassDetailPage = lazy(() => import('../pages/admin/ClassDetailPage'))
 const StudentClassCatalogPage = lazy(() => import('../pages/student/StudentClassCatalogPage'))
 const ClassroomPage = lazy(() => import('../pages/student/ClassroomPage'))
+const UnderstandingCheckPage = lazy(() => import('../pages/student/UnderstandingCheckPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const TeacherLayout = lazy(() => import('../components/layouts/TeacherLayout'))
 const StudentLayout = lazy(() => import('../components/layouts/StudentLayout'))
@@ -45,6 +46,10 @@ function RouterContent() {
               <Route path="/student" element={<StudentClassCatalogPage />} />
               <Route path="/student/settings" element={<SettingsPage />} />
               <Route path="/student/classroom/:generationId" element={<ClassroomPage />} />
+              <Route
+                path="/student/understanding-check/:generationId"
+                element={<UnderstandingCheckPage />}
+              />
             </Route>
           </Route>
 

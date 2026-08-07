@@ -18,9 +18,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // ws: true is required for the Nova Sonic voice session at
+      // /api/v1/understanding-check/ws — without it the upgrade request 404s.
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        ws: true,
       },
       '/health': {
         target: 'http://localhost:8000',

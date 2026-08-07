@@ -1,4 +1,4 @@
-import { LogIn } from 'lucide-react'
+import { LogIn, Mic } from 'lucide-react'
 import { Button } from '../ui/Button'
 import ClassCardMeta from '../ui/ClassCardMeta'
 import StatusBadge from '../ui/StatusBadge'
@@ -13,6 +13,8 @@ export interface ClassCatalogCardProps {
   joinDisabled: boolean
   onJoin: () => void
   onPrefetch?: () => void
+  /** Opens the Nova Sonic voice understanding check for this class. */
+  onCheckUnderstanding?: () => void
 }
 
 export default function ClassCatalogCard({
@@ -25,6 +27,7 @@ export default function ClassCatalogCard({
   joinDisabled,
   onJoin,
   onPrefetch,
+  onCheckUnderstanding,
 }: ClassCatalogCardProps) {
   return (
     <article
@@ -59,6 +62,20 @@ export default function ClassCatalogCard({
         >
           {isJoining ? 'Joining…' : 'Attend class'}
         </Button>
+
+        {onCheckUnderstanding !== undefined ? (
+          <Button
+            type="button"
+            variant="secondary"
+            icon={Mic}
+            withIcon
+            className="class-catalog-cta class-catalog-cta--secondary"
+            disabled={joinDisabled}
+            onClick={onCheckUnderstanding}
+          >
+            Check understanding
+          </Button>
+        ) : null}
       </footer>
     </article>
   )

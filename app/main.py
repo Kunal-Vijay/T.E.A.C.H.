@@ -16,6 +16,7 @@ from app.presentation.routes.doubt_session_routes import router as doubt_session
 from app.presentation.routes.generation_routes import router as generation_router
 from app.presentation.routes.pop_quiz_routes import router as pop_quiz_router
 from app.presentation.routes.tts_routes import router as tts_router
+from app.presentation.routes.understanding_check_routes import router as understanding_check_router
 
 app = FastAPI(title="TEACH API", description="Teacherless Education through Autonomous Cognitive Heuristics", version="1.0.0")
 app.add_middleware(
@@ -34,6 +35,7 @@ app.include_router(workflow_router)
 app.include_router(pop_quiz_router)
 app.include_router(doubt_session_router)
 app.include_router(tts_router)
+app.include_router(understanding_check_router)
 register_exception_handlers(app)
 
 

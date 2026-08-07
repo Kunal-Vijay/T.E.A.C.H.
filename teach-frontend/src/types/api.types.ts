@@ -146,3 +146,77 @@ export interface DoubtMessageResponse {
 export interface DoubtSessionDetailResponse extends DoubtSessionResponse {
   messages: DoubtMessageResponse[]
 }
+
+export interface UnderstandingCheckTopic {
+  topic_id: string
+  title: string
+  order: number
+  slide_count: number
+  quiz_question_count: number
+  teaching_approach: string | null
+}
+
+export interface UnderstandingCheckTopicList {
+  generation_id: string
+  class_plan_id: string
+  class_title: string
+  subject: string
+  grade: string
+  topics: UnderstandingCheckTopic[]
+}
+
+export interface UnderstandingCheckPrompt {
+  generation_id: string
+  topic_id: string
+  topic_title: string
+  system_prompt: string
+  character_count: number
+  opening_line: string
+  voice_id: string
+  model_id: string
+  nova_sonic_configured: boolean
+  source_counts: Record<string, number>
+}
+
+export interface UnderstandingCheckHealth {
+  nova_sonic_configured: boolean
+  sdk_available: boolean
+  sdk_error: string
+  model_id: string
+  region: string
+  voice_id: string
+}
+
+export interface UnderstandingFeedbackRequest {
+  generation_id: string
+  topic_id: string
+  classroom_session_id?: string | null
+  transcript: { role: string; text: string }[]
+  seconds_elapsed?: number | null
+}
+
+export type GraspLevel = 'solid' | 'partial' | 'shaky'
+
+export interface RubricScore {
+  key: string
+  label: string
+  score: number
+  max_score: number
+  comment: string
+}
+
+export interface UnderstandingFeedback {
+  topic_title: string
+  grasp_level: GraspLevel
+  headline: string
+  rubric: RubricScore[]
+  overall_score: number
+  understood_well: string[]
+  needs_work: string[]
+  misconceptions: string[]
+  next_steps: string[]
+  questions_asked: number
+  questions_answered: number
+  student_turns_analysed: number
+  model_used: string
+}

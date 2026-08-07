@@ -212,6 +212,12 @@ export default function StudentClassCatalogPage() {
                         isJoining={isJoining}
                         joinDisabled={joiningId !== null}
                         onJoin={() => { void attendClass(generation.generation_id) }}
+                        onCheckUnderstanding={() => {
+                          trackEvent('understanding_check_opened', {
+                            generationId: generation.generation_id,
+                          })
+                          navigate(`/student/understanding-check/${generation.generation_id}`)
+                        }}
                         onPrefetch={prefetchClassroomRoute}
                       />
                     )

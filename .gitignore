@@ -12,3 +12,12 @@ teach-frontend/dist/
 .pytest_cache/
 .mypy_cache/
 *.db
+
+# Kiro steering files with secrets
+.kiro/steering/aws-credentials.md
+
+.venv312/
+venv312/
+
+# SQLite backups (e.g. teach.db.bak.20260807-165003)
+*.db.bak.*

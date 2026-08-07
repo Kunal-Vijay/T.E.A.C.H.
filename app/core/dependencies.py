@@ -11,6 +11,7 @@ from app.application.services.doubt_session_service import DoubtSessionService
 from app.application.services.tts_service import TtsService
 from app.application.services.live_class_generation_service import LiveClassGenerationService
 from app.application.services.pop_quiz_service import PopQuizService
+from app.application.services.understanding_check_service import UnderstandingCheckService
 from app.application.services.workflow_navigation_service import WorkflowNavigationService
 from app.core.database import get_db
 from app.domain.interfaces import (
@@ -85,3 +86,9 @@ def get_doubt_session_service(
 
 def get_tts_service() -> TtsService:
     return TtsService()
+
+
+def get_understanding_check_service(
+    unit_of_work: IUnitOfWork = Depends(get_unit_of_work),
+) -> UnderstandingCheckService:
+    return UnderstandingCheckService(unit_of_work)

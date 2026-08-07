@@ -19,6 +19,14 @@
   z-index: 1;
 }
 
+/* The footer can hold a primary CTA plus the secondary voice CTA, so space them
+   explicitly rather than relying on inline whitespace between the buttons. */
+.teach-shell--hub .class-catalog-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 .teach-shell--hub .class-catalog-cta:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -31,6 +39,50 @@
 .teach-shell--hub .class-catalog-cta:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring), var(--shadow-hub-btn);
+}
+
+/* ── Secondary CTA (e.g. "Check understanding") ──
+   `.class-catalog-cta` hardcodes the filled dark gradient + white text, and at
+   (0,2,0) it outranks `.btn-secondary` (0,1,0). Pairing the two produced a
+   button that looked primary at rest, then went white-on-white on hover once
+   `.btn-secondary:hover` won the background but not the colour.
+
+   So this modifier restates background, colour AND border together at every
+   state. Specificity is (0,3,0) at rest and (0,5,0) on hover, which clears both
+   the hub rule and the base variant. All values are theme tokens, so it stays
+   readable in light and dark.
+   ───────────────────────────────────────────────────────────── */
+.teach-shell--hub .class-catalog-cta.class-catalog-cta--secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--hub-border-strong, var(--color-border-strong));
+  box-shadow: none;
+  /* The base rule only transitions transform/box-shadow, so the tint would snap
+     in without adding these two. */
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    background-color var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+}
+
+.teach-shell--hub .class-catalog-cta.class-catalog-cta--secondary:hover:not(:disabled) {
+  background: var(--hub-accent-muted);
+  color: var(--color-text-primary);
+  border-color: var(--hub-border-interactive, var(--hub-accent-strong));
+  box-shadow: none;
+}
+
+.teach-shell--hub .class-catalog-cta.class-catalog-cta--secondary:active:not(:disabled) {
+  background: var(--hub-accent-bright-soft, var(--hub-accent-muted));
+  color: var(--color-text-primary);
+  transform: none;
+}
+
+.teach-shell--hub .class-catalog-cta.class-catalog-cta--secondary:focus-visible {
+  outline: none;
+  color: var(--color-text-primary);
+  border-color: var(--hub-accent-focus, var(--color-border-strong));
+  box-shadow: var(--focus-ring);
 }
 
 /* Skeleton dimensions */

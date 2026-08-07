@@ -8,6 +8,8 @@ type AnalyticsEvent =
   | 'quiz_answered'
   | 'sage_opened'
   | 'course_completed'
+  | 'understanding_check_opened'
+  | 'understanding_feedback_generated'
   | 'error'
 
 interface AnalyticsPayload {
