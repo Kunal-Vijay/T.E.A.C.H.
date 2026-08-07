@@ -1,7 +1,7 @@
 import type { ThemeDefinition, ThemeId } from './types'
 
-/** Default theme — Midnight AI (current TEACH look) */
-export const DEFAULT_THEME_ID: ThemeId = 'midnight'
+/** Default theme — Light Paper */
+export const DEFAULT_THEME_ID: ThemeId = 'light-paper'
 
 export const THEME_STORAGE_KEY = 'teach_theme'
 
