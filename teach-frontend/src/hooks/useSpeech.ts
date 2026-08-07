@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   speechController,
   type SpeakOptions,
@@ -15,6 +15,8 @@ export interface SpeakMentorOptions {
   onEnd?: () => void
   onSentenceStart?: SpeakOptions['onSentenceStart']
   onSentenceEnd?: SpeakOptions['onSentenceEnd']
+  onPlaybackStart?: SpeakOptions['onPlaybackStart']
+  onPlaybackProgress?: SpeakOptions['onPlaybackProgress']
 }
 
 export function useSpeech() {
@@ -22,32 +24,54 @@ export function useSpeech() {
     speechController.isSupported() ? 'idle' : 'unsupported',
   )
   const [speechError, setSpeechError] = useState<string | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const speechStatusRef = useRef<SpeechStatus>(speechStatus)
+
+  const updateSpeechStatus = useCallback((nextStatus: SpeechStatus) => {
+    speechStatusRef.current = nextStatus
+    setSpeechStatus(nextStatus)
+  }, [])
 
   const speakSequence = useCallback(async (chunks: string[], options?: SpeakMentorOptions) => {
     setSpeechError(null)
+    setIsPaused(false)
     if (!speechController.isSupported()) {
-      setSpeechStatus('unsupported')
+      updateSpeechStatus('unsupported')
       setSpeechError('Audio playback is not supported in this browser.')
       return false
     }
 
-    const sentences = chunks.map((c) => c.trim()).filter((c) => c !== '')
+    const sentences = chunks.map((chunk) => chunk.trim()).filter((chunk) => chunk !== '')
     if (sentences.length === 0) {
       return false
     }
 
-    setSpeechStatus('speaking')
+    updateSpeechStatus('loading')
     const speakOptions: SpeakOptions = {
       voice: options?.voice,
       languageStyle: options?.languageStyle,
-      onSentenceStart: options?.onSentenceStart,
+      onSentenceStart: (index, text) => {
+        if (speechStatusRef.current !== 'paused') {
+          updateSpeechStatus('speaking')
+        }
+        options?.onSentenceStart?.(index, text)
+      },
       onSentenceEnd: options?.onSentenceEnd,
+      onPlaybackStart: (index, text) => {
+        if (speechStatusRef.current !== 'paused') {
+          updateSpeechStatus('speaking')
+        }
+        options?.onPlaybackStart?.(index, text)
+      },
+      onPlaybackProgress: options?.onPlaybackProgress,
       onEnd: () => {
-        setSpeechStatus('idle')
+        updateSpeechStatus('idle')
+        setIsPaused(false)
         options?.onEnd?.()
       },
       onError: (errorCode: SpeechErrorCode) => {
-        setSpeechStatus('error')
+        updateSpeechStatus('error')
+        setIsPaused(false)
         setSpeechError(buildSpeechErrorMessage(errorCode))
       },
     }
@@ -55,10 +79,11 @@ export function useSpeech() {
     const started = await speechController.speakSequence(sentences, speakOptions)
 
     if (!started) {
-      setSpeechStatus('idle')
+      updateSpeechStatus('idle')
+      setIsPaused(false)
     }
     return started
-  }, [])
+  }, [updateSpeechStatus])
 
   const speakNow = useCallback(async (text: string, options?: SpeakMentorOptions) => {
     const voice = options?.voice
@@ -67,44 +92,81 @@ export function useSpeech() {
           chunkSpeech: voice.chunkSpeech,
           maxCharsPerChunk: voice.maxCharsPerChunk,
         })
-      : [text.trim()].filter((c) => c !== '')
+      : [text.trim()].filter((chunk) => chunk !== '')
 
     return speakSequence(chunks, options)
   }, [speakSequence])
 
   const stopSpeech = useCallback(() => {
     speechController.stop()
-    setSpeechStatus('idle')
-  }, [])
+    updateSpeechStatus('idle')
+    setIsPaused(false)
+  }, [updateSpeechStatus])
+
+  const pauseSpeech = useCallback(() => {
+    const currentStatus = speechStatusRef.current
+    if (
+      currentStatus !== 'speaking'
+      && currentStatus !== 'loading'
+    ) {
+      return
+    }
+    speechController.pause()
+    updateSpeechStatus('paused')
+    setIsPaused(true)
+  }, [updateSpeechStatus])
+
+  const resumeSpeech = useCallback(() => {
+    if (speechStatusRef.current !== 'paused') {
+      return
+    }
+    speechController.resume()
+    updateSpeechStatus('speaking')
+    setIsPaused(false)
+  }, [updateSpeechStatus])
+
+  const togglePauseSpeech = useCallback(() => {
+    if (speechStatusRef.current === 'paused') {
+      resumeSpeech()
+      return
+    }
+    pauseSpeech()
+  }, [pauseSpeech, resumeSpeech])
 
   const withSpeaking = useCallback(async (task: () => Promise<boolean>) => {
     setSpeechError(null)
     if (!speechController.isSupported()) {
-      setSpeechStatus('unsupported')
+      updateSpeechStatus('unsupported')
       setSpeechError('Audio playback is not supported in this browser.')
       return false
     }
 
-    setSpeechStatus('speaking')
+    updateSpeechStatus('speaking')
     try {
       return await task()
     } catch {
-      setSpeechStatus('error')
+      updateSpeechStatus('error')
       return false
     } finally {
-      setSpeechStatus('idle')
+      updateSpeechStatus('idle')
+      setIsPaused(false)
     }
-  }, [])
+  }, [updateSpeechStatus])
 
   return {
     speechStatus,
     speechError,
+    isPaused,
     speakNow,
     speakSequence,
     stopSpeech,
+    pauseSpeech,
+    resumeSpeech,
+    togglePauseSpeech,
     withSpeaking,
     isSupported: speechController.isSupported(),
     warmUp: () => speechController.warmUp(),
+    prefetchSpeech: (segments: string[]) => speechController.prefetchAll(segments),
   }
 }
 

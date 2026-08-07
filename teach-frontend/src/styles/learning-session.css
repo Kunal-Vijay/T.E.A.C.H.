@@ -108,10 +108,106 @@
   line-height: 1.5;
 }
 
+.synced-tutor-transcript {
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.1));
+  background: var(--surface-raised, rgba(0, 0, 0, 0.03));
+}
+
+.synced-tutor-transcript.is-live {
+  border-color: color-mix(in srgb, var(--accent, #1f6feb) 35%, transparent);
+}
+
+.synced-tutor-transcript.is-paused {
+  opacity: 0.92;
+}
+
+.synced-tutor-transcript-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.synced-tutor-transcript-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary, inherit);
+}
+
+.synced-tutor-transcript-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.synced-tutor-transcript-body {
+  min-height: 3.5rem;
+}
+
+.synced-tutor-transcript-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.synced-tutor-transcript-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary, inherit);
+}
+
+.synced-tutor-transcript-loading-dots {
+  transform: translateY(1px);
+}
+
+.synced-tutor-transcript-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent, #1f6feb);
+  animation: synced-transcript-cursor 1s step-end infinite;
+}
+
+@keyframes synced-transcript-cursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
 .session-composer {
   display: grid;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+.session-composer-interactive {
+  position: relative;
+  z-index: 2;
+}
+
+.session-composer-hint {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary, inherit);
 }
 
 .session-composer textarea {
@@ -120,6 +216,17 @@
   padding: 0.75rem;
   border-radius: 10px;
   border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.15));
+  background: var(--surface, #fff);
+}
+
+.session-composer textarea:disabled {
+  opacity: 0.65;
+}
+
+.synced-tutor-transcript-controls .btn {
+  min-height: 2.25rem;
+  padding-inline: 0.85rem;
+  font-size: 0.88rem;
 }
 
 .session-composer-actions,
