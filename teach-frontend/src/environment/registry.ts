@@ -7,9 +7,9 @@ export const ENVIRONMENT_STORAGE_KEY = 'teach_environment'
 export const ENVIRONMENT_REGISTRY: readonly EnvironmentDefinition[] = [
   {
     id: 'ai-lab',
-    name: 'AI Lab',
+    name: 'Study Lab',
     description: 'Teal intelligence glow — the default T.E.A.C.H atmosphere.',
-    emoji: '🤖',
+    emoji: '✨',
   },
   {
     id: 'classroom',

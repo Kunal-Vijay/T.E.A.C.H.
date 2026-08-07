@@ -68,7 +68,7 @@ export default function LoadingSessionScreen({
             <p className="loading-session-screen__kicker">{LEARNING_MODE_LABELS[mode]}</p>
             <h1 className="loading-session-screen__title">Live Session</h1>
             <p className="loading-session-screen__subtitle">
-              {failed ? 'Something went wrong' : 'Preparing your AI lesson…'}
+              {failed ? 'Something went wrong' : 'Preparing your lesson…'}
             </p>
           </header>
 

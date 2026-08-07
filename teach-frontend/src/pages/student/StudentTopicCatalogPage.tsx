@@ -35,7 +35,7 @@ import { isStudentOnboarded, markStudentOnboarded } from '../../services/auth/au
 import type { TopicResponse } from '../../types/learning.types'
 
 const STUDENT_STEPS = [
-  { title: 'Browse recordings', detail: 'Every AI-generated class Nova has taught appears in your library.' },
+  { title: 'Browse recordings', detail: 'Every class Nova has taught appears in your library.' },
   { title: 'Open any class', detail: 'Pick a recording and revisit the full lesson on your schedule.' },
   { title: 'Watch again anytime', detail: 'Return to previous classes whenever you need a refresher.' },
 ]
@@ -144,7 +144,7 @@ export default function StudentTopicCatalogPage() {
               variant="hub"
               kicker="Nova's class archive"
               title="Recorded Classes"
-              lede="Browse and revisit previously recorded AI classes taught by Nova."
+              lede="Browse and revisit previously recorded classes taught by Nova."
             />
           </HubHero>
 
@@ -170,7 +170,7 @@ export default function StudentTopicCatalogPage() {
                         description={
                           topic.description !== ''
                             ? topic.description
-                            : (firstLessonTitle ?? 'AI-generated class recording with Nova.')
+                            : (firstLessonTitle ?? 'Class recording with Nova.')
                         }
                         topicCount={topic.toc_items.length}
                         recordingDateLabel={formatRecordingDate(topic.updated_at ?? topic.created_at)}
@@ -188,7 +188,7 @@ export default function StudentTopicCatalogPage() {
                 <StatusPanel
                   tone="empty"
                   title="No Recorded Classes"
-                  description="Previously generated AI classes will appear here once they are available."
+                  description="Recorded classes will appear here once they are available."
                 />
               </div>
             )}

@@ -72,12 +72,7 @@ export default function HeroScene() {
         <div className="hero-scene-tutor">
           <NovaTutor speaking={false} size="hero" label="" />
           <div className="hero-scene-tutor-nameplate">
-            <div className="hero-scene-tutor-nameplate-top">
-              <span className="hero-scene-live-dot" />
-              <span className="hero-scene-tutor-status">AI Tutor</span>
-            </div>
             <p className="hero-scene-tutor-name">{CURRENT_TUTOR.name}</p>
-            <p className="hero-scene-tutor-role">{CURRENT_TUTOR.role}</p>
           </div>
         </div>
       </div>

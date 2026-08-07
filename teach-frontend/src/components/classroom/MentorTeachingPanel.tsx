@@ -49,7 +49,6 @@ export default function MentorTeachingPanel({
       <div className={`classroom-mentor-inner mentor-teaching-panel-inner${showSpeaking ? ' is-speaking' : ''}${tutorPresence.mode === 'listening' ? ' is-listening' : ''}${tutorPresence.mode === 'thinking' ? ' is-thinking' : ''}`}>
         <header className="mentor-panel-header">
           <div className="mentor-panel-identity">
-            <span className="mentor-panel-kicker">Your AI Tutor</span>
             <p className="mentor-panel-name">{mentor.name}</p>
           </div>
           <span

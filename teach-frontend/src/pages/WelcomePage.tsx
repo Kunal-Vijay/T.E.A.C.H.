@@ -49,7 +49,7 @@ export default function WelcomePage() {
           <div className="welcome-copy-main">
             <div className="welcome-eyebrow">
               <Icon icon={Sparkles} size={14} />
-              Meet Nova — your AI Tutor
+              Meet Nova
             </div>
 
             <h1 className="welcome-headline">
@@ -59,12 +59,12 @@ export default function WelcomePage() {
             </h1>
 
             <p className="welcome-lead">
-              T.E.A.C.H. is built around Nova — a live AI Tutor who narrates lessons, adapts to each
+              T.E.A.C.H. is built around Nova — a teacher who narrates lessons, adapts to each
               student, and answers doubts instantly. No lecture loop. No waiting.
             </p>
 
             <ul className="welcome-pillars">
-              <li className="welcome-pillar-nova">Nova • AI Tutor</li>
+              <li className="welcome-pillar-nova">Nova</li>
               <li>Immersive classrooms</li>
               <li>Instant doubt resolution</li>
             </ul>

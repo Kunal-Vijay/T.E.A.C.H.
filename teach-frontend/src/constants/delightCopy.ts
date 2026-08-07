@@ -57,7 +57,7 @@ export const SAGE_CLOSINGS = [
   'Every question sharpens your understanding.',
 ]
 
-export const SAGE_THINKING_LABEL = 'SAGE is thinking…'
+export const SAGE_THINKING_LABEL = 'Thinking…'
 
 export function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]!

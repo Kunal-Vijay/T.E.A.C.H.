@@ -105,7 +105,7 @@ export default function VivaActiveSession({
               <div className="viva-exp-empty-icon">🎓</div>
               <h2>Spoken Viva</h2>
               <p>
-                Your AI examiner will ask up to {maxQuestions} questions. Answer out loud —
+                Your examiner will ask up to {maxQuestions} questions. Answer out loud —
                 the examiner speaks first.
               </p>
               <button

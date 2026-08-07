@@ -736,7 +736,7 @@ export default function ClassroomLayout({
                   <Icon icon={Sparkles} size={20} className="sage-launch-icon" />
                 </div>
                 <div className="sage-launch-copy">
-                  <p className="sage-launch-kicker">AI Tutor support</p>
+                  <p className="sage-launch-kicker">Need help?</p>
                   <strong>Ask SAGE anything</strong>
                   <p>Stuck? SAGE explains without judgment — +{XP_REWARDS.SAGE_ASK} XP per question.</p>
                 </div>

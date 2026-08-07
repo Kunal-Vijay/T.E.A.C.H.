@@ -25,7 +25,7 @@ function resolveStatus(speaking: boolean, listening: boolean, thinking: boolean,
     return { label: 'Paused', tone: 'speaking' as const, cardLabel: 'Paused' }
   }
   if (speaking) {
-    return { label: 'Explaining', tone: 'speaking' as const, cardLabel: 'Currently explaining' }
+    return { label: 'Explaining', tone: 'speaking' as const, cardLabel: 'Explaining' }
   }
   return { label: 'Ready', tone: 'ready' as const, cardLabel: 'Ready to teach' }
 }

@@ -55,7 +55,6 @@ export default function SessionTutorStage({
   return (
     <aside className="session-tutor-stage" aria-label={`${tutor.name} teaching`}>
       <div className="session-tutor-stage-identity">
-        <span className="page-kicker">Your AI Tutor</span>
         <strong>{tutor.name}</strong>
       </div>
       <div

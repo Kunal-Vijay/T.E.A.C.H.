@@ -9,7 +9,7 @@ export const MENTOR_DIALOGUES: Record<TutorId, DialogueProfile> = {
     greetings: [
       "Hey! I'm Nova — ready to learn something great together?",
       "Hi! Nova here. Let's make today a win.",
-      "Welcome back! I'm Nova, your AI Tutor.",
+      "Welcome back! I'm Nova.",
       "Ready when you are — let's dive in.",
     ],
     demoLines: [

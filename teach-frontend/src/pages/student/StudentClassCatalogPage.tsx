@@ -41,7 +41,7 @@ interface AvailableClass {
 
 const STUDENT_STEPS = [
   { title: 'Join your class', detail: 'Pick a ready lesson from your catalog.' },
-  { title: 'Attend the lesson', detail: 'Learn with your AI Tutor — voice, slides, and quizzes.' },
+  { title: 'Attend the lesson', detail: 'Learn with Nova — voice, slides, and quizzes.' },
   { title: 'Ask SAGE anything', detail: 'Pause anytime to resolve doubts before moving on.' },
 ]
 
@@ -165,7 +165,7 @@ export default function StudentClassCatalogPage() {
         <div className="dashboard-onboarding-wrap">
           <OnboardingPanel
             heading="Welcome to T.E.A.C.H"
-            subtitle="Your AI classroom is ready. Here is how learning works."
+            subtitle="Your classroom is ready. Here is how learning works."
             steps={STUDENT_STEPS}
             ctaLabel="Browse classes"
             onCta={browseClasses}

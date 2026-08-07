@@ -87,7 +87,7 @@ export default function LessonVoicePlayer({
           <Icon icon={Volume2} size={20} strokeWidth={1.75} />
         </div>
         <div className="lesson-voice-player-copy">
-          <p className="lesson-voice-player-title">Hear your AI Tutor teach this moment</p>
+          <p className="lesson-voice-player-title">Hear Nova teach this moment</p>
           <p className="lesson-voice-player-hint">
             Turn on voice for synced narration — or tap Begin to read at your pace.
           </p>

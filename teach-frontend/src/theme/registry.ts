@@ -8,9 +8,9 @@ export const THEME_STORAGE_KEY = 'teach_theme'
 export const THEME_REGISTRY: readonly ThemeDefinition[] = [
   {
     id: 'midnight',
-    name: 'Midnight AI',
+    name: 'Midnight',
     description: 'Deep hub shell with teal accent — the default T.E.A.C.H experience.',
-    tagline: 'Premium dark AI workspace',
+    tagline: 'Premium dark workspace',
     emoji: '🌑',
     experience: {
       title: 'Study Into the Night',
@@ -38,7 +38,7 @@ export const THEME_REGISTRY: readonly ThemeDefinition[] = [
     emoji: '🌌',
     experience: {
       title: 'Beyond the Classroom',
-      description: 'A vibrant AI canvas where curiosity sparks and ideas take flight.',
+      description: 'A vibrant canvas where curiosity sparks and ideas take flight.',
       emoji: '🚀',
     },
   },

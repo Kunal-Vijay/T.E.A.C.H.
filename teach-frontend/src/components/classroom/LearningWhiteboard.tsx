@@ -31,7 +31,7 @@ export default function LearningWhiteboard({
             </div>
             <p className="lesson-whiteboard-idle-title">Your lesson board is ready</p>
             <p className="lesson-whiteboard-idle-hint whiteboard-idle-text">
-              Key points, diagrams, and formulas appear here as your AI Tutor teaches.
+              Key points, diagrams, and formulas appear here as Nova teaches.
             </p>
           </div>
         ) : (
