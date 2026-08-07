@@ -8,10 +8,15 @@ import { isSafeAssetUrl } from '../../lib/urlValidation'
 
 interface LessonBoardElementsProps {
   elements: Array<Record<string, unknown>>
+  variant?: 'default' | 'marker'
 }
 
-/** Renders slide elements[] as a stable lesson board — independent of narration. */
-export default function LessonBoardElements({ elements }: LessonBoardElementsProps) {
+export default function LessonBoardElements({
+  elements,
+  variant = 'default',
+}: LessonBoardElementsProps) {
+  const isMarker = variant === 'marker'
+
   return (
     <>
       {elements.map((element, index) => {
@@ -19,7 +24,10 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
 
         if (elementType === 'heading') {
           return (
-            <div key={`lb-heading-${index}`} className="lesson-board-block lesson-board-block--heading">
+            <div
+              key={`lb-heading-${index}`}
+              className={`lesson-board-block lesson-board-block--heading${isMarker ? ' is-marker' : ''}`}
+            >
               <h2 className="lesson-board-heading">
                 <LessonContent source={String(element.content ?? '')} inline />
               </h2>
@@ -31,6 +39,21 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
           const items = normalizeBulletItems(element.content)
           if (items.length === 0) {
             return null
+          }
+
+          if (isMarker) {
+            return (
+              <div
+                key={`lb-bullets-${index}`}
+                className="lesson-board-block lesson-board-block--marker-lines"
+              >
+                {items.map((item, itemIndex) => (
+                  <p key={`lb-line-${index}-${itemIndex}`} className="lesson-board-marker-line">
+                    <LessonContent source={item} inline />
+                  </p>
+                ))}
+              </div>
+            )
           }
 
           return (
@@ -71,7 +94,10 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
         if (elementType === 'latex') {
           const html = katex.renderToString(String(element.content ?? ''), { throwOnError: false })
           return (
-            <div key={`lb-latex-${index}`} className="lesson-board-block lesson-board-block--formula">
+            <div
+              key={`lb-latex-${index}`}
+              className={`lesson-board-block lesson-board-block--formula${isMarker ? ' is-marker' : ''}`}
+            >
               <div
                 className="lesson-board-formula"
                 dangerouslySetInnerHTML={{ __html: html }}
@@ -81,7 +107,10 @@ export default function LessonBoardElements({ elements }: LessonBoardElementsPro
         }
 
         return (
-          <div key={`lb-text-${index}`} className="lesson-board-block lesson-board-block--text">
+          <div
+            key={`lb-text-${index}`}
+            className={`lesson-board-block lesson-board-block--text${isMarker ? ' is-marker' : ''}`}
+          >
             <div className="lesson-board-text">
               <LessonContent source={String(element.content ?? '')} />
             </div>

@@ -9,6 +9,7 @@ interface SessionTutorStageProps {
   listening?: boolean
   size?: 'lg' | 'xl'
   statusLabel?: string
+  subtitle?: string
 }
 
 export default function SessionTutorStage({
@@ -16,6 +17,7 @@ export default function SessionTutorStage({
   listening = false,
   size = 'xl',
   statusLabel,
+  subtitle,
 }: SessionTutorStageProps) {
   const { tutor } = useMentor()
   const expression: ExpressionState = speaking
@@ -30,6 +32,7 @@ export default function SessionTutorStage({
       : listening
         ? `${tutor.name} is listening`
         : `${tutor.name} is your AI Tutor`)
+  const resolvedSubtitle = subtitle?.trim() ?? ''
 
   return (
     <aside className="session-tutor-stage" aria-label={`${tutor.name} teaching`}>
@@ -52,6 +55,9 @@ export default function SessionTutorStage({
           <MentorTutorDecorations expression={expression} speaking={speaking} />
         </div>
       </div>
+      {resolvedSubtitle !== '' ? (
+        <p className="session-tutor-stage-subtitle">{resolvedSubtitle}</p>
+      ) : null}
       <div
         className={`session-tutor-stage-status${speaking ? ' is-speaking' : ''}${listening ? ' is-listening' : ''}`}
         aria-live="polite"

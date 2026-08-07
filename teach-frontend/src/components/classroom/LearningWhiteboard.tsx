@@ -4,15 +4,22 @@ import Icon from '../ui/Icon'
 
 interface LearningWhiteboardProps {
   elements: Array<Record<string, unknown>>
-  /** Changes on slide navigation — triggers a single board entrance animation. */
   slideKey: string | number
+  variant?: 'default' | 'marker'
 }
 
-export default function LearningWhiteboard({ elements, slideKey }: LearningWhiteboardProps) {
+export default function LearningWhiteboard({
+  elements,
+  slideKey,
+  variant = 'default',
+}: LearningWhiteboardProps) {
   const isEmpty = elements.length === 0
+  const isMarker = variant === 'marker'
 
   return (
-    <div className="learning-whiteboard lesson-whiteboard is-live">
+    <div
+      className={`learning-whiteboard lesson-whiteboard is-live${isMarker ? ' is-marker-board' : ''}`}
+    >
       <div className="lesson-whiteboard-shell">
         <div className="lesson-board-surface" aria-hidden="true" />
         <div className="lesson-whiteboard-glow" aria-hidden="true" />
@@ -30,7 +37,7 @@ export default function LearningWhiteboard({ elements, slideKey }: LearningWhite
         ) : (
           <article key={slideKey} className="lesson-board" aria-label="Lesson content">
             <div className="lesson-board-inner">
-              <LessonBoardElements elements={elements} />
+              <LessonBoardElements elements={elements} variant={variant} />
             </div>
           </article>
         )}

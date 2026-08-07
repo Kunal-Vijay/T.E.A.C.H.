@@ -6,10 +6,23 @@ import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../compo
 import { useSpeech } from '../../hooks/useSpeech'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
+import { buildSpeechChunks } from '../../lib/speech/sentenceChunker'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
 import type { LearningSessionResponse, SessionSlide } from '../../types/learning.types'
 import { LEARNING_MODE_LABELS } from '../../types/learning.types'
+
+function extractSlideHeading(slide: SessionSlide | undefined): string {
+  if (slide == null) {
+    return ''
+  }
+  for (const element of slide.elements) {
+    if (element.type === 'heading' && typeof element.content === 'string') {
+      return element.content.trim()
+    }
+  }
+  return ''
+}
 
 function buildFallbackExplanation(slide: SessionSlide): string {
   const parts: string[] = []
@@ -66,8 +79,10 @@ export default function LiveLearningSessionPage() {
   const [submitting, setSubmitting] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [awaitingContinue, setAwaitingContinue] = useState(false)
+  const [spokenCaption, setSpokenCaption] = useState('')
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
+  const speechChunksRef = useRef<string[]>([])
   const { speakNow, stopSpeech, speechStatus } = useSpeech()
   const {
     phase,
@@ -88,6 +103,12 @@ export default function LiveLearningSessionPage() {
   )
   const hasMoreSlides = slideIndex < slides.length - 1
   const visualId = session?.current_visual?.id ?? 'empty'
+  const tutorSubtitle =
+    spokenCaption !== ''
+      ? spokenCaption
+      : extractSlideHeading(currentSlide) !== ''
+        ? extractSlideHeading(currentSlide)
+        : session?.latest_tutor_message?.trim() ?? ''
 
   useEffect(() => {
     slideIndexRef.current = slideIndex
@@ -129,7 +150,9 @@ export default function LiveLearningSessionPage() {
   useEffect(() => {
     setSlideIndex(0)
     setAwaitingContinue(false)
+    setSpokenCaption('')
     lastSpokenKeyRef.current = null
+    speechChunksRef.current = []
   }, [visualId])
 
   const advanceAfterSpeech = useCallback(() => {
@@ -153,13 +176,25 @@ export default function LiveLearningSessionPage() {
     }
     lastSpokenKeyRef.current = spokenKey
     setAwaitingContinue(false)
+    const chunks = buildSpeechChunks(currentExplanation, {
+      chunkSpeech: true,
+      maxCharsPerChunk: 160,
+    })
+    speechChunksRef.current = chunks
+    setSpokenCaption(chunks[0] ?? extractSlideHeading(currentSlide))
     void speakNow(currentExplanation, {
       languageStyle: session.params_snapshot.language_style,
+      onSentenceStart: (index) => {
+        const chunk = speechChunksRef.current[index]
+        if (chunk != null && chunk.trim() !== '') {
+          setSpokenCaption(chunk)
+        }
+      },
       onEnd: () => {
         advanceAfterSpeech()
       },
     })
-  }, [session, currentExplanation, slideIndex, visualId, speakNow, advanceAfterSpeech])
+  }, [session, currentExplanation, slideIndex, visualId, speakNow, advanceAfterSpeech, currentSlide])
 
   useEffect(() => {
     if (session == null) {
@@ -267,30 +302,13 @@ export default function LiveLearningSessionPage() {
             <ErrorState message={errorMessage} onDismiss={() => setErrorMessage(null)} />
           </PageAlert>
         ) : null}
-        <div className="live-session-layout">
-          <SessionTutorStage
-            speaking={isSpeaking}
-            listening={isListening}
-            statusLabel={
-              isSpeaking
-                ? 'Nova is speaking'
-                : isListening
-                  ? 'Nova is listening'
-                  : submitting
-                    ? 'Nova is thinking'
-                    : 'Nova is ready'
-            }
-          />
+        <div className="live-session-layout live-session-layout--tutor-right">
           <div className="live-session-main">
             <LearningWhiteboard
               elements={boardElements}
               slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
+              variant="marker"
             />
-            <p className="tutor-message">
-              {currentExplanation !== ''
-                ? currentExplanation
-                : session.latest_tutor_message}
-            </p>
             {awaitingContinue && !isSpeaking ? (
               <div className="session-composer-actions">
                 <Button
@@ -353,6 +371,20 @@ export default function LiveLearningSessionPage() {
               </PageAlert>
             ) : null}
           </div>
+          <SessionTutorStage
+            speaking={isSpeaking}
+            listening={isListening}
+            subtitle={tutorSubtitle}
+            statusLabel={
+              isSpeaking
+                ? 'Nova is speaking'
+                : isListening
+                  ? 'Nova is listening'
+                  : submitting
+                    ? 'Nova is thinking'
+                    : 'Nova is ready'
+            }
+          />
         </div>
       </PageSection>
     </AppPage>
