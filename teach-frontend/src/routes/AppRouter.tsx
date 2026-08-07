@@ -10,7 +10,6 @@ const WelcomePage = lazy(() => import('../pages/WelcomePage'))
 const StudentTopicCatalogPage = lazy(() => import('../pages/student/StudentTopicCatalogPage'))
 const LiveLearningSessionPage = lazy(() => import('../pages/student/LiveLearningSessionPage'))
 const VivaSessionPage = lazy(() => import('../pages/student/viva/VivaExperience'))
-const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const StudentLayout = lazy(() => import('../components/layouts/StudentLayout'))
 
 function RouterContent() {
@@ -29,7 +28,6 @@ function RouterContent() {
               <Route path="/student/topics/:topicId" element={<StudentTopicCatalogPage />} />
               <Route path="/student/sessions/:sessionId" element={<LiveLearningSessionPage />} />
               <Route path="/student/sessions/:sessionId/viva" element={<VivaSessionPage />} />
-              <Route path="/student/settings" element={<SettingsPage />} />
               <Route path="/student/classroom/:generationId" element={<Navigate to="/student" replace />} />
             </Route>
           </Route>
