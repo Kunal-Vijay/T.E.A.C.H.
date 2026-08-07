@@ -2,20 +2,13 @@ import AppNavBar from '../nav/AppNavBar'
 import ProductAmbient from '../shell/ProductAmbient'
 import { NovaTutor } from '../nova'
 import { useMentor } from '../../context/MentorContext'
-import { clearAuth } from '../../services/auth/authService'
-import { LayoutGrid, LogOut, Settings } from 'lucide-react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { LayoutGrid } from 'lucide-react'
+import { Outlet, useLocation } from 'react-router-dom'
 
 export default function StudentLayout() {
-  const navigate = useNavigate()
   const location = useLocation()
   const { tutor, tutorLabel } = useMentor()
   const isClassroom = location.pathname.includes('/student/classroom/')
-
-  const switchRole = () => {
-    clearAuth()
-    navigate('/')
-  }
 
   return (
     <div className={`teach-shell${isClassroom ? ' teach-shell--classroom-route' : ' teach-shell--hub'}`}>
@@ -35,8 +28,6 @@ export default function StudentLayout() {
           )}
           links={[
             { kind: 'route', to: '/student', label: 'Classes', icon: LayoutGrid, end: true },
-            { kind: 'route', to: '/student/settings', label: 'Settings', icon: Settings },
-            { kind: 'action', label: 'Switch role', icon: LogOut, onClick: switchRole, tone: 'exit' },
           ]}
         />
       ) : null}
