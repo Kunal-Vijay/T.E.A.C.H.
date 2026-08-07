@@ -23,13 +23,13 @@ PERSONAS: dict[str, Persona] = {
     "female": Persona(
         id="female",
         display_name="Nova",
-        voice_id="EXAVITQu4vr4xnSDxMaL",  # ElevenLabs "Bella" — warm, encouraging
+        voice_id="RDWdsTU6N02BFftbIEAp",
         style="Warm, encouraging, patient",
     ),
     "male": Persona(
         id="male",
         display_name="Albert",
-        voice_id="RDWdsTU6N02BFftbIEAp",  # Calm, confident, mentor-like
+        voice_id="6MoEUz34rbRrmmyxgRm4",
         style="Calm, confident, mentor-like",
     ),
 }
