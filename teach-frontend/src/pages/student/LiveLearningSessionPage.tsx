@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import LearningWhiteboard from '../../components/classroom/LearningWhiteboard'
 import SessionTutorStage from '../../components/classroom/SessionTutorStage'
+import SyncedTutorTranscript from '../../components/classroom/SyncedTutorTranscript'
 import { AppPage, Button, ErrorState, PageAlert, PageSection } from '../../components/ui'
-import { useSpeech } from '../../hooks/useSpeech'
+import { useLiveSessionTutorSpeech } from '../../hooks/useLiveSessionTutorSpeech'
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition'
 import { captureException } from '../../lib/monitoring'
-import { buildSpeechChunks } from '../../lib/speech/sentenceChunker'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
 import type { LearningSessionResponse, SessionSlide } from '../../types/learning.types'
@@ -70,6 +70,18 @@ function resolveSlideExplanation(
   return buildFallbackExplanation(slide)
 }
 
+function latestSpokenLine(revealedText: string): string {
+  const trimmed = revealedText.trim()
+  if (trimmed === '') {
+    return ''
+  }
+  const sentences = trimmed.split(/(?<=[.!?…])\s+/).map((part) => part.trim()).filter((part) => part !== '')
+  if (sentences.length === 0) {
+    return trimmed
+  }
+  return sentences[sentences.length - 1]
+}
+
 export default function LiveLearningSessionPage() {
   const { sessionId = '' } = useParams()
   const navigate = useNavigate()
@@ -79,11 +91,20 @@ export default function LiveLearningSessionPage() {
   const [submitting, setSubmitting] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [awaitingContinue, setAwaitingContinue] = useState(false)
-  const [spokenCaption, setSpokenCaption] = useState('')
   const lastSpokenKeyRef = useRef<string | null>(null)
   const slideIndexRef = useRef(0)
-  const speechChunksRef = useRef<string[]>([])
-  const { speakNow, stopSpeech, speechStatus } = useSpeech()
+  const {
+    fullText,
+    revealedText,
+    speechStatus,
+    isPaused,
+    isSpeechActive,
+    speakTutorText,
+    replayTutorText,
+    interruptSpeech,
+    resetSpeechTracking,
+    togglePauseSpeech,
+  } = useLiveSessionTutorSpeech()
   const {
     phase,
     transcript,
@@ -92,7 +113,13 @@ export default function LiveLearningSessionPage() {
     reset,
   } = useVoiceRecognition()
   const isListening = phase === 'listening'
-  const isSpeaking = speechStatus === 'speaking'
+  const isTutorAudible = speechStatus === 'speaking' || speechStatus === 'loading'
+  const canInteractWithSession =
+    session?.status === 'active'
+    || (
+      session?.status === 'completed'
+      && (session.mode === 'teach' || session.mode === 'doubt')
+    )
 
   const slides = session?.current_visual?.slides ?? []
   const currentSlide = slides[slideIndex]
@@ -103,6 +130,7 @@ export default function LiveLearningSessionPage() {
   )
   const hasMoreSlides = slideIndex < slides.length - 1
   const visualId = session?.current_visual?.id ?? 'empty'
+  const spokenCaption = latestSpokenLine(revealedText)
   const tutorSubtitle =
     spokenCaption !== ''
       ? spokenCaption
@@ -143,16 +171,14 @@ export default function LiveLearningSessionPage() {
     void load()
     return () => {
       cancelled = true
-      stopSpeech()
+      resetSpeechTracking()
     }
-  }, [sessionId, stopSpeech])
+  }, [sessionId, resetSpeechTracking])
 
   useEffect(() => {
     setSlideIndex(0)
     setAwaitingContinue(false)
-    setSpokenCaption('')
     lastSpokenKeyRef.current = null
-    speechChunksRef.current = []
   }, [visualId])
 
   const advanceAfterSpeech = useCallback(() => {
@@ -176,25 +202,14 @@ export default function LiveLearningSessionPage() {
     }
     lastSpokenKeyRef.current = spokenKey
     setAwaitingContinue(false)
-    const chunks = buildSpeechChunks(currentExplanation, {
-      chunkSpeech: true,
-      maxCharsPerChunk: 160,
-    })
-    speechChunksRef.current = chunks
-    setSpokenCaption(chunks[0] ?? extractSlideHeading(currentSlide))
-    void speakNow(currentExplanation, {
-      languageStyle: session.params_snapshot.language_style,
-      onSentenceStart: (index) => {
-        const chunk = speechChunksRef.current[index]
-        if (chunk != null && chunk.trim() !== '') {
-          setSpokenCaption(chunk)
-        }
-      },
-      onEnd: () => {
+    void speakTutorText(
+      currentExplanation,
+      session.params_snapshot.language_style,
+      () => {
         advanceAfterSpeech()
       },
-    })
-  }, [session, currentExplanation, slideIndex, visualId, speakNow, advanceAfterSpeech, currentSlide])
+    )
+  }, [session, currentExplanation, slideIndex, visualId, speakTutorText, advanceAfterSpeech])
 
   useEffect(() => {
     if (session == null) {
@@ -229,12 +244,15 @@ export default function LiveLearningSessionPage() {
 
   const submitMessage = async (text: string, channel: 'chat' | 'speech') => {
     const trimmed = text.trim()
-    if (trimmed === '' || session == null || session.status !== 'active') {
+    if (trimmed === '' || session == null || !canInteractWithSession || submitting) {
       return
+    }
+    interruptSpeech()
+    if (isListening) {
+      stopListening()
     }
     setSubmitting(true)
     setErrorMessage(null)
-    stopSpeech()
     try {
       const response = await learningSessionApi.submitTurn(session.id, {
         message: trimmed,
@@ -263,7 +281,7 @@ export default function LiveLearningSessionPage() {
 
   const continueLesson = () => {
     if (hasMoreSlides) {
-      stopSpeech()
+      interruptSpeech()
       lastSpokenKeyRef.current = null
       setSlideIndex((current) => current + 1)
       setAwaitingContinue(false)
@@ -272,6 +290,46 @@ export default function LiveLearningSessionPage() {
     void submitMessage('Please continue to the next part.', 'chat')
   }
 
+  const handleSpeakClick = () => {
+    if (!canInteractWithSession || submitting) {
+      return
+    }
+    if (isListening) {
+      void submitMessage(transcript || message, 'speech')
+      return
+    }
+    interruptSpeech()
+    reset()
+    startListening()
+  }
+
+  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return
+    }
+    event.preventDefault()
+    void submitMessage(message, 'chat')
+  }
+
+  const tutorStageLabel = useMemo(() => {
+    if (isListening) {
+      return 'Nova is listening'
+    }
+    if (submitting) {
+      return 'Nova is thinking'
+    }
+    if (speechStatus === 'loading') {
+      return 'Nova is preparing to speak'
+    }
+    if (speechStatus === 'speaking') {
+      return 'Nova is speaking — you can interrupt anytime'
+    }
+    if (speechStatus === 'paused') {
+      return 'Nova is paused'
+    }
+    return 'Nova is ready — ask anytime'
+  }, [isListening, submitting, speechStatus])
+
   if (session == null) {
     return (
       <AppPage>
@@ -279,6 +337,15 @@ export default function LiveLearningSessionPage() {
       </AppPage>
     )
   }
+
+  const tutorText =
+    session.current_visual?.explanation_text ?? session.latest_tutor_message ?? ''
+  const transcriptText = fullText !== ''
+    ? fullText
+    : currentExplanation !== ''
+      ? currentExplanation
+      : tutorText
+  const canSendMessage = canInteractWithSession && message.trim() !== '' && !submitting
 
   return (
     <AppPage>
@@ -290,7 +357,7 @@ export default function LiveLearningSessionPage() {
             <p>
               Goal: {session.goal_status} · Status: {session.status}
               {slides.length > 0 ? ` · Slide ${slideIndex + 1} of ${slides.length}` : ''}
-              {isSpeaking ? ' · Tutor speaking…' : ''}
+              {isSpeechActive ? ' · Type or speak anytime to interrupt Nova' : ''}
             </p>
           </div>
           <Button type="button" variant="secondary" onClick={() => navigate('/student')}>
@@ -309,7 +376,18 @@ export default function LiveLearningSessionPage() {
               slideKey={`${visualId}-${currentSlide?.slide_id ?? slideIndex}`}
               variant="marker"
             />
-            {awaitingContinue && !isSpeaking ? (
+            <SyncedTutorTranscript
+              fullText={transcriptText}
+              revealedText={revealedText}
+              speechStatus={speechStatus}
+              isPaused={isPaused}
+              canControlPlayback={canInteractWithSession}
+              onTogglePause={togglePauseSpeech}
+              onReplay={() => {
+                void replayTutorText(session.params_snapshot.language_style)
+              }}
+            />
+            {awaitingContinue && !isSpeechActive ? (
               <div className="session-composer-actions">
                 <Button
                   type="button"
@@ -320,7 +398,7 @@ export default function LiveLearningSessionPage() {
                 </Button>
               </div>
             ) : null}
-            {!isSpeaking && !awaitingContinue && hasMoreSlides ? (
+            {!isSpeechActive && !awaitingContinue && hasMoreSlides ? (
               <div className="session-composer-actions">
                 <Button
                   type="button"
@@ -332,17 +410,25 @@ export default function LiveLearningSessionPage() {
                 </Button>
               </div>
             ) : null}
-            <div className="session-composer">
+            <div className="session-composer session-composer-interactive">
+              {isSpeechActive ? (
+                <p className="session-composer-hint">
+                  Nova is talking — you can still type or tap Speak. Sending a message stops Nova and gets an answer.
+                </p>
+              ) : null}
               <textarea
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                placeholder="Type a question or response…"
-                disabled={session.status !== 'active' || submitting}
+                onKeyDown={handleComposerKeyDown}
+                placeholder="Type a question anytime — Enter to send, Shift+Enter for a new line…"
+                disabled={!canInteractWithSession}
+                aria-disabled={!canInteractWithSession}
               />
               <div className="session-composer-actions">
                 <Button
                   type="button"
-                  disabled={submitting || session.status !== 'active'}
+                  loading={submitting}
+                  disabled={!canSendMessage}
                   onClick={() => void submitMessage(message, 'chat')}
                 >
                   Send
@@ -350,16 +436,8 @@ export default function LiveLearningSessionPage() {
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={submitting || session.status !== 'active'}
-                  onClick={() => {
-                    if (isListening) {
-                      stopListening()
-                      void submitMessage(transcript || message, 'speech')
-                    } else {
-                      reset()
-                      startListening()
-                    }
-                  }}
+                  disabled={!canInteractWithSession}
+                  onClick={handleSpeakClick}
                 >
                   {isListening ? 'Stop & send voice' : 'Speak'}
                 </Button>
@@ -372,18 +450,10 @@ export default function LiveLearningSessionPage() {
             ) : null}
           </div>
           <SessionTutorStage
-            speaking={isSpeaking}
+            speaking={isTutorAudible || speechStatus === 'paused'}
             listening={isListening}
             subtitle={tutorSubtitle}
-            statusLabel={
-              isSpeaking
-                ? 'Nova is speaking'
-                : isListening
-                  ? 'Nova is listening'
-                  : submitting
-                    ? 'Nova is thinking'
-                    : 'Nova is ready'
-            }
+            statusLabel={tutorStageLabel}
           />
         </div>
       </PageSection>

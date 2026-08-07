@@ -73,7 +73,7 @@ class BedrockTeachClient(ILLMTeachClient):
                 if next_toc is not None
                 else taught_toc_item_ids
             ),
-            "is_goal_complete": next_toc is None or len(remaining_toc) <= 1,
+            "is_goal_complete": next_toc is None,
         }
 
         student_part = (

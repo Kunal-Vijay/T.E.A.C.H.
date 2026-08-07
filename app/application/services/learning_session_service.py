@@ -135,7 +135,7 @@ class LearningSessionService:
         request_dto: SubmitTurnRequestDTO,
     ) -> LearningSessionResponseDTO:
         with self.unit_of_work:
-            session = self._require_active_session(session_id)
+            session = self._require_interactive_session(session_id)
             topic = self._require_published_topic(session.topic_id)
             return self._generate_and_apply_tutor_turn(
                 session=session,
@@ -230,11 +230,12 @@ class LearningSessionService:
         if session.mode == LearningMode.VIVA:
             self._apply_viva_state(session, agent_response)
 
-        is_goal_complete = bool(agent_response["is_goal_complete"]) if "is_goal_complete" in agent_response else False
+        is_goal_complete = self._resolve_goal_complete(session, topic, agent_response)
         if is_goal_complete is True:
             session.goal_status = GoalStatus.COMPLETED
-            session.status = LearningSessionStatus.COMPLETED
-            session.completed_at = datetime.now(timezone.utc)
+            if session.mode not in (LearningMode.TEACH, LearningMode.DOUBT):
+                session.status = LearningSessionStatus.COMPLETED
+                session.completed_at = datetime.now(timezone.utc)
 
         updated = self.unit_of_work.learning_session_repository.update(session)
         refreshed = self.unit_of_work.learning_session_repository.find_by_id(updated.id)
@@ -673,6 +674,35 @@ class LearningSessionService:
         if session.status != LearningSessionStatus.ACTIVE:
             raise LearningSessionNotActiveException(f"Learning session {session_id} is not active")
         return session
+
+    def _require_interactive_session(self, session_id: uuid.UUID) -> LearningSessionEntity:
+        session = self._require_session(session_id)
+        if session.status == LearningSessionStatus.ABANDONED:
+            raise LearningSessionNotActiveException(f"Learning session {session_id} is not active")
+        if session.status == LearningSessionStatus.COMPLETED:
+            if session.mode not in (LearningMode.TEACH, LearningMode.DOUBT):
+                raise LearningSessionNotActiveException(f"Learning session {session_id} is not active")
+            session.status = LearningSessionStatus.ACTIVE
+            session.completed_at = None
+            updated = self.unit_of_work.learning_session_repository.update(session)
+            return updated
+        return session
+
+    def _resolve_goal_complete(
+        self,
+        session: LearningSessionEntity,
+        topic: TopicEntity,
+        agent_response: dict,
+    ) -> bool:
+        if session.mode == LearningMode.TEACH:
+            all_toc_ids = {str(toc_item.id) for toc_item in topic.toc_items}
+            taught_ids = {str(item_id) for item_id in session.taught_toc_item_ids}
+            if len(all_toc_ids) == 0:
+                return False
+            return all_toc_ids.issubset(taught_ids)
+        if "is_goal_complete" in agent_response:
+            return bool(agent_response["is_goal_complete"])
+        return False
 
     def _initial_mode_state(self, mode: LearningMode) -> dict:
         if mode == LearningMode.VIVA:
