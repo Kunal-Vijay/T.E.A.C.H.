@@ -202,38 +202,34 @@ async def viva_voice_socket(session_id: UUID, websocket: WebSocket) -> None:
     async def model_to_browser() -> None:
         nonlocal close_reason, questions_asked, questions_answered
         current_role = "UNKNOWN"
-        is_speculative = False
+        # Nova Sonic emits text twice for each utterance:
+        #   1. SPECULATIVE — arrives when TTS starts, same content as final
+        #   2. Audio chunks — the spoken version
+        #   3. FINAL — arrives after audio finishes, same content repeated
+        # We forward SPECULATIVE (so text appears immediately when audio plays) and
+        # SKIP FINAL (since it's a duplicate). The audio block in between has
+        # additionalModelFields=None and is_final_text stays False.
+        last_forwarded_text: str = ""
         async for payload in session.events():
             name, body = classify_event(payload)
             if name == "contentStart":
                 current_role = body.get("role", current_role)
-                # Nova Sonic emits SPECULATIVE text before the final version. Both
-                # carry the same content, so forwarding both produces duplicates in
-                # the transcript. Only forward the final (non-speculative) version.
-                additional = body.get("additionalModelFields", "")
-                if isinstance(additional, str) and "SPECULATIVE" in additional:
-                    is_speculative = True
-                else:
-                    is_speculative = False
             elif name == "contentEnd":
-                is_speculative = False
                 if str(body.get("stopReason", "")).upper() == "INTERRUPTED":
                     await _send_json(websocket, {"type": "interrupted"})
             elif name == "textOutput":
                 content = str(body.get("content", "")).strip()
                 if content == "":
                     continue
-                # Barge-in arrives in-band as a textOutput carrying
-                # {"interrupted": true}. It is a control message, not speech, so it
-                # must never reach the transcript.
                 if is_interruption_text(content):
                     await _send_json(websocket, {"type": "interrupted"})
                     continue
 
-                # Skip speculative content — the final version follows shortly and
-                # forwarding both produces the duplicate-text bug.
-                if is_speculative:
+                # Deduplicate: Nova Sonic sends the same text as SPECULATIVE then
+                # FINAL. Forward the first occurrence and skip the repeat.
+                if content == last_forwarded_text:
                     continue
+                last_forwarded_text = content
 
                 role = "USER" if current_role == "USER" else "ASSISTANT"
                 turns.append((role, content))
