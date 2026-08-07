@@ -19,7 +19,6 @@ import { trackEvent } from '../../lib/analytics'
 import { captureException } from '../../lib/monitoring'
 import { getUserMessage, logDisplayedError, resolveDisplayedError } from '../../services/api/apiError'
 import { classroomApi } from '../../services/api/classroomApi'
-import { quizApi } from '../../services/api/quizApi'
 import { sageApi } from '../../services/api/sageApi'
 import {
   clearClassroomSession,
@@ -51,7 +50,6 @@ export default function ClassroomPage() {
     startSession,
     recordSlideView,
     recordPrediction,
-    recordQuizAnswer,
     recordSageQuestion,
     completeLesson,
     completeTopic,
@@ -324,15 +322,6 @@ export default function ClassroomPage() {
             throw error
           }
         }}
-        onQuizSubmit={async (questionId, selectedOptionId) => {
-          try {
-            const response = await quizApi.submitAttempt(sessionId, questionId, selectedOptionId)
-            return response.data
-          } catch (error) {
-            handleActionError(error, 'quiz_submit')
-            throw error
-          }
-        }}
         onOpenSage={async () => {
           try {
             const response = await sageApi.createSession(sessionId)
@@ -375,18 +364,6 @@ export default function ClassroomPage() {
         onPrediction={() => {
           recordPrediction()
           trackXp(XP_REWARDS.PREDICTION)
-        }}
-        onQuizResult={(correct) => {
-          sessionStatsRef.current.quizTotal += 1
-          if (correct) {
-            sessionStatsRef.current.quizCorrect += 1
-          }
-          trackXp(correct ? XP_REWARDS.QUIZ_CORRECT : XP_REWARDS.QUIZ_TRY)
-          const achievement = recordQuizAnswer(correct)
-          showAchievement(achievement)
-          if (correct) {
-            pushToast(`+${XP_REWARDS.QUIZ_CORRECT} XP — sharp answer.`, 'celebrate')
-          }
         }}
         onSageQuestion={() => {
           sessionStatsRef.current.sageQuestions += 1

@@ -27,7 +27,7 @@ export default function WelcomePage() {
     window.setTimeout(() => {
       setRole(role)
       trackEvent('role_selected', { role, source: 'welcome' })
-      navigate(role === 'teacher' ? '/teacher/topics' : '/student')
+      navigate('/student')
     }, COMMIT_DELAY_MS)
   }, [navigate, pendingRole])
 
@@ -68,17 +68,15 @@ export default function WelcomePage() {
               <li>Immersive classrooms</li>
               <li>Instant doubt resolution</li>
             </ul>
+
+            <RoleSelectionPicker
+              selectedRole={selectedRole}
+              pendingRole={pendingRole}
+              onChooseRole={chooseRole}
+            />
           </div>
 
           <HeroScene />
-        </div>
-
-        <div className="welcome-hero-bottom">
-          <RoleSelectionPicker
-            selectedRole={selectedRole}
-            pendingRole={pendingRole}
-            onChooseRole={chooseRole}
-          />
         </div>
       </main>
     </div>

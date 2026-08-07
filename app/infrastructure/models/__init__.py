@@ -1,7 +1,6 @@
 from app.infrastructure.models.base import Base
 from app.infrastructure.models.learning_session_models import (
     LearningSessionModel,
-    SessionQuizAttemptModel,
     SessionTurnModel,
     SessionVisualModel,
     StudentProfileModel,
@@ -18,8 +17,6 @@ from app.infrastructure.models.live_class_models import (
     GeneratedAssetModel,
     LiveClassGenerationModel,
     LiveClassSlideModel,
-    PopQuizAttemptModel,
-    PopQuizQuestionModel,
     SlideExplanationModel,
     TopicWorkflowModel,
 )
@@ -35,9 +32,6 @@ __all__ = [
     "LearningSessionModel",
     "LiveClassGenerationModel",
     "LiveClassSlideModel",
-    "PopQuizAttemptModel",
-    "PopQuizQuestionModel",
-    "SessionQuizAttemptModel",
     "SessionTurnModel",
     "SessionVisualModel",
     "SlideExplanationModel",

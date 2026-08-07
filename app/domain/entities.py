@@ -23,7 +23,7 @@ from app.domain.enums import (
     WorkflowStateType,
 )
 from app.domain.student_params import StudentParamsSnapshot
-from app.domain.workflow_state_normalizer import normalize_workflow_state
+from app.domain.workflow_state_normalizer import normalize_workflow_definition
 
 
 class ClassPlanTopicEntity(BaseModel):
@@ -87,7 +87,6 @@ class WorkflowStateEntity(BaseModel):
     order: int
     label: str
     slide_ids: list[str] = Field(default_factory=list)
-    quiz_question_ids: list[str] = Field(default_factory=list)
     requires_student_input: bool = False
     student_input_type: str | None = None
     advance_trigger: AdvanceTrigger
@@ -108,10 +107,10 @@ class TopicWorkflowEntity(BaseModel):
 
     @property
     def states(self) -> list[WorkflowStateEntity]:
-        raw_states = self.workflow_definition.get("states", [])
+        normalized_definition = normalize_workflow_definition(self.workflow_definition)
         return [
-            WorkflowStateEntity.model_validate(normalize_workflow_state(state))
-            for state in raw_states
+            WorkflowStateEntity.model_validate(state)
+            for state in normalized_definition.get("states", [])
             if isinstance(state, dict)
         ]
 
@@ -154,42 +153,6 @@ class SlideExplanationEntity(BaseModel):
     is_active: bool = True
     created_at: datetime | None = None
     updated_at: datetime | None = None
-
-
-class PopQuizOptionEntity(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    option_id: str
-    text: str
-    is_correct: bool
-    feedback_explanation: str
-
-
-class PopQuizQuestionEntity(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    generation_id: UUID
-    topic_id: UUID
-    question_text: str
-    options: list[PopQuizOptionEntity] = Field(default_factory=list)
-    order: int
-    is_active: bool = True
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-
-
-class PopQuizAttemptEntity(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    session_id: UUID
-    question_id: UUID
-    selected_option_id: str
-    is_correct: bool
-    feedback_explanation: str
-    is_active: bool = True
-    created_at: datetime | None = None
 
 
 class ClassroomSessionEntity(BaseModel):
@@ -332,21 +295,6 @@ class SessionVisualEntity(BaseModel):
     created_at: datetime | None = None
 
 
-class SessionQuizAttemptEntity(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    learning_session_id: UUID
-    question_text: str
-    selected_option_id: str | None = None
-    student_answer_text: str | None = None
-    is_correct: bool | None = None
-    explanation_text: str
-    order: int
-    is_active: bool = True
-    created_at: datetime | None = None
-
-
 class VivaAssessmentEntity(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -378,5 +326,4 @@ class LearningSessionEntity(BaseModel):
     completed_at: datetime | None = None
     turns: list[SessionTurnEntity] = Field(default_factory=list)
     visuals: list[SessionVisualEntity] = Field(default_factory=list)
-    quiz_attempts: list[SessionQuizAttemptEntity] = Field(default_factory=list)
     viva_assessment: VivaAssessmentEntity | None = None

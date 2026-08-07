@@ -349,7 +349,6 @@ def _service_for_websocket() -> tuple[LearningSessionService, object]:
     from app.infrastructure.bedrock.bedrock_interactive_doubt_client import (
         BedrockInteractiveDoubtClient,
     )
-    from app.infrastructure.bedrock.bedrock_pop_quiz_client import BedrockPopQuizClient
     from app.infrastructure.bedrock.bedrock_teach_client import BedrockTeachClient
     from app.infrastructure.bedrock.bedrock_viva_client import BedrockVivaClient
 
@@ -359,7 +358,6 @@ def _service_for_websocket() -> tuple[LearningSessionService, object]:
         unit_of_work=unit_of_work,
         teach_client=BedrockTeachClient(),
         doubt_client=BedrockInteractiveDoubtClient(),
-        pop_quiz_client=BedrockPopQuizClient(),
         viva_client=BedrockVivaClient(),
     )
     return service, database_session

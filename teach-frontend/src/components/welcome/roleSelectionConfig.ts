@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { GraduationCap, Presentation } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
 import type { AppRole } from '../../services/auth/authService'
 
 export interface RoleCapability {
@@ -17,24 +17,13 @@ export interface RoleDefinition {
 export const ROLE_DEFINITIONS: RoleDefinition[] = [
   {
     id: 'student',
-    headline: 'Student',
-    subtitle: 'Learn with your AI Tutor.',
+    headline: "Let's Go",
+    subtitle: "Enter Nova's live classroom.",
     icon: GraduationCap,
     capabilities: [
+      { label: 'Learn with Nova' },
       { label: 'Voice Lessons' },
-      { label: 'Interactive Quizzes' },
-      { label: 'Ask Doubts' },
-    ],
-  },
-  {
-    id: 'teacher',
-    headline: 'Teacher',
-    subtitle: 'Create AI classrooms.',
-    icon: Presentation,
-    capabilities: [
-      { label: 'Generate Lessons' },
-      { label: 'Publish Classes' },
-      { label: 'Review Content' },
+      { label: 'Instant Doubts' },
     ],
   },
 ]

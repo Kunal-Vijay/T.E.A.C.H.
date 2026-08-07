@@ -144,3 +144,260 @@
     width: 100%;
   }
 }
+
+/* ── Student classes dashboard (/student) ── */
+
+.teach-shell--hub .student-classes-page .student-classes-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .teach-shell--hub .student-classes-page .student-classes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .teach-shell--hub .student-classes-page .student-classes-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .teach-shell--hub .student-classes-page .student-classes-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.teach-shell--hub .topic-catalog-card,
+.teach-shell--hub .recorded-class-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-height: unset;
+  padding: clamp(1.125rem, 2.2vw, 1.35rem);
+  gap: var(--space-4);
+  border-radius: 1.125rem;
+  border: 1px solid var(--hub-border);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--hub-accent) 5%, transparent),
+      transparent 48%
+    ),
+    var(--hub-gradient-card, var(--grad-glass-card)),
+    var(--hub-surface-1);
+  box-shadow: var(--shadow-hub-card);
+  backdrop-filter: var(--hub-blur);
+  -webkit-backdrop-filter: var(--hub-blur);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 240ms var(--ease-spring),
+    box-shadow 240ms var(--ease-out),
+    border-color 240ms var(--ease-out),
+    background 240ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card--interactive {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.teach-shell--hub .recorded-class-card--interactive:focus {
+  outline: none;
+}
+
+.teach-shell--hub .recorded-class-card--interactive:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--shadow-hub-card),
+    var(--focus-ring);
+}
+
+.teach-shell--hub .topic-catalog-card:hover,
+.teach-shell--hub .recorded-class-card:hover {
+  transform: translateY(-5px) scale(1.015);
+  border-color: color-mix(in srgb, var(--hub-accent) 45%, var(--hub-border));
+  box-shadow:
+    var(--shadow-hub-card),
+    0 22px 52px color-mix(in srgb, var(--hub-accent) 18%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 16%, transparent);
+}
+
+.teach-shell--hub .recorded-class-card:hover .class-catalog-card-glow {
+  opacity: 1;
+}
+
+.teach-shell--hub .recorded-class-card:active {
+  transform: translateY(-2px) scale(1.005);
+  transition-duration: 120ms;
+}
+
+.teach-shell--hub .recorded-class-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.teach-shell--hub .recorded-class-status {
+  padding: 0.22rem 0.55rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--hub-border-ghost);
+  background: var(--hub-border-ghost);
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hub-text-soft);
+  transition: color 200ms var(--ease-out), border-color 200ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card:hover .recorded-class-status--recorded {
+  color: var(--color-accent-bright);
+}
+
+.teach-shell--hub .recorded-class-status--recorded {
+  border-color: color-mix(in srgb, var(--hub-accent) 28%, var(--hub-border));
+  background: color-mix(in srgb, var(--hub-accent) 8%, var(--hub-border-ghost));
+  color: var(--color-accent-bright);
+}
+
+.teach-shell--hub .recorded-class-status--completed {
+  border-color: color-mix(in srgb, var(--color-streak-gold) 35%, var(--hub-border));
+  background: color-mix(in srgb, var(--color-streak-gold) 10%, var(--hub-border-ghost));
+  color: var(--color-streak-gold);
+}
+
+.teach-shell--hub .recorded-class-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.teach-shell--hub .recorded-class-card-title {
+  margin: 0;
+  font-size: clamp(1.0625rem, 1.6vw, 1.2rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.025em;
+  line-height: var(--leading-snug);
+  color: var(--hub-text-primary);
+}
+
+.teach-shell--hub .recorded-class-card-description {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.55;
+  color: var(--hub-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.teach-shell--hub .recorded-class-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teach-shell--hub .recorded-class-meta-grid li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: var(--text-micro);
+  line-height: 1.35;
+  color: var(--hub-text-muted);
+  transition: color 200ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card:hover .recorded-class-meta-grid li {
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .recorded-class-meta-icon {
+  flex-shrink: 0;
+  color: var(--hub-accent-icon, var(--hub-accent));
+  transition: color 200ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card:hover .recorded-class-meta-icon {
+  color: var(--color-accent-bright);
+}
+
+.teach-shell--hub .recorded-class-card-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--hub-border-ghost);
+}
+
+.teach-shell--hub .recorded-class-card-hint-text {
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--hub-text-muted);
+  transition: color 200ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card-hint-arrow {
+  color: var(--hub-accent);
+  transition: transform 240ms var(--ease-spring), color 200ms var(--ease-out);
+}
+
+.teach-shell--hub .recorded-class-card:hover .recorded-class-card-hint-text {
+  color: var(--hub-text-secondary);
+}
+
+.teach-shell--hub .recorded-class-card:hover .recorded-class-card-hint-arrow {
+  transform: translateX(4px);
+  color: var(--color-accent-bright);
+}
+
+.teach-shell--hub .student-classes-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: clamp(var(--space-8), 6vw, var(--space-12)) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px dashed color-mix(in srgb, var(--hub-accent) 22%, var(--hub-border));
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--hub-accent) 8%, transparent),
+      transparent 55%
+    ),
+    var(--hub-surface-1);
+}
+
+.teach-shell--hub .student-classes-empty-nova {
+  filter: drop-shadow(0 12px 32px color-mix(in srgb, var(--hub-accent) 20%, transparent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teach-shell--hub .topic-catalog-card:hover,
+  .teach-shell--hub .recorded-class-card:hover,
+  .teach-shell--hub .recorded-class-card:active {
+    transform: none;
+  }
+
+  .teach-shell--hub .recorded-class-card:hover .recorded-class-card-hint-arrow {
+    transform: none;
+  }
+}

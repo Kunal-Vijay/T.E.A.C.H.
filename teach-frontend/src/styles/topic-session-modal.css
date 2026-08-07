@@ -1,0 +1,664 @@
+/* ═══════════════════════════════════════════════════════════════
+   Session Configuration Modal — full redesign
+   Premium AI product · fixed header/footer · scrollable body
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Shell & backdrop ── */
+
+.modal-shell:has(.session-config-modal) {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+}
+
+.modal-root:has(.session-config-modal) .modal-backdrop {
+  background: color-mix(in srgb, var(--hub-bg-solid, #0a1218) 78%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.modal-root:has(.session-config-modal--closing) .modal-backdrop {
+  animation: session-config-backdrop-out 220ms var(--ease-out) both;
+}
+
+/* ── Modal panel ── */
+
+.session-config-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(1060px, 90vw);
+  max-height: 90vh;
+  max-height: 90dvh;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 12%, var(--hub-border));
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 50% -20%,
+      color-mix(in srgb, var(--hub-accent) 8%, transparent),
+      transparent 55%
+    ),
+    var(--hub-surface-heavy, var(--color-surface));
+  box-shadow:
+    0 40px 100px color-mix(in srgb, #000 42%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 6%, transparent);
+  animation: session-config-modal-in 320ms var(--ease-out) both;
+}
+
+.session-config-modal--closing {
+  animation: session-config-modal-out 220ms var(--ease-out) both;
+}
+
+@keyframes session-config-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes session-config-modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.98) translateY(6px);
+  }
+}
+
+@keyframes session-config-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── Header ── */
+
+.session-config-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-shrink: 0;
+  padding: clamp(1.5rem, 3vw, 2rem);
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--hub-border) 70%, transparent);
+  background: color-mix(in srgb, var(--hub-surface-1) 35%, transparent);
+}
+
+.session-config-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.session-config-title {
+  margin: 0;
+  font-size: clamp(1.375rem, 2.5vw, 1.75rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  color: var(--hub-text-primary);
+}
+
+.session-config-description {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--hub-text-secondary);
+}
+
+.session-config-close {
+  flex-shrink: 0;
+}
+
+/* ── Scrollable body ── */
+
+.session-config-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.5rem, 3vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--hub-text-muted) 32%, transparent) transparent;
+}
+
+.session-config-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.session-config-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.session-config-body::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--hub-text-muted) 28%, transparent);
+}
+
+.session-config-body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--hub-accent) 42%, transparent);
+}
+
+/* ── Sections ── */
+
+.session-config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.session-config-section--hero {
+  gap: 1rem;
+}
+
+.session-config-kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hub-text-muted);
+}
+
+/* ── Lesson overview ── */
+
+.session-config-overview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  padding: 1.125rem 1.25rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--hub-surface-1) 55%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 4%, transparent);
+}
+
+.session-config-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.session-config-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-text-secondary);
+}
+
+.session-config-stat-icon {
+  color: var(--hub-accent);
+  opacity: 0.85;
+}
+
+.session-config-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.session-config-timeline-item {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding-block: 0.35rem;
+}
+
+.session-config-timeline-marker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+  padding-top: 0.35rem;
+}
+
+.session-config-timeline-dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: var(--radius-full);
+  background: var(--hub-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hub-accent) 18%, transparent);
+  flex-shrink: 0;
+}
+
+.session-config-timeline-line {
+  flex: 1;
+  width: 1px;
+  min-height: 1.25rem;
+  margin-top: 0.25rem;
+  background: color-mix(in srgb, var(--hub-accent) 22%, var(--hub-border));
+}
+
+.session-config-timeline-title {
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--hub-text-primary);
+  padding-top: 0.1rem;
+}
+
+.session-config-timeline-toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--text-micro);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-accent);
+  cursor: pointer;
+  transition: color 180ms var(--ease-out);
+}
+
+.session-config-timeline-toggle:hover {
+  color: var(--color-accent-bright, var(--hub-accent));
+}
+
+.session-config-timeline-toggle:focus-visible {
+  outline: none;
+  border-radius: var(--radius-xs);
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Learning mode (hero) ── */
+
+.session-config-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.session-config-mode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.875rem;
+  min-height: 7.5rem;
+  padding: 1.125rem 1.25rem;
+  border: 1.5px solid color-mix(in srgb, var(--hub-border) 85%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--hub-surface-1) 50%, transparent);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    transform 220ms var(--ease-spring),
+    border-color 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    background 220ms var(--ease-out);
+}
+
+.session-config-mode:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--hub-accent) 35%, var(--hub-border));
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--hub-accent) 10%, transparent);
+}
+
+.session-config-mode:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.session-config-mode.is-selected {
+  border-color: color-mix(in srgb, var(--hub-accent) 58%, var(--hub-border));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--hub-accent) 16%, transparent),
+      color-mix(in srgb, var(--hub-surface-1) 40%, transparent) 55%
+    );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hub-accent) 24%, transparent),
+    0 18px 44px color-mix(in srgb, var(--hub-accent) 18%, transparent);
+}
+
+.session-config-mode-check {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: var(--radius-full);
+  background: var(--hub-accent);
+  color: var(--hub-bg-solid, #0a1218);
+}
+
+.session-config-mode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--hub-surface-heavy) 80%, transparent);
+  color: var(--hub-text-secondary);
+  transition:
+    transform 220ms var(--ease-spring),
+    background 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+}
+
+.session-config-mode:hover .session-config-mode-icon {
+  color: var(--hub-accent);
+}
+
+.session-config-mode.is-selected .session-config-mode-icon {
+  transform: scale(1.06);
+  background: color-mix(in srgb, var(--hub-accent) 14%, transparent);
+  color: var(--color-accent-bright, var(--hub-accent));
+}
+
+.session-config-mode-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.session-config-mode-copy strong {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--hub-text-primary);
+}
+
+.session-config-mode-copy span {
+  font-size: var(--text-micro);
+  line-height: 1.45;
+  color: var(--hub-text-muted);
+}
+
+.session-config-mode.is-selected .session-config-mode-copy span {
+  color: var(--hub-text-secondary);
+}
+
+/* ── Advanced settings ── */
+
+.session-config-settings-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--hub-surface-1) 45%, transparent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms var(--ease-out);
+}
+
+.session-config-settings-trigger:hover {
+  background: color-mix(in srgb, var(--hub-accent) 5%, var(--hub-surface-1));
+}
+
+.session-config-settings-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.session-config-settings-trigger-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  color: var(--hub-text-muted);
+  background: color-mix(in srgb, var(--hub-surface-heavy) 70%, transparent);
+  flex-shrink: 0;
+  transition: color 200ms var(--ease-out);
+}
+
+.session-config-settings-trigger:hover .session-config-settings-trigger-icon {
+  color: var(--hub-accent);
+}
+
+.session-config-settings-trigger-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.session-config-settings-trigger-copy strong {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-text-primary);
+}
+
+.session-config-settings-trigger-copy span {
+  font-size: var(--text-micro);
+  color: var(--hub-text-muted);
+}
+
+.session-config-chevron {
+  flex-shrink: 0;
+  color: var(--hub-text-muted);
+  transition: transform 260ms var(--ease-spring), color 200ms var(--ease-out);
+}
+
+.session-config-chevron.is-open {
+  transform: rotate(180deg);
+  color: var(--hub-accent);
+}
+
+.session-config-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 280ms var(--ease-out),
+    opacity 240ms var(--ease-out);
+}
+
+.session-config-reveal.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.session-config-reveal-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.session-config-settings-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.125rem 1.5rem;
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--hub-surface-1) 40%, transparent);
+}
+
+.session-config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.session-config-field-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.session-config-field-label {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--hub-text-primary);
+}
+
+.session-config-field-desc {
+  font-size: var(--text-micro);
+  line-height: 1.4;
+  color: var(--hub-text-muted);
+}
+
+/* ── Footer ── */
+
+.session-config-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding: 1rem clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid color-mix(in srgb, var(--hub-border) 70%, transparent);
+  background: color-mix(in srgb, var(--hub-surface-heavy) 92%, transparent);
+  box-shadow: 0 -12px 32px color-mix(in srgb, #000 8%, transparent);
+}
+
+.session-config-footer-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.session-config-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: var(--text-micro);
+  color: var(--hub-text-muted);
+}
+
+.session-config-duration strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--hub-text-secondary);
+}
+
+.session-config-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+/* ── Loading / error ── */
+
+.session-config-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: clamp(2rem, 5vw, 3rem);
+  text-align: center;
+}
+
+.session-config-state-bar {
+  width: min(220px, 60%);
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hub-accent),
+    transparent
+  );
+  animation: session-config-loading 1.2s ease-in-out infinite;
+}
+
+@keyframes session-config-loading {
+  0% { transform: translateX(-30%); opacity: 0.35; }
+  50% { opacity: 1; }
+  100% { transform: translateX(30%); opacity: 0.35; }
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .modal-shell:has(.session-config-modal) {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .session-config-modal {
+    width: 100%;
+    max-height: 100dvh;
+    height: 100%;
+    border-radius: 0;
+    border-inline: none;
+  }
+
+  .session-config-body {
+    gap: 1.5rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .session-config-mode-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .session-config-mode {
+    min-height: unset;
+  }
+
+  .session-config-settings-panel {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .session-config-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+  }
+
+  .session-config-footer-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .session-config-footer-actions .btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-config-modal,
+  .session-config-modal--closing,
+  .modal-root:has(.session-config-modal--closing) .modal-backdrop,
+  .session-config-mode:hover,
+  .session-config-reveal,
+  .session-config-chevron {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .session-config-reveal.is-open {
+    opacity: 1;
+  }
+}

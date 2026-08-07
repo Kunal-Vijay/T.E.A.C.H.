@@ -33,7 +33,6 @@ from app.domain.exceptions import ValidationException  # noqa: E402
 from app.infrastructure.bedrock.bedrock_interactive_doubt_client import (  # noqa: E402
     BedrockInteractiveDoubtClient,
 )
-from app.infrastructure.bedrock.bedrock_pop_quiz_client import BedrockPopQuizClient  # noqa: E402
 from app.infrastructure.bedrock.bedrock_teach_client import BedrockTeachClient  # noqa: E402
 from app.infrastructure.bedrock.bedrock_viva_client import BedrockVivaClient  # noqa: E402
 from app.infrastructure.unit_of_work import UnitOfWork  # noqa: E402
@@ -60,7 +59,6 @@ def build_service(database_session) -> LearningSessionService:
         unit_of_work=UnitOfWork(database_session),
         teach_client=BedrockTeachClient(),
         doubt_client=BedrockInteractiveDoubtClient(),
-        pop_quiz_client=BedrockPopQuizClient(),
         viva_client=BedrockVivaClient(),
     )
 

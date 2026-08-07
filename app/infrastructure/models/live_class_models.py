@@ -15,9 +15,6 @@ from app.domain.entities import (
     GeneratedAssetEntity,
     LiveClassGenerationEntity,
     LiveClassSlideEntity,
-    PopQuizAttemptEntity,
-    PopQuizQuestionEntity,
-    PopQuizOptionEntity,
     SlideElementEntity,
     SlideExplanationEntity,
     TopicWorkflowEntity,
@@ -296,78 +293,6 @@ class SlideExplanationModel(Base, TimestampMixin, SoftDeleteMixin):
             order=entity.order,
             duration_seconds=entity.duration_seconds,
             explanation_text=entity.explanation_text,
-            is_active=entity.is_active,
-        )
-
-
-class PopQuizQuestionModel(Base, TimestampMixin, SoftDeleteMixin):
-    __tablename__ = "pop_quiz_questions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    generation_id = Column(UUID(as_uuid=True), ForeignKey("live_class_generations.id"), nullable=False)
-    topic_id = Column(UUID(as_uuid=True), ForeignKey("class_plan_topics.id"), nullable=False)
-    question_text = Column(Text, nullable=False)
-    options = Column(JSON, nullable=False)
-    order = Column(Integer, nullable=False)
-
-    def to_entity(self) -> PopQuizQuestionEntity:
-        options = [PopQuizOptionEntity.model_validate(option) for option in (self.options or [])]
-        return PopQuizQuestionEntity(
-            id=self.id,
-            generation_id=self.generation_id,
-            topic_id=self.topic_id,
-            question_text=self.question_text,
-            options=options,
-            order=self.order,
-            is_active=self.is_active,
-            created_at=self.created_at,
-            updated_at=self.updated_at,
-        )
-
-    @classmethod
-    def from_entity(cls, entity: PopQuizQuestionEntity) -> PopQuizQuestionModel:
-        return cls(
-            id=entity.id,
-            generation_id=entity.generation_id,
-            topic_id=entity.topic_id,
-            question_text=entity.question_text,
-            options=[option.model_dump() for option in entity.options],
-            order=entity.order,
-            is_active=entity.is_active,
-        )
-
-
-class PopQuizAttemptModel(Base, TimestampMixin, SoftDeleteMixin):
-    __tablename__ = "pop_quiz_attempts"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    session_id = Column(UUID(as_uuid=True), ForeignKey("classroom_sessions.id"), nullable=False)
-    question_id = Column(UUID(as_uuid=True), ForeignKey("pop_quiz_questions.id"), nullable=False)
-    selected_option_id = Column(String(10), nullable=False)
-    is_correct = Column(Boolean, nullable=False)
-    feedback_explanation = Column(Text, nullable=False)
-
-    def to_entity(self) -> PopQuizAttemptEntity:
-        return PopQuizAttemptEntity(
-            id=self.id,
-            session_id=self.session_id,
-            question_id=self.question_id,
-            selected_option_id=self.selected_option_id,
-            is_correct=self.is_correct,
-            feedback_explanation=self.feedback_explanation,
-            is_active=self.is_active,
-            created_at=self.created_at,
-        )
-
-    @classmethod
-    def from_entity(cls, entity: PopQuizAttemptEntity) -> PopQuizAttemptModel:
-        return cls(
-            id=entity.id,
-            session_id=entity.session_id,
-            question_id=entity.question_id,
-            selected_option_id=entity.selected_option_id,
-            is_correct=entity.is_correct,
-            feedback_explanation=entity.feedback_explanation,
             is_active=entity.is_active,
         )
 

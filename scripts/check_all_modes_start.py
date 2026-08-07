@@ -1,7 +1,7 @@
 """Confirm every learning mode can still start a session.
 
 Regression guard for the change that skips the pre-generated tutor turn in viva
-mode: teach / doubt / pop_quiz must be unaffected and still get an opening turn.
+mode: every other mode must be unaffected and still get an opening turn.
 
 Usage:
     PYTHONPATH=. ./venv312/bin/python scripts/check_all_modes_start.py
@@ -25,18 +25,15 @@ from app.domain.enums import LearningMode, TopicStatus  # noqa: E402
 from app.infrastructure.bedrock.bedrock_interactive_doubt_client import (  # noqa: E402
     BedrockInteractiveDoubtClient,
 )
-from app.infrastructure.bedrock.bedrock_pop_quiz_client import BedrockPopQuizClient  # noqa: E402
 from app.infrastructure.bedrock.bedrock_teach_client import BedrockTeachClient  # noqa: E402
 from app.infrastructure.bedrock.bedrock_viva_client import BedrockVivaClient  # noqa: E402
 from app.infrastructure.unit_of_work import UnitOfWork  # noqa: E402
 
 # Viva is the only mode that should open with no turns: the voice examiner asks the
-# first question over the WebSocket instead.
+# first question over the WebSocket instead. Derived from the enum so this keeps
+# working if modes are added or removed.
 EXPECTED_OPENING_TURNS = {
-    LearningMode.TEACH: "at least one",
-    LearningMode.DOUBT: "at least one",
-    LearningMode.POP_QUIZ: "at least one",
-    LearningMode.VIVA: "none",
+    mode: ("none" if mode == LearningMode.VIVA else "at least one") for mode in LearningMode
 }
 
 
@@ -46,7 +43,6 @@ def main() -> int:
         unit_of_work=UnitOfWork(database_session),
         teach_client=BedrockTeachClient(),
         doubt_client=BedrockInteractiveDoubtClient(),
-        pop_quiz_client=BedrockPopQuizClient(),
         viva_client=BedrockVivaClient(),
     )
     failures: list[str] = []

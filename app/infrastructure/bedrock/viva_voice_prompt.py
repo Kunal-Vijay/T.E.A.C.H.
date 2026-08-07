@@ -13,7 +13,7 @@ from pydantic import validate_call
 
 from app.config import settings
 from app.domain.entities import TopicEntity
-from app.domain.student_params import StudentParamsSnapshot, format_student_params_for_prompt
+from app.domain.student_params import StudentParamsSnapshot, format_viva_params_for_prompt
 
 MAX_SUMMARY_CHARS = 700
 
@@ -124,7 +124,9 @@ def build_voice_viva_system_prompt(
         "Pitch your questions to this student. Keep the vocabulary at their level, but do not "
         "lower the standard of reasoning you accept."
     )
-    sections.append(format_student_params_for_prompt(params))
+    # Uses the viva-specific formatter so the prompt only carries the parameters
+    # that are actually selectable for this mode.
+    sections.append(format_viva_params_for_prompt(params))
     sections.append("")
 
     sections.append("=== HOW TO OPEN ===")

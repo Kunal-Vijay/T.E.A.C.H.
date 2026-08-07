@@ -11,7 +11,7 @@ from app.domain.student_params import StudentParamsSnapshot
 from app.infrastructure.bedrock.bedrock_mode_runtime import invoke_structured_tool
 from app.infrastructure.bedrock.mode_prompt_builder import (
     build_conversation_history_text,
-    build_shared_student_context,
+    build_teach_student_context,
     build_topic_context_text,
 )
 from app.infrastructure.bedrock.mode_turn_schemas import TEACH_TURN_SCHEMA
@@ -85,12 +85,13 @@ class BedrockTeachClient(ILLMTeachClient):
             "Goal: teach the topic using the TOC. Students may ask doubts only about material already taught.\n"
             "Return the next teaching turn with slides and spoken explanation_text.\n"
             f"{build_topic_context_text(topic)}\n"
-            f"{build_shared_student_context(params)}\n"
+            f"{build_teach_student_context(params)}\n"
             f"Already taught TOC ids: {taught_toc_item_ids}\n"
             f"Conversation history:\n{build_conversation_history_text(conversation_history)}\n"
             f"{student_part}\n"
             "Rules:\n"
-            "- Adapt language_style, pace, learning_style, and explanation_depth from student parameters.\n"
+            "- Adapt explanation_depth, pace, and interaction_mode from session parameters.\n"
+            "- Also respect language_style and learning_style from the student profile.\n"
             "- explanation_text is the exact spoken narration.\n"
             "- taught_toc_item_ids must include previously taught ids plus any newly covered in this turn.\n"
             "- is_goal_complete is true only when every TOC item has been taught.\n"

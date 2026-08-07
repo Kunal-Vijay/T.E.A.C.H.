@@ -91,7 +91,6 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--space-4), 2.5vh, var(--space-6));
   padding-block:
     clamp(0.75rem, 2vh, 1.25rem)
     clamp(1rem, 2.5vh, 1.75rem);
@@ -104,17 +103,26 @@
   gap: clamp(1.25rem, 2.5vw, 2rem);
 }
 
-.welcome-hero-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(var(--space-5), 2.5vh, var(--space-6));
-}
-
 .welcome-copy-main {
   display: flex;
   flex-direction: column;
   gap: clamp(var(--space-2), 1.5vh, var(--space-3));
   max-width: 34rem;
+}
+
+/* CTA sits directly below hero copy — natural reading flow */
+.welcome-copy-main .welcome-role {
+  margin-top: clamp(var(--space-8), 2.5vh, var(--space-12));
+  width: 100%;
+}
+
+.welcome-copy-main .welcome-role-header {
+  text-align: left;
+}
+
+.welcome-copy-main .welcome-role-track {
+  max-width: 100%;
+  margin-inline: 0;
 }
 
 /* ── Role selection ── */
@@ -135,7 +143,6 @@
   .welcome-hero {
     flex: 1;
     min-height: 0;
-    gap: clamp(0.625rem, 1.5vh, 1rem);
     padding-block: clamp(0.375rem, 1vh, 0.75rem) clamp(0.5rem, 1.25vh, 0.875rem);
     justify-content: center;
     overflow: hidden;
@@ -148,13 +155,12 @@
     gap: clamp(var(--space-4), 3vw, var(--space-6));
   }
 
-  .welcome-hero-bottom {
-    flex-shrink: 0;
-    gap: clamp(var(--space-2), 1vh, var(--space-3));
-  }
-
   .welcome-copy-main {
     gap: clamp(0.375rem, 1.1vh, 0.75rem);
+  }
+
+  .welcome-copy-main .welcome-role {
+    margin-top: clamp(var(--space-8), 2vh, var(--space-10));
   }
 
   .welcome-headline {
@@ -240,12 +246,15 @@
 
 @media (min-width: 1024px) and (max-height: 820px) {
   .welcome-hero {
-    gap: clamp(0.5rem, 1.2vh, 0.75rem);
     padding-block: clamp(0.25rem, 0.75vh, 0.5rem) clamp(0.375rem, 1vh, 0.625rem);
   }
 
   .welcome-copy-main {
     gap: clamp(0.3rem, 0.9vh, 0.55rem);
+  }
+
+  .welcome-copy-main .welcome-role {
+    margin-top: clamp(var(--space-6), 1.75vh, var(--space-8));
   }
 
   .welcome-headline {
@@ -861,7 +870,6 @@
   .welcome-hero {
     flex: 1;
     min-height: 0;
-    gap: clamp(0.625rem, 1.5vh, 1rem);
     padding-block: clamp(0.375rem, 1vh, 0.75rem) clamp(0.5rem, 1.25vh, 0.875rem);
     justify-content: center;
     overflow: hidden;
@@ -929,6 +937,15 @@
 
   .welcome-pillars {
     justify-content: center;
+  }
+
+  .welcome-copy-main .welcome-role-header {
+    text-align: center;
+  }
+
+  .welcome-copy-main .welcome-role-track {
+    max-width: 28rem;
+    margin-inline: auto;
   }
 
   .hero-scene-stage {

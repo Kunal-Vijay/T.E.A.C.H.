@@ -74,6 +74,19 @@ export default function LiveLearningSessionPage() {
   }, [session, speakNow])
 
   useEffect(() => {
+    if (session == null) {
+      return
+    }
+    const taughtCount = session.taught_toc_item_ids.length
+    if (taughtCount === 0) {
+      return
+    }
+    void import('../../services/topicProgress').then(({ updateTopicProgress }) => {
+      updateTopicProgress(session.topic_id, taughtCount)
+    })
+  }, [session])
+
+  useEffect(() => {
     if (transcript.trim() === '') {
       return
     }
@@ -91,8 +104,6 @@ export default function LiveLearningSessionPage() {
       content: element.content,
     }))
   }, [session])
-
-  const quizOptions = session?.current_visual?.quiz_payload?.options ?? []
 
   const submitMessage = async (text: string, channel: 'chat' | 'speech') => {
     const trimmed = text.trim()
@@ -176,20 +187,6 @@ export default function LiveLearningSessionPage() {
             <p className="tutor-message">
               {session.current_visual?.explanation_text ?? session.latest_tutor_message}
             </p>
-            {quizOptions.length > 0 ? (
-              <div className="quiz-options">
-                {quizOptions.map((option) => (
-                  <Button
-                    key={option.option_id}
-                    type="button"
-                    disabled={submitting || session.status !== 'active'}
-                    onClick={() => void submitMessage(option.text, 'chat')}
-                  >
-                    {option.text}
-                  </Button>
-                ))}
-              </div>
-            ) : null}
             <div className="session-composer">
               <textarea
                 value={message}

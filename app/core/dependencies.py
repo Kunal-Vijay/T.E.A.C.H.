@@ -10,7 +10,6 @@ from app.application.services.classroom_session_service import ClassroomSessionS
 from app.application.services.doubt_session_service import DoubtSessionService
 from app.application.services.learning_session_service import LearningSessionService
 from app.application.services.live_class_generation_service import LiveClassGenerationService
-from app.application.services.pop_quiz_service import PopQuizService
 from app.application.services.student_profile_service import StudentProfileService
 from app.application.services.topic_service import TopicService
 from app.application.services.tts_service import TtsService
@@ -19,7 +18,6 @@ from app.core.database import get_db
 from app.domain.interfaces import (
     ILLMDoubtClient,
     ILLMInteractiveDoubtClient,
-    ILLMPopQuizClient,
     ILLMTeachClient,
     ILLMVivaClient,
     ILLMWorkflowClient,
@@ -28,7 +26,6 @@ from app.domain.interfaces import (
 )
 from app.infrastructure.bedrock.bedrock_doubt_client import BedrockDoubtClient
 from app.infrastructure.bedrock.bedrock_interactive_doubt_client import BedrockInteractiveDoubtClient
-from app.infrastructure.bedrock.bedrock_pop_quiz_client import BedrockPopQuizClient
 from app.infrastructure.bedrock.bedrock_teach_client import BedrockTeachClient
 from app.infrastructure.bedrock.bedrock_viva_client import BedrockVivaClient
 from app.infrastructure.bedrock.bedrock_workflow_client import BedrockWorkflowClient
@@ -61,10 +58,6 @@ def get_llm_interactive_doubt_client() -> ILLMInteractiveDoubtClient:
     return BedrockInteractiveDoubtClient()
 
 
-def get_llm_pop_quiz_client() -> ILLMPopQuizClient:
-    return BedrockPopQuizClient()
-
-
 def get_llm_viva_client() -> ILLMVivaClient:
     return BedrockVivaClient()
 
@@ -91,14 +84,12 @@ def get_learning_session_service(
     unit_of_work: IUnitOfWork = Depends(get_unit_of_work),
     teach_client: ILLMTeachClient = Depends(get_llm_teach_client),
     doubt_client: ILLMInteractiveDoubtClient = Depends(get_llm_interactive_doubt_client),
-    pop_quiz_client: ILLMPopQuizClient = Depends(get_llm_pop_quiz_client),
     viva_client: ILLMVivaClient = Depends(get_llm_viva_client),
 ) -> LearningSessionService:
     return LearningSessionService(
         unit_of_work,
         teach_client,
         doubt_client,
-        pop_quiz_client,
         viva_client,
     )
 
@@ -116,10 +107,6 @@ def get_classroom_session_service(
     workflow_navigation_service: WorkflowNavigationService = Depends(get_workflow_navigation_service),
 ) -> ClassroomSessionService:
     return ClassroomSessionService(unit_of_work, workflow_navigation_service)
-
-
-def get_pop_quiz_service(unit_of_work: IUnitOfWork = Depends(get_unit_of_work)) -> PopQuizService:
-    return PopQuizService(unit_of_work)
 
 
 def get_doubt_session_service(
