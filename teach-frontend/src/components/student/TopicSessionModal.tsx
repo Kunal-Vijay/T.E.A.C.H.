@@ -16,6 +16,11 @@ import { Button, ErrorState, IconButton, Select, StatusBadge } from '../ui'
 import Icon from '../ui/Icon'
 import { useToast } from '../../context/ToastContext'
 import { estimateTopicDurationMinutes } from '../../lib/topicCatalog'
+import {
+  formatPreferenceFieldDescription,
+  formatPreferenceFieldLabel,
+  formatPreferenceLabel,
+} from '../../lib/preferenceLabels'
 import { captureException } from '../../lib/monitoring'
 import { resolveDisplayedError } from '../../services/api/apiError'
 import { learningSessionApi } from '../../services/api/learningSessionApi'
@@ -57,29 +62,6 @@ const MODE_OPTIONS: Array<{
     icon: Brain,
   },
 ]
-
-const PREF_FIELD_META: Record<string, { label: string; description: string }> = {
-  explanation_depth: {
-    label: 'Explanation Depth',
-    description: 'How detailed Nova should teach',
-  },
-  pace: {
-    label: 'Pace',
-    description: 'Lesson speed',
-  },
-  interaction_mode: {
-    label: 'Interaction Style',
-    description: 'How Nova engages with you',
-  },
-  knowledge_level: {
-    label: 'Knowledge Level',
-    description: 'Your starting familiarity with the topic',
-  },
-  preferred_explanation: {
-    label: 'Preferred Explanation',
-    description: 'How Nova should explain concepts',
-  },
-}
 
 function buildOverridesForMode(
   mode: LearningMode,
@@ -361,7 +343,7 @@ export default function TopicSessionModal({
               </h3>
 
               <div
-                className="session-config-mode-grid"
+                className="session-config-mode-grid session-config-mode-grid--triple"
                 role="radiogroup"
                 aria-labelledby="session-config-modes"
               >
@@ -430,9 +412,9 @@ export default function TopicSessionModal({
                       if (field == null) {
                         return null
                       }
-                      const meta = PREF_FIELD_META[key] ?? {
-                        label: key.replace(/_/g, ' '),
-                        description: 'Session preference',
+                      const meta = {
+                        label: formatPreferenceFieldLabel(key),
+                        description: formatPreferenceFieldDescription(key),
                       }
                       return (
                         <div key={key} className="session-config-field">
@@ -449,6 +431,7 @@ export default function TopicSessionModal({
                               }))
                             }
                             options={field.possible_values}
+                            getOptionLabel={formatPreferenceLabel}
                             aria-label={meta.label}
                           />
                         </div>

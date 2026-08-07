@@ -15,6 +15,7 @@ export interface SelectProps {
   value: string
   onChange: (value: string) => void
   options: readonly string[]
+  getOptionLabel?: (value: string) => string
   id?: string
   disabled?: boolean
   className?: string
@@ -56,11 +57,13 @@ export default function Select({
   value,
   onChange,
   options,
+  getOptionLabel,
   id,
   disabled = false,
   className,
   'aria-label': ariaLabel,
 }: SelectProps) {
+  const resolveLabel = getOptionLabel ?? ((option: string) => option)
   const generatedId = useId()
   const triggerId = id ?? generatedId
   const listboxId = `${triggerId}-listbox`
@@ -219,7 +222,7 @@ export default function Select({
         }}
         onKeyDown={onTriggerKeyDown}
       >
-        <span className="teach-select-value">{value}</span>
+        <span className="teach-select-value">{resolveLabel(value)}</span>
         <ChevronDown size={16} className="teach-select-chevron" aria-hidden="true" />
       </button>
 
@@ -262,7 +265,7 @@ export default function Select({
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => selectOption(option)}
                   >
-                    <span className="teach-select-option-label">{option}</span>
+                    <span className="teach-select-option-label">{resolveLabel(option)}</span>
                     {selected ? (
                       <Check size={15} className="teach-select-option-check" aria-hidden="true" />
                     ) : null}
