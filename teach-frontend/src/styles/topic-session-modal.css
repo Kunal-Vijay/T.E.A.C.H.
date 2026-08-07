@@ -284,8 +284,11 @@
 
 .session-config-mode-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.875rem;
+}
+
+.session-config-mode-grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .session-config-mode {
@@ -294,8 +297,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.875rem;
-  min-height: 7.5rem;
-  padding: 1.125rem 1.25rem;
+  min-height: 8.5rem;
+  height: 100%;
+  padding: 1.125rem 1.125rem 1.25rem;
   border: 1.5px solid color-mix(in srgb, var(--hub-border) 85%, transparent);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--hub-surface-1) 50%, transparent);
@@ -379,7 +383,7 @@
 }
 
 .session-config-mode-copy strong {
-  font-size: var(--text-body);
+  font-size: var(--text-caption);
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.02em;
   color: var(--hub-text-primary);
@@ -598,6 +602,12 @@
 
 /* ── Responsive ── */
 
+@media (max-width: 900px) {
+  .session-config-mode-grid--triple {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .modal-shell:has(.session-config-modal) {
     padding: 0;
@@ -617,7 +627,7 @@
     padding: 1.25rem 1rem;
   }
 
-  .session-config-mode-grid {
+  .session-config-mode-grid--triple {
     grid-template-columns: 1fr;
   }
 
