@@ -38,9 +38,18 @@ export PYTHONPATH="$ROOT_DIR"
 
 if [ ! -f teach.db ]; then
   if [ -f teach_dump.sql ]; then
-    sqlite3 teach.db < teach_dump.sql
+    python -c "
+import sqlite3
+from pathlib import Path
+
+dump_sql = Path('teach_dump.sql').read_text(encoding='utf-8')
+connection = sqlite3.connect('teach.db')
+connection.executescript(dump_sql)
+connection.close()
+"
     echo "Database restored from teach_dump.sql"
   fi
+  python scripts/init_db.py
 fi
 
 python scripts/init_db.py

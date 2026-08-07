@@ -3,7 +3,7 @@ import { ttsApi } from '../../services/api/ttsApi'
 import { getPauseAfterMs } from '../../lib/speech/speechPause'
 import type { VoiceProfile } from '../../types/mentor.types'
 
-export type SpeechStatus = 'idle' | 'speaking' | 'unsupported' | 'error'
+export type SpeechStatus = 'idle' | 'loading' | 'speaking' | 'paused' | 'unsupported' | 'error'
 
 export type SpeechErrorCode = 'not-allowed' | 'synthesis-failed' | 'network' | 'timeout' | 'unknown'
 
@@ -12,6 +12,13 @@ export type SpeakCallbacks = {
   onError?: (errorCode: SpeechErrorCode) => void
   onSentenceStart?: (index: number, text: string) => void
   onSentenceEnd?: (index: number, text: string) => void
+  onPlaybackStart?: (index: number, text: string) => void
+  onPlaybackProgress?: (
+    index: number,
+    text: string,
+    currentTimeSeconds: number,
+    durationSeconds: number,
+  ) => void
 }
 
 /** One queued TTS clip with optional punctuation-aware gap before the next. */
@@ -98,7 +105,7 @@ export class SpeechController {
 
         void this.prefetch(texts, options?.voice, index + 2, options?.prefetchAhead ?? 2)
 
-        const played = await this.playSentence(sentence, options, requestId)
+        const played = await this.playSentence(sentence, options, requestId, index)
         if (!played || requestId !== this.activeRequestId) {
           return false
         }
@@ -191,6 +198,7 @@ export class SpeechController {
     text: string,
     options: SpeakOptions | undefined,
     requestId: number,
+    sentenceIndex: number,
   ): Promise<boolean> {
     const audioUrl = await this.resolveAudioUrl(text, options?.voice)
     if (requestId !== this.activeRequestId) {
@@ -205,8 +213,38 @@ export class SpeechController {
       }
       this.currentAudio = audioElement
 
+      const cleanupListeners = () => {
+        audioElement.onended = null
+        audioElement.onerror = null
+        audioElement.onplaying = null
+        audioElement.ontimeupdate = null
+      }
+
+      audioElement.onplaying = () => {
+        if (requestId === this.activeRequestId) {
+          options?.onPlaybackStart?.(sentenceIndex, text)
+        }
+      }
+
+      audioElement.ontimeupdate = () => {
+        if (requestId !== this.activeRequestId) {
+          return
+        }
+        const durationSeconds = audioElement.duration
+        if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+          return
+        }
+        options?.onPlaybackProgress?.(
+          sentenceIndex,
+          text,
+          audioElement.currentTime,
+          durationSeconds,
+        )
+      }
+
       audioElement.onended = () => {
         if (requestId === this.activeRequestId) {
+          cleanupListeners()
           this.currentAudio = null
           resolve(true)
         }
@@ -214,14 +252,20 @@ export class SpeechController {
 
       audioElement.onerror = () => {
         if (requestId === this.activeRequestId) {
+          cleanupListeners()
           this.currentAudio = null
           options?.onError?.('synthesis-failed')
           resolve(false)
         }
       }
 
-      audioElement.play().catch(() => {
+      audioElement.play().then(() => {
         if (requestId === this.activeRequestId) {
+          options?.onPlaybackStart?.(sentenceIndex, text)
+        }
+      }).catch(() => {
+        if (requestId === this.activeRequestId) {
+          cleanupListeners()
           this.currentAudio = null
           options?.onError?.('synthesis-failed')
           resolve(false)
