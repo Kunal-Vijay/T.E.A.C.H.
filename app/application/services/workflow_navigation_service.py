@@ -9,13 +9,10 @@ from app.application.dtos.workflow.current_state_response_dto import (
     CurrentStateContentDTO,
     CurrentStateDTO,
     CurrentStateResponseDTO,
-    QuizOptionDTO,
-    QuizQuestionDTO,
     SlideExplanationDTO,
     TopicWorkflowResponseDTO,
 )
 from app.domain.entities import WorkflowStateEntity
-from app.domain.enums import WorkflowStateType
 from app.domain.exceptions import ClassroomSessionNotFoundException, GenerationNotFoundException
 from app.domain.interfaces import IUnitOfWork
 
@@ -90,22 +87,6 @@ class WorkflowNavigationService:
         topic_id: UUID,
         current_state: WorkflowStateEntity,
     ) -> CurrentStateContentDTO:
-        if current_state.state_type == WorkflowStateType.POP_QUIZ:
-            question_ids = [UUID(question_id) for question_id in current_state.quiz_question_ids]
-            quiz_questions = self.unit_of_work.live_class_repository.find_quiz_questions_by_ids(question_ids)
-            return CurrentStateContentDTO(
-                quiz_questions=[
-                    QuizQuestionDTO(
-                        question_id=question.id,
-                        question_text=question.question_text,
-                        options=[
-                            QuizOptionDTO(option_id=option.option_id, text=option.text)
-                            for option in question.options
-                        ],
-                    )
-                    for question in quiz_questions
-                ]
-            )
         slides = self.unit_of_work.live_class_repository.find_slides_by_state(
             generation_id, topic_id, current_state.state_id
         )

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.domain.entities import (
     LearningSessionEntity,
-    SessionQuizAttemptEntity,
     SessionSlideElementEntity,
     SessionSlideEntity,
     SessionTurnEntity,
@@ -161,11 +160,6 @@ class LearningSessionModel(Base, TimestampMixin, SoftDeleteMixin):
 
     turns = relationship("SessionTurnModel", back_populates="learning_session", cascade="all, delete-orphan")
     visuals = relationship("SessionVisualModel", back_populates="learning_session", cascade="all, delete-orphan")
-    quiz_attempts = relationship(
-        "SessionQuizAttemptModel",
-        back_populates="learning_session",
-        cascade="all, delete-orphan",
-    )
     viva_assessment = relationship(
         "VivaAssessmentModel",
         back_populates="learning_session",
@@ -191,9 +185,6 @@ class LearningSessionModel(Base, TimestampMixin, SoftDeleteMixin):
             completed_at=self.completed_at,
             turns=[turn.to_entity() for turn in self.get_list_relationship_or_empty("turns")],
             visuals=[visual.to_entity() for visual in self.get_list_relationship_or_empty("visuals")],
-            quiz_attempts=[
-                attempt.to_entity() for attempt in self.get_list_relationship_or_empty("quiz_attempts")
-            ],
             viva_assessment=viva_model.to_entity() if viva_model is not None else None,
         )
 
@@ -305,49 +296,6 @@ class SessionVisualModel(Base, TimestampMixin, SoftDeleteMixin):
             slides=[slide.model_dump(mode="json") for slide in entity.slides],
             explanation_text=entity.explanation_text,
             quiz_payload=entity.quiz_payload,
-            is_active=entity.is_active,
-        )
-
-
-class SessionQuizAttemptModel(Base, TimestampMixin, SoftDeleteMixin):
-    __tablename__ = "session_quiz_attempts"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    learning_session_id = Column(UUID(as_uuid=True), ForeignKey("learning_sessions.id"), nullable=False)
-    question_text = Column(Text, nullable=False)
-    selected_option_id = Column(String(100), nullable=True)
-    student_answer_text = Column(Text, nullable=True)
-    is_correct = Column(Boolean, nullable=True)
-    explanation_text = Column(Text, nullable=False, default="")
-    order = Column(Integer, nullable=False)
-
-    learning_session = relationship("LearningSessionModel", back_populates="quiz_attempts")
-
-    def to_entity(self) -> SessionQuizAttemptEntity:
-        return SessionQuizAttemptEntity(
-            id=self.id,
-            learning_session_id=self.learning_session_id,
-            question_text=self.question_text,
-            selected_option_id=self.selected_option_id,
-            student_answer_text=self.student_answer_text,
-            is_correct=self.is_correct,
-            explanation_text=self.explanation_text or "",
-            order=self.order,
-            is_active=self.is_active,
-            created_at=self.created_at,
-        )
-
-    @classmethod
-    def from_entity(cls, entity: SessionQuizAttemptEntity) -> SessionQuizAttemptModel:
-        return cls(
-            id=entity.id,
-            learning_session_id=entity.learning_session_id,
-            question_text=entity.question_text,
-            selected_option_id=entity.selected_option_id,
-            student_answer_text=entity.student_answer_text,
-            is_correct=entity.is_correct,
-            explanation_text=entity.explanation_text,
-            order=entity.order,
             is_active=entity.is_active,
         )
 

@@ -27,20 +27,8 @@ class CurrentSlideDTO(BaseModel):
     explanation: SlideExplanationDTO | None = None
 
 
-class QuizOptionDTO(BaseModel):
-    option_id: str
-    text: str
-
-
-class QuizQuestionDTO(BaseModel):
-    question_id: UUID
-    question_text: str
-    options: list[QuizOptionDTO] = Field(default_factory=list)
-
-
 class CurrentStateContentDTO(BaseModel):
     slides: list[CurrentSlideDTO] = Field(default_factory=list)
-    quiz_questions: list[QuizQuestionDTO] = Field(default_factory=list)
 
 
 class CurrentStateResponseDTO(BaseModel):

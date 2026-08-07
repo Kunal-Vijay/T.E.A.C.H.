@@ -6,7 +6,6 @@ import {
   GraduationCap,
   HelpCircle,
   Layers,
-  NotebookPen,
   Settings,
   X,
 } from 'lucide-react'
@@ -24,7 +23,7 @@ import { studentProfileApi } from '../../services/api/studentProfileApi'
 import { topicApi } from '../../services/api/topicApi'
 import { getStudentId } from '../../services/auth/authService'
 import {
-  SESSION_SELECTABLE_KEYS,
+  MODE_SESSION_SELECTABLE_KEYS,
   type LearningMode,
   type StudentParamOverrides,
   type StudentProfileResponse,
@@ -52,12 +51,6 @@ const MODE_OPTIONS: Array<{
     icon: HelpCircle,
   },
   {
-    id: 'pop_quiz',
-    title: 'Pop Quiz',
-    subtitle: 'Test your knowledge',
-    icon: NotebookPen,
-  },
-  {
     id: 'viva',
     title: 'Check Understanding',
     subtitle: 'Assess your learning',
@@ -65,10 +58,7 @@ const MODE_OPTIONS: Array<{
   },
 ]
 
-const PREF_FIELD_META: Record<
-  (typeof SESSION_SELECTABLE_KEYS)[number],
-  { label: string; description: string }
-> = {
+const PREF_FIELD_META: Record<string, { label: string; description: string }> = {
   explanation_depth: {
     label: 'Explanation Depth',
     description: 'How detailed Nova should teach',
@@ -81,10 +71,31 @@ const PREF_FIELD_META: Record<
     label: 'Interaction Style',
     description: 'How Nova engages with you',
   },
-  practice_preference: {
-    label: 'Practice',
-    description: 'Balance of theory and practice',
+  knowledge_level: {
+    label: 'Knowledge Level',
+    description: 'Your starting familiarity with the topic',
   },
+  preferred_explanation: {
+    label: 'Preferred Explanation',
+    description: 'How Nova should explain concepts',
+  },
+}
+
+function buildOverridesForMode(
+  mode: LearningMode,
+  profile: StudentProfileResponse | null,
+): StudentParamOverrides {
+  const nextOverrides: StudentParamOverrides = {}
+  if (profile == null) {
+    return nextOverrides
+  }
+  for (const key of MODE_SESSION_SELECTABLE_KEYS[mode]) {
+    const field = profile.attributes[key]
+    if (field != null) {
+      nextOverrides[key as keyof StudentParamOverrides] = field.value
+    }
+  }
+  return nextOverrides
 }
 
 interface TopicSessionModalProps {
@@ -155,14 +166,7 @@ export default function TopicSessionModal({
         }
         setTopic(topicResponse.data)
         setProfile(profileResponse.data)
-        const nextOverrides: StudentParamOverrides = {}
-        for (const key of SESSION_SELECTABLE_KEYS) {
-          const field = profileResponse.data.attributes[key]
-          if (field != null) {
-            nextOverrides[key] = field.value
-          }
-        }
-        setOverrides(nextOverrides)
+        setOverrides(buildOverridesForMode('teach', profileResponse.data))
       } catch (error) {
         if (cancelled) {
           return
@@ -205,7 +209,7 @@ export default function TopicSessionModal({
         topic_id: topic.id,
         mode: selectedMode,
         student_identifier: getStudentId(),
-        param_overrides: overrides,
+        param_overrides: selectedMode === 'viva' ? undefined : overrides,
       })
       if (selectedMode === 'viva') {
         navigate(`/student/sessions/${response.data.id}/viva`)
@@ -240,6 +244,16 @@ export default function TopicSessionModal({
     }
     return topicItems.slice(0, TOPIC_VISIBLE_LIMIT)
   }, [hasHiddenTopics, topicItems, topicsExpanded])
+
+  const selectableKeys = MODE_SESSION_SELECTABLE_KEYS[selectedMode]
+
+  const selectMode = (mode: LearningMode) => {
+    setSelectedMode(mode)
+    setOverrides(buildOverridesForMode(mode, profile))
+    if (MODE_SESSION_SELECTABLE_KEYS[mode].length === 0) {
+      setSettingsExpanded(false)
+    }
+  }
 
   return (
     <Modal
@@ -360,7 +374,7 @@ export default function TopicSessionModal({
                       role="radio"
                       aria-checked={selected}
                       className={selected ? 'session-config-mode is-selected' : 'session-config-mode'}
-                      onClick={() => setSelectedMode(mode.id)}
+                      onClick={() => selectMode(mode.id)}
                     >
                       {selected ? (
                         <span className="session-config-mode-check" aria-hidden="true">
@@ -380,6 +394,7 @@ export default function TopicSessionModal({
               </div>
             </section>
 
+            {selectableKeys.length > 0 ? (
             <section className="session-config-section" aria-labelledby="session-config-settings-label">
               <button
                 type="button"
@@ -410,12 +425,15 @@ export default function TopicSessionModal({
               >
                 <div className="session-config-reveal-inner">
                   <div className="session-config-settings-panel">
-                    {SESSION_SELECTABLE_KEYS.map((key) => {
+                    {selectableKeys.map((key) => {
                       const field = profile?.attributes[key]
                       if (field == null) {
                         return null
                       }
-                      const meta = PREF_FIELD_META[key]
+                      const meta = PREF_FIELD_META[key] ?? {
+                        label: key.replace(/_/g, ' '),
+                        description: 'Session preference',
+                      }
                       return (
                         <div key={key} className="session-config-field">
                           <div className="session-config-field-copy">
@@ -423,7 +441,7 @@ export default function TopicSessionModal({
                             <span className="session-config-field-desc">{meta.description}</span>
                           </div>
                           <Select
-                            value={overrides[key] ?? field.value}
+                            value={overrides[key as keyof StudentParamOverrides] ?? field.value}
                             onChange={(nextValue) =>
                               setOverrides((current) => ({
                                 ...current,
@@ -440,6 +458,7 @@ export default function TopicSessionModal({
                 </div>
               </div>
             </section>
+            ) : null}
           </div>
 
           <footer className="session-config-footer">

@@ -105,8 +105,6 @@ export default function LiveLearningSessionPage() {
     }))
   }, [session])
 
-  const quizOptions = session?.current_visual?.quiz_payload?.options ?? []
-
   const submitMessage = async (text: string, channel: 'chat' | 'speech') => {
     const trimmed = text.trim()
     if (trimmed === '' || session == null || session.status !== 'active') {
@@ -189,20 +187,6 @@ export default function LiveLearningSessionPage() {
             <p className="tutor-message">
               {session.current_visual?.explanation_text ?? session.latest_tutor_message}
             </p>
-            {quizOptions.length > 0 ? (
-              <div className="quiz-options">
-                {quizOptions.map((option) => (
-                  <Button
-                    key={option.option_id}
-                    type="button"
-                    disabled={submitting || session.status !== 'active'}
-                    onClick={() => void submitMessage(option.text, 'chat')}
-                  >
-                    {option.text}
-                  </Button>
-                ))}
-              </div>
-            ) : null}
             <div className="session-composer">
               <textarea
                 value={message}

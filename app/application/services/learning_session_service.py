@@ -14,7 +14,6 @@ from app.application.dtos.learning_session.learning_session_dto import (
 from app.application.dtos.student.student_profile_dto import StudentParamsOverrideDTO
 from app.domain.entities import (
     LearningSessionEntity,
-    SessionQuizAttemptEntity,
     SessionSlideElementEntity,
     SessionSlideEntity,
     SessionTurnEntity,
@@ -40,7 +39,6 @@ from app.domain.exceptions import (
 )
 from app.domain.interfaces import (
     ILLMInteractiveDoubtClient,
-    ILLMPopQuizClient,
     ILLMTeachClient,
     ILLMVivaClient,
     IUnitOfWork,
@@ -50,6 +48,7 @@ from app.domain.student_params import (
     StudentParamsSnapshot,
     default_student_params,
     merge_student_params,
+    validate_overrides_for_mode,
 )
 
 
@@ -59,13 +58,11 @@ class LearningSessionService:
         unit_of_work: IUnitOfWork,
         teach_client: ILLMTeachClient,
         doubt_client: ILLMInteractiveDoubtClient,
-        pop_quiz_client: ILLMPopQuizClient,
         viva_client: ILLMVivaClient,
     ) -> None:
         self.unit_of_work = unit_of_work
         self.teach_client = teach_client
         self.doubt_client = doubt_client
-        self.pop_quiz_client = pop_quiz_client
         self.viva_client = viva_client
 
     @validate_call(validate_return=True)
@@ -74,6 +71,7 @@ class LearningSessionService:
             topic = self._require_published_topic(request_dto.topic_id)
             params_snapshot = self._resolve_params(
                 request_dto.student_identifier,
+                request_dto.mode,
                 request_dto.param_overrides,
             )
             session_entity = LearningSessionEntity(
@@ -202,8 +200,6 @@ class LearningSessionService:
         if session.mode == LearningMode.TEACH:
             taught_ids = agent_response["taught_toc_item_ids"] if "taught_toc_item_ids" in agent_response else []
             session.taught_toc_item_ids = [str(item_id) for item_id in taught_ids]
-        if session.mode == LearningMode.POP_QUIZ:
-            self._apply_pop_quiz_state(session, agent_response, student_message)
         if session.mode == LearningMode.VIVA:
             self._apply_viva_state(session, agent_response)
 
@@ -269,14 +265,6 @@ class LearningSessionService:
                 conversation_history=conversation_history,
                 student_message=student_message,
             )
-        if session.mode == LearningMode.POP_QUIZ:
-            return self.pop_quiz_client.generate_pop_quiz_turn(
-                topic=topic,
-                params=session.params_snapshot,
-                conversation_history=conversation_history,
-                mode_state=session.mode_state,
-                student_message=student_message,
-            )
         if session.mode == LearningMode.VIVA:
             return self.viva_client.generate_viva_turn(
                 topic=topic,
@@ -298,62 +286,15 @@ class LearningSessionService:
         explanation_text = (
             str(agent_response["explanation_text"]) if "explanation_text" in agent_response else ""
         )
-        quiz_payload = None
-        if session.mode == LearningMode.POP_QUIZ:
-            quiz_payload = {
-                "phase": agent_response["phase"] if "phase" in agent_response else None,
-                "question_text": agent_response["question_text"] if "question_text" in agent_response else None,
-                "options": agent_response["options"] if "options" in agent_response else [],
-            }
         visual = SessionVisualEntity(
             id=uuid.uuid4(),
             learning_session_id=session.id,
             session_turn_id=tutor_turn_id,
             slides=slides,
             explanation_text=explanation_text,
-            quiz_payload=quiz_payload,
+            quiz_payload=None,
         )
         return self.unit_of_work.learning_session_repository.create_visual(visual)
-
-    def _apply_pop_quiz_state(
-        self,
-        session: LearningSessionEntity,
-        agent_response: dict,
-        student_message: str | None,
-    ) -> None:
-        questions_asked = (
-            int(agent_response["questions_asked"]) if "questions_asked" in agent_response else 0
-        )
-        phase = str(agent_response["phase"]) if "phase" in agent_response else "ask_question"
-        awaiting_answer = phase == "ask_question"
-        session.mode_state = {
-            **session.mode_state,
-            "questions_asked": questions_asked,
-            "awaiting_answer": awaiting_answer,
-            "phase": phase,
-        }
-        if phase == "explain_attempt" and student_message is not None:
-            attempt_order = questions_asked
-            is_correct = None
-            if "selected_option_is_correct" in agent_response:
-                is_correct = agent_response["selected_option_is_correct"]
-            self.unit_of_work.learning_session_repository.create_quiz_attempt(
-                SessionQuizAttemptEntity(
-                    id=uuid.uuid4(),
-                    learning_session_id=session.id,
-                    question_text=str(
-                        agent_response["question_text"] if "question_text" in agent_response else ""
-                    ),
-                    selected_option_id=None,
-                    student_answer_text=student_message,
-                    is_correct=is_correct if isinstance(is_correct, bool) else None,
-                    explanation_text=str(
-                        agent_response["explanation_text"] if "explanation_text" in agent_response else ""
-                    ),
-                    order=attempt_order if attempt_order > 0 else 1,
-                )
-            )
-        return None
 
     def _apply_viva_state(self, session: LearningSessionEntity, agent_response: dict) -> None:
         questions_asked = (
@@ -407,6 +348,7 @@ class LearningSessionService:
     def _resolve_params(
         self,
         student_identifier: str,
+        mode: LearningMode,
         overrides_dto: StudentParamsOverrideDTO | None,
     ) -> StudentParamsSnapshot:
         profile = self.unit_of_work.student_profile_repository.find_by_student_identifier(
@@ -421,10 +363,13 @@ class LearningSessionService:
                     attributes=default_student_params(),
                 )
             )
+        if mode == LearningMode.VIVA:
+            return merge_student_params(profile.attributes, None, mode)
         overrides = None
         if overrides_dto is not None:
             overrides = StudentParamOverrides.model_validate(overrides_dto.model_dump())
-        return merge_student_params(profile.attributes, overrides)
+            validate_overrides_for_mode(overrides, mode)
+        return merge_student_params(profile.attributes, overrides, mode)
 
     def _require_published_topic(self, topic_id: uuid.UUID) -> TopicEntity:
         topic = self.unit_of_work.topic_repository.find_by_id(topic_id)
@@ -449,13 +394,6 @@ class LearningSessionService:
         return session
 
     def _initial_mode_state(self, mode: LearningMode) -> dict:
-        if mode == LearningMode.POP_QUIZ:
-            return {
-                "questions_asked": 0,
-                "awaiting_answer": False,
-                "target_questions": 5,
-                "phase": "ask_question",
-            }
         if mode == LearningMode.VIVA:
             return {
                 "questions_asked": 0,

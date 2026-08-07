@@ -10,6 +10,10 @@ VALID_WORKFLOW_STATE_TYPES = {state_type.value for state_type in WorkflowStateTy
 VALID_ADVANCE_TRIGGERS = {advance_trigger.value for advance_trigger in AdvanceTrigger}
 VALID_WORKFLOW_PHASES = {workflow_phase.value for workflow_phase in WorkflowPhase}
 
+REMOVED_STATE_TYPES = {"pop_quiz", "quiz", "assessment"}
+REMOVED_PHASES = {"pop_quiz"}
+REMOVED_ADVANCE_TRIGGERS = {"all_questions_attempted", "all_answered", "quiz_complete"}
+
 STATE_TYPE_ALIASES: dict[str, str] = {
     "introduction": WorkflowStateType.EXPLAIN.value,
     "intro": WorkflowStateType.EXPLAIN.value,
@@ -24,8 +28,6 @@ STATE_TYPE_ALIASES: dict[str, str] = {
     "ask": WorkflowStateType.ASK_QUESTION.value,
     "predict": WorkflowStateType.STUDENT_PREDICT.value,
     "prediction": WorkflowStateType.STUDENT_PREDICT.value,
-    "quiz": WorkflowStateType.POP_QUIZ.value,
-    "assessment": WorkflowStateType.POP_QUIZ.value,
     "doubt": WorkflowStateType.DOUBTS_RESOLUTION.value,
     "doubts": WorkflowStateType.DOUBTS_RESOLUTION.value,
     "sage": WorkflowStateType.DOUBTS_RESOLUTION.value,
@@ -40,8 +42,6 @@ ADVANCE_TRIGGER_ALIASES: dict[str, str] = {
     "user_submit": AdvanceTrigger.STUDENT_SUBMITTED.value,
     "submit": AdvanceTrigger.STUDENT_SUBMITTED.value,
     "student_input": AdvanceTrigger.STUDENT_SUBMITTED.value,
-    "all_answered": AdvanceTrigger.ALL_QUESTIONS_ATTEMPTED.value,
-    "quiz_complete": AdvanceTrigger.ALL_QUESTIONS_ATTEMPTED.value,
     "doubt_closed": AdvanceTrigger.DOUBT_SESSION_CLOSED_OR_SKIPPED.value,
     "skip": AdvanceTrigger.DOUBT_SESSION_CLOSED_OR_SKIPPED.value,
 }
@@ -56,6 +56,8 @@ def normalize_workflow_state(state: dict[str, Any]) -> dict[str, Any]:
     normalized_state["advance_trigger"] = resolve_advance_trigger(normalized_state, resolved_state_type)
     if normalized_state.get("requires_student_input") is None:
         normalized_state["requires_student_input"] = resolved_state_type == WorkflowStateType.STUDENT_PREDICT.value
+    if "quiz_question_ids" in normalized_state:
+        normalized_state["quiz_question_ids"] = []
     return normalized_state
 
 
@@ -63,22 +65,22 @@ def normalize_workflow_state(state: dict[str, Any]) -> dict[str, Any]:
 def normalize_workflow_definition(workflow_definition: dict[str, Any]) -> dict[str, Any]:
     normalized_definition = dict(workflow_definition)
     raw_states = workflow_definition.get("states", [])
-    normalized_definition["states"] = [
+    normalized_states = [
         normalize_workflow_state(state)
         for state in raw_states
-        if isinstance(state, dict)
+        if isinstance(state, dict) and _is_supported_workflow_state(state)
     ]
+    normalized_definition["states"] = normalized_states
     return normalized_definition
 
 
 @validate_call(validate_return=True)
 def resolve_workflow_phase(state: dict[str, Any], state_type: str) -> str:
     raw_phase = str(state.get("phase", "")).lower().replace("-", "_").replace(" ", "_")
+    if raw_phase in REMOVED_PHASES:
+        return WorkflowPhase.TEACH.value
     if raw_phase in VALID_WORKFLOW_PHASES:
         return raw_phase
-
-    if state_type == WorkflowStateType.POP_QUIZ.value:
-        return WorkflowPhase.POP_QUIZ.value
     if state_type == WorkflowStateType.DOUBTS_RESOLUTION.value:
         return WorkflowPhase.DOUBTS_RESOLUTION.value
     return WorkflowPhase.TEACH.value
@@ -87,20 +89,18 @@ def resolve_workflow_phase(state: dict[str, Any], state_type: str) -> str:
 @validate_call(validate_return=True)
 def resolve_state_type(state: dict[str, Any]) -> str:
     raw_state_type = str(state.get("state_type", "")).lower().replace("-", "_").replace(" ", "_")
+    if raw_state_type in REMOVED_STATE_TYPES:
+        return WorkflowStateType.EXPLAIN.value
     if raw_state_type in VALID_WORKFLOW_STATE_TYPES:
         return raw_state_type
     if raw_state_type in STATE_TYPE_ALIASES:
         return STATE_TYPE_ALIASES[raw_state_type]
 
     phase = str(state.get("phase", "")).lower().replace("-", "_").replace(" ", "_")
-    if phase == WorkflowPhase.POP_QUIZ.value:
-        return WorkflowStateType.POP_QUIZ.value
     if phase == WorkflowPhase.DOUBTS_RESOLUTION.value:
         return WorkflowStateType.DOUBTS_RESOLUTION.value
 
     state_id = str(state.get("state_id", "")).lower().replace("-", "_").replace(" ", "_")
-    if "quiz" in state_id:
-        return WorkflowStateType.POP_QUIZ.value
     if "doubt" in state_id:
         return WorkflowStateType.DOUBTS_RESOLUTION.value
     if "example" in state_id:
@@ -115,6 +115,8 @@ def resolve_state_type(state: dict[str, Any]) -> str:
 @validate_call(validate_return=True)
 def resolve_advance_trigger(state: dict[str, Any], state_type: str) -> str:
     raw_advance_trigger = str(state.get("advance_trigger", "")).lower().replace("-", "_").replace(" ", "_")
+    if raw_advance_trigger in REMOVED_ADVANCE_TRIGGERS:
+        return AdvanceTrigger.AUTO.value
     if raw_advance_trigger in VALID_ADVANCE_TRIGGERS:
         return raw_advance_trigger
     if raw_advance_trigger in ADVANCE_TRIGGER_ALIASES:
@@ -122,8 +124,18 @@ def resolve_advance_trigger(state: dict[str, Any], state_type: str) -> str:
 
     if state_type == WorkflowStateType.STUDENT_PREDICT.value:
         return AdvanceTrigger.STUDENT_SUBMITTED.value
-    if state_type == WorkflowStateType.POP_QUIZ.value:
-        return AdvanceTrigger.ALL_QUESTIONS_ATTEMPTED.value
     if state_type == WorkflowStateType.DOUBTS_RESOLUTION.value:
         return AdvanceTrigger.DOUBT_SESSION_CLOSED_OR_SKIPPED.value
     return AdvanceTrigger.AUTO.value
+
+
+@validate_call(validate_return=True)
+def _is_supported_workflow_state(state: dict[str, Any]) -> bool:
+    raw_state_type = str(state.get("state_type", "")).lower().replace("-", "_").replace(" ", "_")
+    raw_phase = str(state.get("phase", "")).lower().replace("-", "_").replace(" ", "_")
+    state_id = str(state.get("state_id", "")).lower().replace("-", "_").replace(" ", "_")
+    if raw_state_type in REMOVED_STATE_TYPES or raw_phase in REMOVED_PHASES:
+        return False
+    if "quiz" in state_id and "doubt" not in state_id:
+        return False
+    return True

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Sparkles } from 'lucide-react'
 import { TeachingLayout, LessonRhythmBar } from './ImmersiveClassroom'
-import PopQuizPanel from '../quiz/PopQuizPanel'
 import SageDoubtPanel from '../sage/SageDoubtPanel'
 import VoiceDoubtPrompt from '../voice-doubt/VoiceDoubtPrompt'
 import VoiceDoubtSheet, { type VoiceDoubtSheetMode, type VoiceDoubtSheetPhase } from '../voice-doubt/VoiceDoubtSheet'
@@ -35,14 +34,12 @@ interface ClassroomLayoutProps {
   exitControl?: ReactNode
   onAdvance: () => Promise<void>
   onSubmitPrediction: (predictionText: string) => Promise<void>
-  onQuizSubmit: (questionId: string, selectedOptionId: string) => Promise<import('../../types/api.types').QuizAttemptResponse>
   onOpenSage: () => Promise<string>
   onAskSage: (doubtSessionId: string, message: string) => Promise<import('../../types/api.types').DoubtMessageResponse>
   onCloseSage: (doubtSessionId: string) => Promise<void>
   onSkipDoubts: () => Promise<void>
   onSlideView?: () => void
   onPrediction?: () => void
-  onQuizResult?: (correct: boolean) => void
   onSageQuestion?: () => void
   onReleaseDoubtSession?: (doubtSessionId: string) => Promise<void>
 }
@@ -52,18 +49,16 @@ export default function ClassroomLayout({
   exitControl,
   onAdvance,
   onSubmitPrediction,
-  onQuizSubmit,
   onOpenSage,
   onAskSage,
   onCloseSage,
   onSkipDoubts,
   onSlideView,
   onPrediction,
-  onQuizResult,
   onSageQuestion,
   onReleaseDoubtSession,
 }: ClassroomLayoutProps) {
-  const { tutor, expression, setExpression, pulseExpression, reactToQuiz } = useMentor()
+  const { tutor, expression, setExpression, pulseExpression } = useMentor()
   const activeTutor = tutor
   const [predictionText, setPredictionText] = useState('')
   const [showSagePanel, setShowSagePanel] = useState(false)
@@ -96,8 +91,7 @@ export default function ClassroomLayout({
   const slideDoubtKey = `${currentState.current_state?.state_id ?? 'state'}-${currentSlideIndex}`
 
   const isLiveLesson =
-    stateType !== 'pop_quiz'
-    && stateType !== 'student_predict'
+    stateType !== 'student_predict'
     && stateType !== 'doubts_resolution'
 
   const sectionFlow = useLessonSectionFlow({
@@ -464,13 +458,11 @@ export default function ClassroomLayout({
       ? 'listening'
       : sectionPhase === 'answering_doubt' && doubtSheet?.phase === 'thinking'
         ? 'listening'
-        : stateType === 'pop_quiz'
-          ? 'questioning'
-          : stateType === 'student_predict' || showSagePanel
-            ? 'listening'
-            : speechStatus === 'speaking'
-              ? 'speaking'
-              : 'idle'
+        : stateType === 'student_predict' || showSagePanel
+          ? 'listening'
+          : speechStatus === 'speaking'
+            ? 'speaking'
+            : 'idle'
 
   useEffect(() => {
     if (showVoiceDoubtPrompt) {
@@ -515,12 +507,11 @@ export default function ClassroomLayout({
         return true
       }
       if (!speechEnabled && isTeaching) {
-        return stateType !== 'pop_quiz' && stateType !== 'doubts_resolution'
+        return stateType !== 'doubts_resolution'
       }
       return false
     }
-    return stateType !== 'pop_quiz'
-      && stateType !== 'doubts_resolution'
+    return stateType !== 'doubts_resolution'
       && !(stateType === 'student_predict' && predictionText.trim() === '')
   })()
 
@@ -719,20 +710,7 @@ export default function ClassroomLayout({
       <div className="classroom-classic-layout classroom-layout classroom-layout-classic">
         <section className="classroom-classic-main slide-area card">
           <div className="slide-content">
-            {stateType === 'pop_quiz' ? (
-              <PopQuizPanel
-                questions={currentState.content?.quiz_questions ?? []}
-                onSubmit={onQuizSubmit}
-                onComplete={onAdvance}
-                onQuizResult={(correct) => {
-                  const reaction = reactToQuiz(correct)
-                  if (reaction.line !== '') {
-                    void speakAsMentor(reaction.line)
-                  }
-                  onQuizResult?.(correct)
-                }}
-              />
-            ) : stateType === 'student_predict' ? (
+            {stateType === 'student_predict' ? (
               <div className="predict-panel">
                 <SlideRenderer elements={slideElements} />
                 <label className="form-field">

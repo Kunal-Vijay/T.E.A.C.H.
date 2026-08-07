@@ -25,7 +25,6 @@ class TeachingApproach(StrEnum):
 
 class WorkflowPhase(StrEnum):
     TEACH = "teach"
-    POP_QUIZ = "pop_quiz"
     DOUBTS_RESOLUTION = "doubts_resolution"
 
 
@@ -34,14 +33,12 @@ class WorkflowStateType(StrEnum):
     STUDENT_PREDICT = "student_predict"
     EXPLAIN = "explain"
     EXAMPLES = "examples"
-    POP_QUIZ = "pop_quiz"
     DOUBTS_RESOLUTION = "doubts_resolution"
 
 
 class AdvanceTrigger(StrEnum):
     AUTO = "auto"
     STUDENT_SUBMITTED = "student_submitted"
-    ALL_QUESTIONS_ATTEMPTED = "all_questions_attempted"
     DOUBT_SESSION_CLOSED_OR_SKIPPED = "doubt_session_closed_or_skipped"
 
 
@@ -86,8 +83,23 @@ class TopicStatus(StrEnum):
 class LearningMode(StrEnum):
     TEACH = "teach"
     DOUBT = "doubt"
-    POP_QUIZ = "pop_quiz"
     VIVA = "viva"
+
+
+class KnowledgeLevel(StrEnum):
+    NONE = "none"
+    BASIC = "basic"
+    INTERMEDIATE = "intermediate"
+    STRONG = "strong"
+    EXPERT = "expert"
+
+
+class PreferredExplanation(StrEnum):
+    CONCISE = "concise"
+    STEP_BY_STEP = "step_by_step"
+    EXAMPLE_HEAVY = "example_heavy"
+    CONCEPTUAL = "conceptual"
+    FORMULA_FOCUSED = "formula_focused"
 
 
 class LearningSessionStatus(StrEnum):

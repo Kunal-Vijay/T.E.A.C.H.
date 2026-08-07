@@ -15,7 +15,7 @@ from app.infrastructure.bedrock.doubt_topic_guard import (
 )
 from app.infrastructure.bedrock.mode_prompt_builder import (
     build_conversation_history_text,
-    build_shared_student_context,
+    build_doubt_student_context,
     build_topic_context_text,
 )
 from app.infrastructure.bedrock.mode_turn_schemas import DOUBT_TURN_SCHEMA
@@ -74,7 +74,7 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
             "Goal: answer student doubts and help solve problems based on this topic only.\n"
             "Return slides when a visual explanation helps; always provide spoken explanation_text.\n"
             f"{build_topic_context_text(topic)}\n"
-            f"{build_shared_student_context(params)}\n"
+            f"{build_doubt_student_context(params)}\n"
             f"Conversation history:\n{build_conversation_history_text(conversation_history)}\n"
             f"Student message: {student_message}\n"
             "Rules:\n"
@@ -87,7 +87,8 @@ class BedrockInteractiveDoubtClient(ILLMInteractiveDoubtClient):
             "- For on-topic doubts: tutor_message and explanation_text must match in meaning;\n"
             "  explanation_text is the exact spoken narration.\n"
             "- No emojis in tutor_message or explanation_text.\n"
-            "- Use student language_style and explanation_depth for on-topic answers only.\n"
+            "- Use knowledge_level and preferred_explanation for on-topic answers.\n"
+            "- Also respect language_style from the student profile.\n"
             "- is_goal_complete is true only if the student clearly says they are done / no more doubts.\n"
         )
         response = invoke_structured_tool(

@@ -1,6 +1,6 @@
 export type TopicStatus = 'draft' | 'published' | 'archived'
 
-export type LearningMode = 'teach' | 'doubt' | 'pop_quiz' | 'viva'
+export type LearningMode = 'teach' | 'doubt' | 'viva'
 
 export type LearningSessionStatus = 'active' | 'completed' | 'abandoned'
 
@@ -78,13 +78,16 @@ export interface StudentParamsSnapshot {
   interaction_mode: string
   practice_preference: string
   primary_goal: string
+  knowledge_level: string
+  preferred_explanation: string
 }
 
 export interface StudentParamOverrides {
   explanation_depth?: string
   pace?: string
   interaction_mode?: string
-  practice_preference?: string
+  knowledge_level?: string
+  preferred_explanation?: string
 }
 
 export interface SessionSlideElement {
@@ -104,11 +107,7 @@ export interface SessionVisual {
   session_turn_id: string
   slides: SessionSlide[]
   explanation_text: string
-  quiz_payload: {
-    phase?: string | null
-    question_text?: string | null
-    options?: Array<{ option_id: string; text: string; is_correct?: boolean }>
-  } | null
+  quiz_payload: Record<string, unknown> | null
 }
 
 export interface SessionTurn {
@@ -148,13 +147,11 @@ export interface LearningSessionResponse {
 export const LEARNING_MODE_LABELS: Record<LearningMode, string> = {
   teach: 'Teach me this topic',
   doubt: 'Ask a doubt',
-  pop_quiz: 'Pop quiz',
   viva: 'Know your understanding',
 }
 
-export const SESSION_SELECTABLE_KEYS = [
-  'explanation_depth',
-  'pace',
-  'interaction_mode',
-  'practice_preference',
-] as const
+export const MODE_SESSION_SELECTABLE_KEYS: Record<LearningMode, readonly string[]> = {
+  teach: ['explanation_depth', 'pace', 'interaction_mode'],
+  doubt: ['knowledge_level', 'preferred_explanation'],
+  viva: [],
+}

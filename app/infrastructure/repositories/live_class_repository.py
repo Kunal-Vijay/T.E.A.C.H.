@@ -9,7 +9,6 @@ from app.domain.entities import (
     GeneratedAssetEntity,
     LiveClassGenerationEntity,
     LiveClassSlideEntity,
-    PopQuizQuestionEntity,
     SlideExplanationEntity,
     TopicWorkflowEntity,
 )
@@ -20,7 +19,6 @@ from app.infrastructure.models.live_class_models import (
     GeneratedAssetModel,
     LiveClassGenerationModel,
     LiveClassSlideModel,
-    PopQuizQuestionModel,
     SlideExplanationModel,
     TopicWorkflowModel,
 )
@@ -115,14 +113,6 @@ class LiveClassRepository(ILiveClassRepository):
 
     @log_repo_call
     @validate_call(validate_return=True)
-    def save_quiz_questions(self, questions: list[PopQuizQuestionEntity]) -> list[PopQuizQuestionEntity]:
-        models = [PopQuizQuestionModel.from_entity(question) for question in questions]
-        self.session.add_all(models)
-        self.session.flush()
-        return [model.to_entity() for model in models]
-
-    @log_repo_call
-    @validate_call(validate_return=True)
     def save_assets(self, assets: list[GeneratedAssetEntity]) -> list[GeneratedAssetEntity]:
         models = [GeneratedAssetModel.from_entity(asset) for asset in assets]
         self.session.add_all(models)
@@ -178,44 +168,6 @@ class LiveClassRepository(ILiveClassRepository):
         model = (
             self.session.query(SlideExplanationModel)
             .filter(SlideExplanationModel.slide_id == slide_id, SlideExplanationModel.is_active.is_(True))
-            .first()
-        )
-        return model.to_entity() if model is not None else None
-
-    @log_repo_call
-    @validate_call(validate_return=True)
-    def find_quiz_questions_by_ids(self, question_ids: list[UUID]) -> list[PopQuizQuestionEntity]:
-        if len(question_ids) == 0:
-            return []
-        models = (
-            self.session.query(PopQuizQuestionModel)
-            .filter(PopQuizQuestionModel.id.in_(question_ids), PopQuizQuestionModel.is_active.is_(True))
-            .order_by(PopQuizQuestionModel.order.asc())
-            .all()
-        )
-        return [model.to_entity() for model in models]
-
-    @log_repo_call
-    @validate_call(validate_return=True)
-    def find_quiz_questions_by_topic(self, generation_id: UUID, topic_id: UUID) -> list[PopQuizQuestionEntity]:
-        models = (
-            self.session.query(PopQuizQuestionModel)
-            .filter(
-                PopQuizQuestionModel.generation_id == generation_id,
-                PopQuizQuestionModel.topic_id == topic_id,
-                PopQuizQuestionModel.is_active.is_(True),
-            )
-            .order_by(PopQuizQuestionModel.order.asc())
-            .all()
-        )
-        return [model.to_entity() for model in models]
-
-    @log_repo_call
-    @validate_call(validate_return=True)
-    def find_quiz_question_by_id(self, question_id: UUID) -> PopQuizQuestionEntity | None:
-        model = (
-            self.session.query(PopQuizQuestionModel)
-            .filter(PopQuizQuestionModel.id == question_id, PopQuizQuestionModel.is_active.is_(True))
             .first()
         )
         return model.to_entity() if model is not None else None

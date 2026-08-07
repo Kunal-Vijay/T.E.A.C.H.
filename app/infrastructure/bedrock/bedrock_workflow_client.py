@@ -53,10 +53,10 @@ class BedrockWorkflowClient(ILLMWorkflowClient):
             "Rules:\n"
             "- teaching_approach must be exactly direct_instruction or inquiry_based\n"
             "- approach_rationale must be a short paragraph\n"
-            "- workflow.states must include explain, examples, pop_quiz, and doubts_resolution states\n"
-            "- state_type must be one of: ask_question, student_predict, explain, examples, pop_quiz, doubts_resolution\n"
-            "- advance_trigger must be one of: auto, student_submitted, all_questions_attempted, doubt_session_closed_or_skipped\n"
-            "- phase must be one of: teach, pop_quiz, doubts_resolution\n"
+            "- workflow.states must include explain, examples, and doubts_resolution states\n"
+            "- state_type must be one of: ask_question, student_predict, explain, examples, doubts_resolution\n"
+            "- advance_trigger must be one of: auto, student_submitted, doubt_session_closed_or_skipped\n"
+            "- phase must be one of: teach, doubts_resolution\n"
             "- Each slide must include slide_id (uuid string), workflow_state_id, layout, duration_seconds, "
             "elements (non-empty array), and explanation with duration_seconds and explanation_text\n"
             "- explanation_text is the exact voice script the AI teacher speaks to students on that slide\n"
@@ -66,8 +66,6 @@ class BedrockWorkflowClient(ILLMWorkflowClient):
             "'Allow 2-3 students to share', 'The goal is to surface', or similar meta-instructions)\n"
             "- Teach the concept in explanation_text; do not describe how the teacher should run the activity\n"
             "- Slide element content should be concise on-screen text; explanation_text carries the full teaching narration\n"
-            "- Each pop_quiz_questions item must include question_id (uuid string), question_text, order, "
-            "and options with option_id, text, is_correct, feedback_explanation\n"
             "- Do not return empty objects"
         )
         request_payload = json.dumps(
@@ -130,10 +128,9 @@ class BedrockWorkflowClient(ILLMWorkflowClient):
             raise parse_error from error
 
         logger.info(
-            "Bedrock workflow validated for topic=%s approach=%s slides=%s quiz_questions=%s",
+            "Bedrock workflow validated for topic=%s approach=%s slides=%s",
             topic.title,
             normalized_topic.get("teaching_approach"),
             len(normalized_topic.get("slides", [])),
-            len(normalized_topic.get("pop_quiz_questions", [])),
         )
         return normalized_topic

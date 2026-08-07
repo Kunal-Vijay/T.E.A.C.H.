@@ -92,17 +92,6 @@ export interface CurrentSlide {
   explanation?: SlideExplanation
 }
 
-export interface QuizOption {
-  option_id: string
-  text: string
-}
-
-export interface QuizQuestion {
-  question_id: string
-  question_text: string
-  options: QuizOption[]
-}
-
 export interface CurrentStateResponse {
   session_id: string
   topic_id?: string
@@ -115,7 +104,6 @@ export interface CurrentStateResponse {
   }
   content?: {
     slides: import('./api.types').CurrentSlide[]
-    quiz_questions: import('./api.types').QuizQuestion[]
   }
   next_advance_trigger?: string
   session_status: string
@@ -127,14 +115,6 @@ export interface ClassroomSessionResponse {
   current_topic_id?: string
   current_state_id?: string
   session_status: string
-}
-
-export interface QuizAttemptResponse {
-  attempt_id: string
-  question_id: string
-  selected_option_id: string
-  is_correct: boolean
-  feedback_explanation: string
 }
 
 export interface DoubtSessionResponse {

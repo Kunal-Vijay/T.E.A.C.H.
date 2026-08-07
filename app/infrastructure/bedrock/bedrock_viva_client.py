@@ -11,8 +11,8 @@ from app.domain.student_params import StudentParamsSnapshot
 from app.infrastructure.bedrock.bedrock_mode_runtime import invoke_structured_tool
 from app.infrastructure.bedrock.mode_prompt_builder import (
     build_conversation_history_text,
-    build_shared_student_context,
     build_topic_context_text,
+    build_viva_student_context,
 )
 from app.infrastructure.bedrock.mode_turn_schemas import VIVA_TURN_SCHEMA
 
@@ -100,11 +100,12 @@ class BedrockVivaClient(ILLMVivaClient):
             "Student cannot interrupt mid-question. Pass / silence / I don't know means advance.\n"
             f"Target questions: {target}. Current questions_asked: {questions_asked}.\n"
             f"{build_topic_context_text(topic)}\n"
-            f"{build_shared_student_context(params)}\n"
+            f"{build_viva_student_context(params)}\n"
             f"Conversation history:\n{build_conversation_history_text(conversation_history)}\n"
             f"{student_part}\n"
             f"{advance_part}\n"
             "Rules:\n"
+            "- Use only profile context (academic_level, exam_target, language_style); there are no session overrides.\n"
             "- Evaluate the previous answer briefly when present.\n"
             "- Ask one clear viva question at a time.\n"
             "- Track weak_toc_item_ids for shaky or skipped answers.\n"

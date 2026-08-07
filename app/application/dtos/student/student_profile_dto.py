@@ -11,10 +11,12 @@ from app.domain.enums import (
     ExamTarget,
     ExplanationDepth,
     InteractionMode,
+    KnowledgeLevel,
     LanguageStyle,
     LearningStyle,
     Pace,
     PracticePreference,
+    PreferredExplanation,
     PrimaryGoal,
     PriorKnowledge,
 )
@@ -34,6 +36,8 @@ class StudentAttributesDTO(BaseModel):
     interaction_mode: InteractionMode = InteractionMode.GUIDED
     practice_preference: PracticePreference = PracticePreference.BALANCED
     primary_goal: PrimaryGoal = PrimaryGoal.CONCEPT_MASTERY
+    knowledge_level: KnowledgeLevel = KnowledgeLevel.BASIC
+    preferred_explanation: PreferredExplanation = PreferredExplanation.STEP_BY_STEP
 
     def to_snapshot(self) -> StudentParamsSnapshot:
         return StudentParamsSnapshot.model_validate(self.model_dump())
@@ -90,4 +94,5 @@ class StudentParamsOverrideDTO(BaseModel):
     explanation_depth: ExplanationDepth | None = None
     pace: Pace | None = None
     interaction_mode: InteractionMode | None = None
-    practice_preference: PracticePreference | None = None
+    knowledge_level: KnowledgeLevel | None = None
+    preferred_explanation: PreferredExplanation | None = None
