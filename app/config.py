@@ -41,8 +41,12 @@ class Settings(BaseSettings):
     # student thinking mid-sentence. MEDIUM is the AWS default.
     NOVA_SONIC_ENDPOINTING_SENSITIVITY: str = "LOW"
     # Viva bounds. The session ends on whichever limit is reached first.
-    VIVA_MAX_QUESTIONS: int = 10
+    VIVA_MAX_QUESTIONS: int = 5
     VIVA_MAX_SECONDS: int = 120
+    # Simpler hint questions after "I don't know" before moving to the next area.
+    VIVA_MAX_DONT_KNOW_HINTS: int = 2
+    # On the last question only: one simpler hint before gently ending the viva.
+    VIVA_FINAL_DONT_KNOW_HINTS: int = 1
     S3_BUCKET: str = "ai-tutor-assets-dev"
     STAGE: str = "dev"
     REGION: str = "ap-south-1"

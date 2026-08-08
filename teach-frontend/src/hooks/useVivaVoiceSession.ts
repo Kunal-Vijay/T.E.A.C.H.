@@ -58,7 +58,7 @@ export function useVivaVoiceSession(sessionId: string) {
   const [completionReason, setCompletionReason] = useState<VivaCompletionReason>(null)
   const [assessment, setAssessment] = useState<VoiceVivaAssessment | null>(null)
   const [assessmentError, setAssessmentError] = useState<string | null>(null)
-  const [maxQuestions, setMaxQuestions] = useState(10)
+  const [maxQuestions, setMaxQuestions] = useState(5)
   const [maxSeconds, setMaxSeconds] = useState(120)
   const [topicTitle, setTopicTitle] = useState('')
 
@@ -215,7 +215,7 @@ export function useVivaVoiceSession(sessionId: string) {
 
       switch (message.type) {
         case 'ready': {
-          const limitQuestions = Number(message.max_questions ?? 10)
+          const limitQuestions = Number(message.max_questions ?? 5)
           const limitSeconds = Number(message.max_seconds ?? 120)
           setMaxQuestions(limitQuestions)
           setMaxSeconds(limitSeconds)
