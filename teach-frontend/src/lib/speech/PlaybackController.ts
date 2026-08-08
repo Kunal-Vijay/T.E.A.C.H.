@@ -83,7 +83,7 @@ export class SpeechPlaybackController {
 
     const speakOptions: SpeakOptions = {
       voice: mentor.voice,
-      prefetchAhead: 4,
+      prefetchAhead: 2,
       onSentenceStart: (index) => {
         if (generation !== this.activeGeneration) {
           return
