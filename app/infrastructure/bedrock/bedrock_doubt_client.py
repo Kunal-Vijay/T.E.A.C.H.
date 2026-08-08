@@ -38,6 +38,7 @@ class BedrockDoubtClient(ILLMDoubtClient):
         if settings.BEDROCK_REGION.strip() == "":
             raise ValidationException("BEDROCK_REGION is required for doubt resolution")
 
+        doubt_model_id = settings.resolve_doubt_model_id()
         operation = f"resolve_doubt topic={topic_context.get('topic_title', 'unknown')}"
         history_text = "\n".join(
             [
@@ -54,9 +55,10 @@ class BedrockDoubtClient(ILLMDoubtClient):
         )
         request_payload = json.dumps(
             {
-                "model": settings.BEDROCK_MODEL_ID,
+                "model": doubt_model_id,
                 "operation": operation,
                 "prompt": prompt,
+                "max_tokens": settings.BEDROCK_DOUBT_MAX_TOKENS,
             },
             ensure_ascii=False,
         )
@@ -65,8 +67,9 @@ class BedrockDoubtClient(ILLMDoubtClient):
         bedrock_client = get_bedrock_runtime_client()
         try:
             response = bedrock_client.converse(
-                modelId=settings.BEDROCK_MODEL_ID,
+                modelId=doubt_model_id,
                 messages=[{"role": "user", "content": [{"text": prompt}]}],
+                inferenceConfig={"maxTokens": settings.BEDROCK_DOUBT_MAX_TOKENS},
             )
         except Exception as error:
             log_external_api_error(logger, "Bedrock", operation, error, request_payload=request_payload)

@@ -91,7 +91,9 @@ LOG_LEVEL=INFO
 | `AWS_SECRET_ACCESS_KEY` | AWS secret key for Bedrock | — |
 | `AWS_SESSION_TOKEN` | AWS session token (if using temporary credentials) | — |
 | `AWS_DEFAULT_REGION` | AWS region for credential resolution | — |
-| `BEDROCK_MODEL_ID` | Bedrock model for generation and SAGE | `us.anthropic.claude-sonnet-4-6` |
+| `BEDROCK_MODEL_ID` | Bedrock model for teach, viva, and class generation | `us.anthropic.claude-sonnet-4-6` |
+| `BEDROCK_DOUBT_MODEL_ID` | Faster model for live doubt Q&A (SAGE + doubt sessions). Default: `amazon.nova-lite-v1:0`. Alternative: `us.anthropic.claude-haiku-4-5-20251001-v1:0` | `amazon.nova-lite-v1:0` |
+| `BEDROCK_DOUBT_MAX_TOKENS` | Max tokens for doubt responses (raise for richer slides) | `4096` |
 | `BEDROCK_REGION` | Region for Bedrock API calls | Falls back to `AWS_DEFAULT_REGION`, then `REGION` |
 | `SYNC_GENERATION` | Run generation in-process when `true` | `true` |
 | `FRONTEND_ORIGIN` | CORS allowed origin | `http://localhost:5173` |

@@ -58,18 +58,24 @@ def invoke_structured_tool(
     tool_description: str,
     tool_schema: dict[str, Any],
     mock_response: dict[str, Any],
+    model_id: str | None = None,
+    max_tokens: int | None = None,
 ) -> dict[str, Any]:
     require_bedrock_configuration()
     if not has_aws_credentials():
         logger.warning("Bedrock mock response used for operation=%s (no AWS credentials)", operation)
         return mock_response
 
+    resolved_model = model_id.strip() if model_id is not None and model_id.strip() != "" else settings.BEDROCK_MODEL_ID
+    resolved_max_tokens = max_tokens if max_tokens is not None else 8192
+
     request_payload = json.dumps(
         {
-            "model": settings.BEDROCK_MODEL_ID,
+            "model": resolved_model,
             "operation": operation,
             "prompt": prompt,
             "response_schema": tool_schema,
+            "max_tokens": resolved_max_tokens,
         },
         ensure_ascii=False,
     )
@@ -77,7 +83,7 @@ def invoke_structured_tool(
     bedrock_client = get_bedrock_runtime_client()
     try:
         response = bedrock_client.converse(
-            modelId=settings.BEDROCK_MODEL_ID,
+            modelId=resolved_model,
             messages=[{"role": "user", "content": [{"text": prompt}]}],
             toolConfig={
                 "tools": [
@@ -91,7 +97,7 @@ def invoke_structured_tool(
                 ],
                 "toolChoice": {"tool": {"name": tool_name}},
             },
-            inferenceConfig={"maxTokens": 8192},
+            inferenceConfig={"maxTokens": resolved_max_tokens},
         )
     except Exception as error:
         # has_aws_credentials() only checks that keys are PRESENT, so expired

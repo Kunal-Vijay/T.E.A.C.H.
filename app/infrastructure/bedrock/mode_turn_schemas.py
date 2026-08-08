@@ -43,8 +43,42 @@ TEACH_TURN_SCHEMA = {
 DOUBT_TURN_SCHEMA = {
     "type": "object",
     "properties": {
-        "tutor_message": {"type": "string"},
-        "slides": {"type": "array", "items": SLIDE_SCHEMA},
+        "tutor_message": {
+            "type": "string",
+            "description": "Short chat summary of the answer (1-2 sentences)",
+        },
+        "slides": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "slide_id": {"type": "string"},
+                    "layout": {
+                        "type": "string",
+                        "enum": ["title_content", "formula_focus", "full_image"],
+                    },
+                    "elements": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": SLIDE_ELEMENT_SCHEMA,
+                        "description": (
+                            "On-screen content: include heading, a text paragraph (2-3 sentences), "
+                            "and bullet_list (3-5 concise points). Add latex only when a formula helps."
+                        ),
+                    },
+                    "explanation_text": {
+                        "type": "string",
+                        "description": (
+                            "Exact spoken narration for this slide only (60-150 words). "
+                            "This is what Nova reads aloud — teach clearly, step by step."
+                        ),
+                    },
+                },
+                "required": ["slide_id", "layout", "elements", "explanation_text"],
+            },
+        },
         "is_goal_complete": {"type": "boolean"},
     },
     "required": ["tutor_message", "slides", "is_goal_complete"],

@@ -28,7 +28,7 @@ for m in sorted(candidates, key=lambda x: x["modelId"]):
     print(f"  {m['modelId']:<52} {inference}")
 
 print("\n--- likely assessment candidates ---")
-for needle in ("nova-lite", "nova-pro", "nova-micro", "claude-3-5-haiku", "claude-3-haiku"):
+for needle in ("nova-lite", "nova-pro", "nova-micro", "claude-haiku-4-5", "claude-3-5-haiku", "claude-3-haiku"):
     hits = [m["modelId"] for m in candidates if needle in m["modelId"]]
     for hit in hits:
         types = next(m.get("inferenceTypesSupported", []) for m in candidates if m["modelId"] == hit)

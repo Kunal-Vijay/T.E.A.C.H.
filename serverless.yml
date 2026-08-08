@@ -10,6 +10,8 @@ provider:
   environment:
     DATABASE_URL: ${param:DATABASE_URL}
     BEDROCK_MODEL_ID: ${param:BEDROCK_MODEL_ID, 'us.anthropic.claude-sonnet-4-6'}
+    BEDROCK_DOUBT_MODEL_ID: ${param:BEDROCK_DOUBT_MODEL_ID, 'amazon.nova-lite-v1:0'}
+    BEDROCK_DOUBT_MAX_TOKENS: ${param:BEDROCK_DOUBT_MAX_TOKENS, '4096'}
     BEDROCK_REGION: ${param:BEDROCK_REGION, 'us-west-2'}
     S3_BUCKET: ${param:S3_BUCKET}
     STAGE: ${self:provider.stage}
@@ -20,6 +22,8 @@ params:
   dev:
     DATABASE_URL: postgresql://postgres:postgres@localhost:5432/teach
     BEDROCK_MODEL_ID: us.anthropic.claude-sonnet-4-6
+    BEDROCK_DOUBT_MODEL_ID: amazon.nova-lite-v1:0
+    BEDROCK_DOUBT_MAX_TOKENS: "4096"
     BEDROCK_REGION: us-west-2
     S3_BUCKET: ai-tutor-assets-dev
 

@@ -12,6 +12,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///./teach.db"
     BEDROCK_MODEL_ID: str = "us.anthropic.claude-sonnet-4-6"
+    # Faster model for live doubt Q&A (interactive sessions + SAGE). Falls back to
+    # BEDROCK_MODEL_ID when unset. Haiku / Nova Lite are typical choices.
+    BEDROCK_DOUBT_MODEL_ID: str = "amazon.nova-lite-v1:0"
+    BEDROCK_DOUBT_MAX_TOKENS: int = 4096
     BEDROCK_REGION: str = ""
     BEDROCK_READ_TIMEOUT_SECONDS: int = 600
 
@@ -80,6 +84,11 @@ class Settings(BaseSettings):
         if os.environ.get("AWS_DEFAULT_REGION", "").strip() == "":
             os.environ["AWS_DEFAULT_REGION"] = self.BEDROCK_REGION or self.REGION
         return None
+
+    def resolve_doubt_model_id(self) -> str:
+        if self.BEDROCK_DOUBT_MODEL_ID.strip() != "":
+            return self.BEDROCK_DOUBT_MODEL_ID.strip()
+        return self.BEDROCK_MODEL_ID
 
 
 settings = Settings()
