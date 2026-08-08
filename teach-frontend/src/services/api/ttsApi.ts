@@ -16,8 +16,8 @@ export interface TtsPersona {
 
 export const ttsApi = {
   /**
-   * Synthesize speech from text via the backend proxy (Google Cloud TTS).
-   * The persona determines which voice is used.
+   * Synthesize speech from text via the backend TTS proxy (ElevenLabs or gTTS).
+   * The persona determines which voice is used when supported.
    */
   synthesize: async (text: string, languageStyle?: string, persona?: string): Promise<Blob> => {
     const response = await apiClient.post<Blob>(

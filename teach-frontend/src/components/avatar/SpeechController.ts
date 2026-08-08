@@ -50,6 +50,10 @@ export class SpeechController {
   private resumeWaiters: Array<() => void> = []
   private currentLanguageStyle: string | undefined = undefined
   private currentPersona: string | undefined = undefined
+  /** Limit parallel /tts calls — avoids ElevenLabs 429s that caused gTTS fallbacks. */
+  private ttsInflight = 0
+  private readonly maxConcurrentTts = 2
+  private ttsWaitQueue: Array<() => void> = []
 
   isSupported(): boolean {
     return typeof window !== 'undefined' && typeof Audio !== 'undefined'
@@ -300,13 +304,33 @@ export class SpeechController {
   }
 
   private async fetchAndCache(text: string, cacheLookup: string): Promise<string> {
-    const audioBlob = await ttsApi.synthesize(text, this.currentLanguageStyle, this.currentPersona)
+    const audioBlob = await this.withTtsSlot(() =>
+      ttsApi.synthesize(text, this.currentLanguageStyle, this.currentPersona),
+    )
     if (audioBlob.size === 0) {
       throw new Error('empty-audio')
     }
     const audioUrl = URL.createObjectURL(audioBlob)
     this.cacheAudioUrl(cacheLookup, audioUrl)
     return audioUrl
+  }
+
+  private async withTtsSlot<T>(task: () => Promise<T>): Promise<T> {
+    while (this.ttsInflight >= this.maxConcurrentTts) {
+      await new Promise<void>((resolve) => {
+        this.ttsWaitQueue.push(resolve)
+      })
+    }
+    this.ttsInflight += 1
+    try {
+      return await task()
+    } finally {
+      this.ttsInflight -= 1
+      const next = this.ttsWaitQueue.shift()
+      if (next !== undefined) {
+        next()
+      }
+    }
   }
 
   private prefetch(
