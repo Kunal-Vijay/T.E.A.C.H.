@@ -1,0 +1,106 @@
+{
+  "source": "teach.db",
+  "stats": {
+    "topics": 4,
+    "sessions": 48,
+    "teach_sessions": 28,
+    "doubt_sessions": 12,
+    "viva_sessions": 8
+  },
+  "topics": [
+    {
+      "id": "20f9558b63e740e0abdf6404a5b2ac9e",
+      "title": "Trigonometry \u2014 Sin \u03b8 & Cos \u03b8",
+      "subject": "Mathematics",
+      "status": "PUBLISHED"
+    },
+    {
+      "id": "346d000599e6469ba4c97f125eb47495",
+      "title": "Force and Newton's laws of motion",
+      "subject": "Physics",
+      "status": "PUBLISHED"
+    },
+    {
+      "id": "00213282423143fe93ff9bc3ca832103",
+      "title": "Newton Laws",
+      "subject": "Physics",
+      "status": "PUBLISHED"
+    },
+    {
+      "id": "7d3830f71b204451ab14f4a3c7a07761",
+      "title": "Optics Basics",
+      "subject": "Physics",
+      "status": "PUBLISHED"
+    }
+  ],
+  "featured_topic": {
+    "title": "Newton Laws",
+    "subject": "Physics",
+    "toc": [
+      "First Law",
+      "Second Law"
+    ]
+  },
+  "topic_sessions": [
+    {
+      "title": "Force and Newton's laws of motion",
+      "subject": "Physics",
+      "mode": "TEACH",
+      "count": 5
+    },
+    {
+      "title": "Force and Newton's laws of motion",
+      "subject": "Physics",
+      "mode": "VIVA",
+      "count": 3
+    },
+    {
+      "title": "Newton Laws",
+      "subject": "Physics",
+      "mode": "DOUBT",
+      "count": 7
+    },
+    {
+      "title": "Newton Laws",
+      "subject": "Physics",
+      "mode": "TEACH",
+      "count": 17
+    },
+    {
+      "title": "Newton Laws",
+      "subject": "Physics",
+      "mode": "VIVA",
+      "count": 3
+    },
+    {
+      "title": "Optics Basics",
+      "subject": "Physics",
+      "mode": "DOUBT",
+      "count": 4
+    },
+    {
+      "title": "Optics Basics",
+      "subject": "Physics",
+      "mode": "TEACH",
+      "count": 3
+    },
+    {
+      "title": "Optics Basics",
+      "subject": "Physics",
+      "mode": "VIVA",
+      "count": 2
+    },
+    {
+      "title": "Trigonometry \u2014 Sin \u03b8 & Cos \u03b8",
+      "subject": "Mathematics",
+      "mode": "DOUBT",
+      "count": 1
+    },
+    {
+      "title": "Trigonometry \u2014 Sin \u03b8 & Cos \u03b8",
+      "subject": "Mathematics",
+      "mode": "TEACH",
+      "count": 3
+    }
+  ]
+}

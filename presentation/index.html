@@ -9,7 +9,7 @@
 <body>
   <div class="infinity-logo">Infinity Learn</div>
   <div class="progress" id="progress"></div>
-  <div class="slide-counter" id="counter">1 / 10</div>
+  <div class="slide-counter" id="counter">1 / 6</div>
 
   <div class="deck" id="deck">
 
@@ -19,7 +19,7 @@
         <div class="logo-mark">T</div>
         <h1>T.E.A.C.H.</h1>
         <p class="lead accent" style="font-size: clamp(1.25rem, 2.5vw, 1.75rem); color: var(--accent-bright); max-width: none;">
-          Learning shouldn't stop when class ends.
+          A concept gap filler — between every student and their teacher.
         </p>
         <p class="acronym">
           Teacherless Education through Autonomous Cognitive Heuristics
@@ -38,41 +38,87 @@
     </section>
 
     <!-- SLIDE 2: The Problem -->
-    <section class="slide" data-slide="2">
+    <section class="slide slide-problem" data-slide="2">
       <div class="slide-inner">
         <p class="eyebrow">The Problem</p>
-        <h2>When class ends,<br />learning often stops.</h2>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-icon">▶</div>
-            <h3>Recorded videos</h3>
-            <p>Watch once. Pause. Rewind. Still confused.</p>
+        <h2>Our teachers are exceptional.<br />But they can't be available every time, everywhere.</h2>
+        <p class="lead problem-lead">Batch size, class time, and student hesitation — gaps still grow after the bell rings.</p>
+        <div class="problem-layout">
+          <div class="meme-card student-journey meme-enter">
+            <div class="journey-step">
+              <span class="meme-label">In class</span>
+              <p class="meme-line" style="margin-top:0.35rem;">"I understood everything." <span class="meme-reaction">😎</span></p>
+            </div>
+            <div class="meme-arrow-down">↓</div>
+            <div class="journey-step">
+              <span class="meme-label">Later</span>
+              <p class="meme-line muted" style="margin-top:0.35rem;">Homework:</p>
+              <p class="meme-line">"Wait… what was Newton's Second Law?" <span class="meme-reaction">💀</span></p>
+            </div>
+            <div class="meme-arrow-down">↓</div>
+            <div class="journey-step">
+              <span class="meme-label">Student</span>
+              <p class="meme-line" style="margin-top:0.35rem;">"If I ask the teacher again… what will they think?"</p>
+            </div>
+            <div class="journey-step journey-meme">
+              <img src="giphy.gif" alt="Tumse na ho payega — meme reaction" class="meme-gif" />
+            </div>
+            <div class="meme-arrow-down">↓</div>
+            <div class="journey-step">
+              <div class="journey-highlight nova">
+                <span class="meme-label teal">Nova</span>
+                <p class="meme-line" style="margin-top:0.35rem;color:var(--accent-bright);">"Let's start from the basics."</p>
+              </div>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-icon">📝</div>
-            <h3>Static notes</h3>
-            <p>Information on a page — not understanding in the mind.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">💬</div>
-            <h3>Chat-based doubt solving</h3>
-            <p>Students get answers. They are rarely taught continuously.</p>
+          <div class="problem-cards-secondary">
+            <div class="card-grid">
+              <div class="card meme-enter-delay-1">
+                <div class="card-icon">👥</div>
+                <h3>Batch-level teaching</h3>
+                <p>Exceptional teachers still can't clear every doubt for every student in limited class time.</p>
+              </div>
+              <div class="card meme-enter-delay-2">
+                <div class="card-icon">🤐</div>
+                <h3>Student hesitation</h3>
+                <p>"If I go again and again… what will the teacher say? What will they think?"</p>
+              </div>
+              <div class="card meme-enter-delay-3">
+                <div class="card-icon">⏱</div>
+                <h3>Concept gaps linger</h3>
+                <p>If a student lags on one concept, there's rarely time to re-teach it for the whole batch.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 3: Vision -->
+    <!-- SLIDE 3: The Solution -->
     <section class="slide" data-slide="3">
       <div class="slide-inner split">
         <div>
-          <p class="eyebrow">Our Vision</p>
-          <h2>What if every student had a personal teacher — available anytime?</h2>
+          <p class="eyebrow">Our Solution</p>
+          <h2>A concept gap filler that bridges student and teacher.</h2>
           <p class="lead" style="margin-top: 1rem;">
-            T.E.A.C.H. transforms post-class learning into an interactive teaching experience with Nova — not another chat window.
+            Our teachers are exceptional — Nova doesn't replace them. When a student needs help after class, at home, or late at night, Nova acts as a bridge so no concept gap is left behind.
           </p>
+          <div class="bridge-flow meme-enter-delay-1">
+            <span class="bridge-node">Student</span>
+            <span class="bridge-arrow">↔</span>
+            <span class="bridge-node highlight">Nova · Gap Filler</span>
+            <span class="bridge-arrow">↔</span>
+            <span class="bridge-node">Teacher</span>
+          </div>
+          <p class="lead bridge-caption">Missed a formula? Lagging on a concept? Ask Nova — anytime, without judgment.</p>
         </div>
         <div class="visual-panel">
+          <div class="meme-card floating-dialogue meme-enter">
+            <div class="meme-line"><span class="speaker">Student</span> "Can you explain this?"</div>
+            <div class="meme-line"><span class="speaker nova">Nova</span> "Of course."</div>
+            <div class="meme-line"><span class="speaker">Student</span> "…again?"</div>
+            <div class="meme-line"><span class="speaker nova">Nova</span> "Of course."</div>
+          </div>
           <img
             class="nova-img"
             src="../teach-frontend/public/image-from-rawpixel-id-12165579-png.png"
@@ -83,195 +129,110 @@
             <div class="card" style="padding: 0.75rem;"><h3 style="font-size: 0.8rem;">Adapts</h3></div>
             <div class="card" style="padding: 0.75rem;"><h3 style="font-size: 0.8rem;">Teaches</h3></div>
             <div class="card" style="padding: 0.75rem;"><h3 style="font-size: 0.8rem;">Revises</h3></div>
-            <div class="card" style="padding: 0.75rem;"><h3 style="font-size: 0.8rem;">Whiteboard</h3></div>
-            <div class="card" style="padding: 0.75rem;"><h3 style="font-size: 0.8rem;">Voice</h3></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 4: How It Works -->
+    <!-- SLIDE 4: How It Helps -->
     <section class="slide" data-slide="4">
       <div class="slide-inner">
-        <p class="eyebrow">How T.E.A.C.H. Works</p>
-        <h2>From topic to teaching — in one flow.</h2>
-        <div class="flow">
-          <div class="flow-step"><div class="flow-node">Student picks a topic</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node highlight">Nova</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node">Teaching Engine · AWS Bedrock</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node">Lesson Intelligence · TOC-driven</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node">Interactive Whiteboard</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node">Voice Narration · Google TTS</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node">Conversation · Chat &amp; Speech</div></div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step"><div class="flow-node highlight">Adaptive preferences per student</div></div>
+        <p class="eyebrow">How It Helps</p>
+        <h2>Not just watching. Not just listening.<br />Learning with feedback.</h2>
+        <div class="modes-grid">
+          <div class="meme-card mode-card meme-enter">
+            <span class="meme-label teal">Teach Me</span>
+            <h3>Fill concept gaps</h3>
+            <p>Step-by-step whiteboard teaching for topics missed or misunderstood in class.</p>
+          </div>
+          <div class="meme-card mode-card meme-enter-delay-1">
+            <span class="meme-label">Ask a Doubt</span>
+            <h3>Quick clarifications</h3>
+            <p>"What was that formula from today's class?" — navigate back to what you need.</p>
+          </div>
+          <div class="meme-card mode-card meme-enter-delay-2">
+            <span class="meme-label amber">Voice Viva</span>
+            <h3>Check understanding <span class="meme-reaction">👀</span></h3>
+            <p>Light spoken viva — Nova asks questions so you know where you stand.</p>
+          </div>
+        </div>
+        <div class="live-catalog meme-enter-delay-2">
+          <div class="live-catalog-header">
+            <span class="meme-label teal">Live catalog · teach.db</span>
+            <span class="live-stats" id="live-stats"></span>
+          </div>
+          <div class="topic-pills" id="topic-pills"></div>
+        </div>
+        <div class="impact-row meme-enter-delay-2">
+          <div class="impact-item"><span class="feature-dot"></span>Learner progress tracking</div>
+          <div class="impact-item"><span class="feature-dot"></span>Higher engagement — active, not passive</div>
+          <div class="impact-item"><span class="feature-dot"></span>Summarisation potential <span class="impact-tag">roadmap</span></div>
+          <div class="impact-item"><span class="feature-dot"></span>Voice narration · whiteboard · adaptive pace</div>
+        </div>
+        <div class="meme-card flow-callout meme-enter-delay-3" style="margin-top:1rem;max-width:100%;">
+          <span class="meme-label">Student</span>
+          <p class="meme-line" style="margin-top:0.35rem;">"I just have <strong>ONE</strong> small doubt." → full teaching session. <span class="meme-reaction">🚀</span></p>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 5: Features -->
-    <section class="slide" data-slide="5">
+    <!-- SLIDE 5: Why It Works -->
+    <section class="slide slide-different" data-slide="5">
       <div class="slide-inner">
-        <p class="eyebrow">Product · Built &amp; Working</p>
-        <h2>Features that teach — not just respond.</h2>
-        <div class="feature-grid">
-          <div class="feature"><span class="feature-dot"></span>Interactive Whiteboard</div>
-          <div class="feature"><span class="feature-dot"></span>Natural Voice Narration</div>
-          <div class="feature"><span class="feature-dot"></span>Live Teaching Sessions</div>
-          <div class="feature"><span class="feature-dot"></span>Adaptive Learning Preferences</div>
-          <div class="feature"><span class="feature-dot"></span>Visual Slide Explanations</div>
-          <div class="feature"><span class="feature-dot"></span>Ask Doubts · Doubt Mode</div>
-          <div class="feature"><span class="feature-dot"></span>Lesson Continuation · TOC Progress</div>
-          <div class="feature"><span class="feature-dot"></span>Learning Progress Tracking</div>
-          <div class="feature"><span class="feature-dot"></span>Three Teaching Modes</div>
-          <div class="feature"><span class="feature-dot"></span>Context-Aware Conversations</div>
-          <div class="feature"><span class="feature-dot"></span>Voice Input · Speech-to-Text</div>
-          <div class="feature"><span class="feature-dot"></span>Voice Viva · Understanding Check</div>
+        <p class="eyebrow">Why It Works</p>
+        <h2>AI can answer. Nova teaches.</h2>
+        <div class="convo-showcase">
+          <div class="meme-card convo-panel traditional meme-enter">
+            <h4>Watch &amp; read alone</h4>
+            <div class="convo-bubble">
+              <div class="who">Student</div>
+              <p>"I'll rewatch the lecture."</p>
+            </div>
+            <div class="convo-bubble">
+              <div class="who">Student</div>
+              <p>"Still confused. I'll ask tomorrow."</p>
+            </div>
+            <p class="meme-reaction" style="margin-top:0.35rem;">💀</p>
+          </div>
+          <div class="meme-card convo-panel nova meme-enter-delay-1">
+            <h4>Nova · Gap Filler</h4>
+            <div class="convo-bubble">
+              <div class="who">Student</div>
+              <p id="nova-student-prompt">"I didn't get Newton's Second Law from class."</p>
+            </div>
+            <div class="convo-bubble">
+              <div class="who nova">Nova</div>
+              <p>"Let's forget the formula for a second.<br />Imagine you're sitting in a moving bus…"</p>
+            </div>
+            <div class="convo-bubble">
+              <div class="who nova">Nova</div>
+              <p id="nova-toc-prompt">"Now let's build the concept — First Law, then Second Law — and check with a viva."</p>
+            </div>
+          </div>
         </div>
+        <div class="tech-row" style="margin-top:1.25rem;">
+          <span class="tech-pill">React + Vite</span>
+          <span class="tech-pill">FastAPI</span>
+          <span class="tech-pill">AWS Bedrock · Claude</span>
+          <span class="tech-pill">Amazon Nova Sonic</span>
+          <span class="tech-pill">Google Cloud TTS</span>
+          <span class="tech-pill">Structured Prompts</span>
+        </div>
+        <p class="tech-caption meme-enter-delay-2" style="margin-top:0.75rem;" id="db-proof">Under the hood: serious engineering. Student sees: simple.</p>
       </div>
     </section>
 
-    <!-- SLIDE 6: Why Different -->
+    <!-- SLIDE 6: Closing -->
     <section class="slide" data-slide="6">
-      <div class="slide-inner">
-        <p class="eyebrow">Why This Feels Different</p>
-        <h2>From answering questions to creating understanding.</h2>
-        <div class="compare">
-          <div class="compare-col muted">
-            <h3>Traditional Assistant</h3>
-            <div class="compare-item">Answers questions</div>
-            <div class="compare-item">Text-only replies</div>
-            <div class="compare-item">Conversation ends</div>
-          </div>
-          <div class="compare-divider">→</div>
-          <div class="compare-col accent">
-            <h3>T.E.A.C.H. with Nova</h3>
-            <div class="compare-item">Teaches concepts step by step</div>
-            <div class="compare-item">Visual whiteboard + LaTeX</div>
-            <div class="compare-item">Voice narration with subtitles</div>
-            <div class="compare-item">Adapts to pace &amp; depth</div>
-            <div class="compare-item">Continuous learning session</div>
-            <div class="compare-item">Feels like a real teacher</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: Technology -->
-    <section class="slide" data-slide="7">
-      <div class="slide-inner split">
-        <div>
-          <p class="eyebrow">Technology</p>
-          <h2>Built to teach at scale.</h2>
-          <p class="lead">Structured prompt engineering on AWS Bedrock powers every teaching turn. The experience layer is React. The intelligence layer is FastAPI.</p>
-          <div class="tech-row">
-            <span class="tech-pill">React + Vite</span>
-            <span class="tech-pill">FastAPI</span>
-            <span class="tech-pill">AWS Bedrock · Claude</span>
-            <span class="tech-pill">Amazon Nova Sonic</span>
-            <span class="tech-pill">Google Cloud TTS</span>
-            <span class="tech-pill">Structured Prompts</span>
-            <span class="tech-pill">Session Management</span>
-            <span class="tech-pill">SQLite / Postgres</span>
-          </div>
-        </div>
-        <div class="visual-panel">
-          <img
-            class="nova-img"
-            src="../teach-frontend/public/image-from-rawpixel-id-12165579-png.png"
-            alt="Nova"
-            style="width: 100px;"
-          />
-          <div class="mock-board">
-            <strong>Current Topic · Slide 3/7</strong>
-            <div class="line"></div>
-            <div class="line short"></div>
-            <div class="line"></div>
-            <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.7rem;">Marker-style chalk animations · KaTeX math · Headings &amp; bullets</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 8: Live Demo -->
-    <section class="slide" data-slide="8">
-      <div class="slide-inner">
-        <p class="eyebrow">Live Demo · ~4 minutes</p>
-        <h2>Watch Nova teach — live.</h2>
-        <div class="demo-flow">
-          <span class="demo-step">Pick a topic</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Choose Teach / Doubt / Viva</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Nova prepares lesson</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Whiteboard explanation</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Voice narration</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Ask a doubt</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Visual answer</span>
-          <span class="demo-arrow">→</span>
-          <span class="demo-step">Continue learning</span>
-        </div>
-        <p class="lead" style="margin-top: 2rem; font-size: 1rem;">
-          Three modes: <strong style="color: var(--accent-bright);">Teach Me</strong> · <strong style="color: var(--accent-bright);">Ask a Doubt</strong> · <strong style="color: var(--accent-bright);">Check Understanding</strong>
-        </p>
-      </div>
-    </section>
-
-    <!-- SLIDE 9: Future -->
-    <section class="slide" data-slide="9">
-      <div class="slide-inner">
-        <p class="eyebrow">Future Work</p>
-        <h2>Where we go next.</h2>
-        <div class="future-grid">
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>Interactive whiteboard drawing · pen, eraser, undo</span>
-          </div>
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>Live bidirectional voice in Teach &amp; Doubt modes</span>
-          </div>
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>Teacher dashboard · class plan publishing</span>
-          </div>
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>AI-generated diagram assets on slides</span>
-          </div>
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>Memory across subjects &amp; sessions</span>
-          </div>
-          <div class="future-item">
-            <span class="future-tag">Future</span>
-            <span>Multilingual teaching · parent insights</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 10: Closing -->
-    <section class="slide" data-slide="10">
       <div class="slide-inner">
         <p class="eyebrow">T.E.A.C.H.</p>
         <p class="closing-quote">
-          We don't believe technology should replace teachers.<br />
-          We believe <em>every student deserves one.</em>
+          Our teachers are exceptional.<br />
+          We believe <em>every student deserves access to one — anytime.</em>
         </p>
         <p class="lead" style="margin-top: 2.5rem;">
-          Nova teaches. Students learn.<br />
-          Learning should never stop because the classroom did.
+          Nova fills the gaps when teachers can't be everywhere.<br />
+          Teachers stay at the centre. Learning never stops because the classroom did.
         </p>
       </div>
     </section>
@@ -295,6 +256,11 @@
       slides[current].classList.add('active');
       document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
       document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+      slides[current].querySelectorAll('.meme-enter, .meme-enter-delay-1, .meme-enter-delay-2, .meme-enter-delay-3').forEach(el => {
+        el.style.animation = 'none';
+        void el.offsetHeight;
+        el.style.animation = '';
+      });
     }
 
     document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
@@ -312,6 +278,35 @@
     });
 
     goTo(0);
+
+    /* Populate from teach.db export (presentation/demo-data.json) */
+    fetch('demo-data.json')
+      .then(r => r.json())
+      .then(data => {
+        const s = data.stats;
+        const statsEl = document.getElementById('live-stats');
+        if (statsEl) {
+          statsEl.textContent =
+            `${s.topics} topics · ${s.sessions} sessions · ${s.teach_sessions} teach · ${s.doubt_sessions} doubt · ${s.viva_sessions} viva`;
+        }
+        const pills = document.getElementById('topic-pills');
+        if (pills && data.topics) {
+          pills.innerHTML = data.topics.map(t =>
+            `<span class="topic-pill"><span class="topic-subject">${t.subject}</span>${t.title}</span>`
+          ).join('');
+        }
+        const dbProof = document.getElementById('db-proof');
+        if (dbProof && data.featured_topic) {
+          const ft = data.featured_topic;
+          const toc = ft.toc.length ? ft.toc.join(', ') : 'structured lessons';
+          dbProof.textContent =
+            `Built on teach.db — ${s.topics} published topics, ${s.sessions} real sessions. Demo: ${ft.title} (${toc}).`;
+        }
+      })
+      .catch(() => {
+        const statsEl = document.getElementById('live-stats');
+        if (statsEl) statsEl.textContent = 'Run: python3 scripts/export_presentation_data.py';
+      });
   </script>
 </body>
 </html>

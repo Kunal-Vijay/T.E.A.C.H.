@@ -1,6 +1,6 @@
 # T.E.A.C.H. Hackathon Presentation
 
-Premium 10-slide deck for the Infinity Learn hackathon (~8 minutes + ~4 min live demo).
+Premium 6-slide deck for the Infinity Learn hackathon (~5–6 minutes + live demo).
 
 ## Open the deck
 
@@ -23,24 +23,21 @@ Navigate with **→** / **←** or the on-screen buttons.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | 10-slide presentation |
-| `styles.css` | Premium dark theme (TEACH Midnight palette) |
+| `index.html` | 6-slide presentation |
+| `styles.css` | Premium light theme (Teal + Amber accents) |
+| `demo-data.json` | Exported from `teach.db` (topics + session stats) |
+| `giphy.gif` | "Tumse na ho payega" meme (slide 2) |
+| `TEACH-Hackathon.pptx` | PowerPoint export (all 6 slides) |
 | `SPEAKER_NOTES.md` | Full narration script (~40–60s per slide) |
 
-## Screenshots
+Refresh data and regenerate exports:
 
-For even richer slides, capture these from the running app (`npm run dev` + backend):
-
-1. Welcome page — Nova hero scene
-2. Topic catalog grid
-3. Topic Session Modal — mode picker
-4. Loading session screen
-5. Live classroom — whiteboard + Nova
-6. Viva report — score ring + rubric
-
-Drop images in `presentation/assets/` and swap into slide visual panels in `index.html`.
+```bash
+python3 scripts/export_presentation_data.py
+python3 scripts/export_presentation_pptx.py
+```
 
 ## Export to PowerPoint / PDF
 
+- **PPTX:** Open `presentation/TEACH-Hackathon.pptx` (regenerate with `python3 scripts/export_presentation_pptx.py`)
 - **PDF:** Print from browser (Cmd+P → Save as PDF, landscape)
-- **PPTX:** Import PDF into PowerPoint, or rebuild slides using `SPEAKER_NOTES.md` as copy source
