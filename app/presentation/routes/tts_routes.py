@@ -16,11 +16,6 @@ def synthesize_speech(
     request_dto: TtsRequestDTO,
     tts_service: TtsService = Depends(get_tts_service),
 ) -> Response:
-    """Synthesize speech from text using Google Cloud TTS.
-
-    The persona parameter selects the voice. Available personas can be
-    retrieved from GET /api/v1/tts/personas.
-    """
     try:
         audio_bytes = tts_service.synthesize_speech(
             request_dto.text,
@@ -34,11 +29,3 @@ def synthesize_speech(
         return Response(content=audio_bytes, media_type="audio/mpeg")
     except ValidationException as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-
-
-@router.get("/personas")
-def list_personas() -> list[dict[str, str]]:
-    """Return the available voice personas."""
-    from app.infrastructure.tts.voice_config import list_personas as _list
-
-    return _list()
