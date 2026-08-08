@@ -11,7 +11,7 @@ export default function WelcomeNav() {
             <TeachLogo showTagline={false} />
           </Link>
           <p className="app-nav-tagline">
-            Teacherless Education through Autonomous Cognitive Heuristics
+            Teacher Empowerment through Autonomous Cognitive Help
           </p>
         </div>
 
