@@ -6,9 +6,9 @@ import { useSpeech } from './useSpeech'
 
 const LIVE_SESSION_CHUNK_SIZE = 180
 
-/** Map tutor ID → ElevenLabs persona. Extend as more voices are added. */
+/** Map tutor ID → TTS persona. Extend as more voices are added. */
 function resolveTtsPersona(tutorId: string | undefined): string {
-  // Default to "male" (Albert). The backend's voice_config.py holds the mapping.
+  // Maps to persona IDs in the backend's voice_config.py (Google Cloud TTS).
   if (tutorId === 'nova') return 'female'
   return 'male'
 }

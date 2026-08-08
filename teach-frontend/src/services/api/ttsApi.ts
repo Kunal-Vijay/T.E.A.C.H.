@@ -16,10 +16,8 @@ export interface TtsPersona {
 
 export const ttsApi = {
   /**
-   * Synthesize speech from text via the backend proxy.
-   *
-   * When ElevenLabs is configured on the server, the persona determines which
-   * voice is used. The API key never reaches the browser.
+   * Synthesize speech from text via the backend proxy (Google Cloud TTS).
+   * The persona determines which voice is used.
    */
   synthesize: async (text: string, languageStyle?: string, persona?: string): Promise<Blob> => {
     const response = await apiClient.post<Blob>(
