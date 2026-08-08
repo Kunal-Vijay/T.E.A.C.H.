@@ -59,8 +59,7 @@ export default function WelcomePage() {
             </h1>
 
             <p className="welcome-lead">
-              T.E.A.C.H. is built around Nova — a teacher who narrates lessons, adapts to each
-              student, and answers doubts instantly. No lecture loop. No waiting.
+              Nova — an autonomous AI teaching assistant that takes on the repetitive load of teaching: delivering lessons, adapting explanations to each student, resolving doubts instantly and testing your understanding.
             </p>
 
             <ul className="welcome-pillars">

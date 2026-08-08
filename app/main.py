@@ -17,7 +17,7 @@ from app.presentation.routes.viva_voice_routes import router as viva_voice_route
 
 app = FastAPI(
     title="TEACH API",
-    description="Teacher Empowerment through Autonomous Cognitive Help",
+    description="Teaching Enhancement through Autonomous Cognitive Help",
     version="2.0.0",
 )
 app.add_middleware(

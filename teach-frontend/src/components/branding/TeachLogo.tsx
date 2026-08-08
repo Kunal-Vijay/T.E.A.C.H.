@@ -9,7 +9,7 @@ export default function TeachLogo({ size = 'medium', showTagline = true }: Teach
       <span className="teach-logo-mark">T.E.A.C.H</span>
       {showTagline ? (
         <span className="teach-logo-tagline">
-          Teacher Empowerment through Autonomous Cognitive Help
+          Teaching Enhancement through Autonomous Cognitive Help
         </span>
       ) : null}
     </div>

@@ -1,6 +1,6 @@
 # TEACH — AI Tutor Platform
 
-**Teacher Empowerment through Autonomous Cognitive Help**
+**Teaching Enhancement through Autonomous Cognitive Help**
 
 TEACH is an AI-powered classroom platform. Admins create and publish class plans, trigger Bedrock-based content generation (slides, workflow, pop quiz), and students attend live sessions with an AI teacher avatar, SAGE doubt resolution, and interactive workflow states.
 
